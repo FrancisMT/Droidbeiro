@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pt.up.fe.droidbeiro" >
 
+    <uses-sdk
+        android:minSdkVersion="11"
+        android:targetSdkVersion="19" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -10,6 +15,14 @@
         <activity
             android:name="pt.up.fe.droidbeiro.Presentation.Connection"
             android:label="@string/title_activity_connection" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="pt.up.fe.droidbeiro.Presentation.Login"
+            android:label="@string/title_activity_login" >
         </activity>
     </application>
 
