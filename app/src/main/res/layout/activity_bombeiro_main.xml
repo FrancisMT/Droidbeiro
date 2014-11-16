@@ -10,28 +10,34 @@
     android:orientation="vertical"
     tools:context="pt.up.fe.droidbeiro.Presentation.BombeiroMain">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:id="@+id/linearLayout"
-        android:weightSum="1"
-        android:layout_alignParentBottom="true">
 
-        <Button
-            android:id="@+id/btn_entrar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/bg_btn_join"
-            android:paddingLeft="25dp"
-            android:paddingRight="25dp"
-            android:text="Enviar"
-            android:textColor="@color/white"
-            android:layout_gravity="center_horizontal"
-            android:layout_alignBottom="@+id/linearLayout" />
-    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Mensagens"
+        android:id="@+id/textView2"
+        android:textSize="25dp"
+        android:layout_below="@+id/btn_modo_combate"
+        android:layout_centerHorizontal="true" />
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/lista_mensagens"
+        android:layout_gravity="center_horizontal"
+        android:fastScrollAlwaysVisible="true"
+        android:background="@color/body_background"
+        android:layout_alignParentEnd="true"
+        android:fastScrollStyle="@android:color/black"
+        android:cacheColorHint="#FFDAFF7F"
+        android:focusable="false"
+        android:fastScrollEnabled="true"
+        android:focusableInTouchMode="false"
+        android:choiceMode="singleChoice"
+        android:descendantFocusability="beforeDescendants"
+        android:listSelector="@android:color/darker_gray"
+        android:layout_below="@+id/textView2" />
 
     <Button
         android:layout_width="wrap_content"
@@ -41,41 +47,33 @@
         android:text="Modo Combate"
         android:id="@+id/btn_modo_combate"
         android:layout_gravity="center_horizontal"
-        android:layout_alignParentTop="true"
         android:textColor="@color/white"
-        android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/linearLayout"
-        android:textSize="25dp" />
+        android:textSize="25dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Mensagens"
-        android:id="@+id/textView2"
-        android:layout_below="@+id/btn_modo_combate"
-        android:layout_centerHorizontal="true"
-        android:textSize="25dp" />
-
-    <ScrollView
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="170dp"
-        android:id="@+id/scrollView"
-        android:fillViewport="true"
-        android:layout_above="@+id/textView2"></ScrollView>
-
-    <ListView
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/lista_mensagens"
-        android:layout_gravity="center_horizontal"
-        android:fastScrollAlwaysVisible="true"
+        android:id="@+id/msg_custom"
+        android:layout_toStartOf="@+id/btn_enviar_msg"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
         android:background="@color/body_background"
-        android:layout_above="@+id/linearLayout"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/textView2" />
+        android:hint="Mensagem Personalisada"
+        android:layout_alignTop="@+id/btn_enviar_msg" />
+
+    <Button
+        android:id="@+id/btn_enviar_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_btn_join"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:text="Enviar"
+        android:textColor="@color/white"
+        android:layout_gravity="right"
+        android:layout_alignBottom="@+id/lista_mensagens"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
