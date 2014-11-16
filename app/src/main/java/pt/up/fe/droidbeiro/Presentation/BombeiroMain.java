@@ -1,27 +1,25 @@
 package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+
 import pt.up.fe.droidbeiro.R;
 
 public class BombeiroMain extends Activity {
 
-    String[] mensagens =   {    "Need Support",
-                                "Need to Back Down",
-                                "Firetruck is in Trouble",
-                                "Need Aerial Support",
-                                "The Fire is Spreading",
-                                "We’re Leaving",
-                                "Fire Getting Close to House",
-                                "House Burned"
-                            };
+    // Initialize the array
+    String[] monthsArray = { "JAN", "FEB", "MAR", "APR", "MAY", "JUNE", "JULY", "AUG", "SEPT", "OCT", "NOV", "DEC" };
 
-    private ListView mensagens_lista;
+    // Declare the UI components
+    private ListView monthsListView;
+
+    private ArrayAdapter arrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +28,11 @@ public class BombeiroMain extends Activity {
 
         // Hiding the action bar
         getActionBar().hide();
+
+        monthsListView = (ListView) findViewById(R.id.lista_mensagens);
+        arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, monthsArray);
+        monthsListView.setAdapter(arrayAdapter);
+
 
 
 

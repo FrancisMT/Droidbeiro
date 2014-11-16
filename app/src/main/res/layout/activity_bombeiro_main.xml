@@ -18,8 +18,7 @@
         android:padding="20dp"
         android:id="@+id/linearLayout"
         android:weightSum="1"
-        android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/message_list">
+        android:layout_alignParentBottom="true">
 
         <Button
             android:id="@+id/btn_entrar"
@@ -45,27 +44,38 @@
         android:layout_alignParentTop="true"
         android:textColor="@color/white"
         android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/linearLayout" />
+        android:layout_alignEnd="@+id/linearLayout"
+        android:textSize="25dp" />
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:id="@+id/message_list"
-        android:fastScrollAlwaysVisible="true"
-        android:choiceMode="singleChoice"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/textView2"
-        android:layout_above="@+id/linearLayout" />
+
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Mensagens"
-        android:textColor="@color/white"
-        android:textSize="18sp"
         android:id="@+id/textView2"
-        android:layout_gravity="center_horizontal"
         android:layout_below="@+id/btn_modo_combate"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textSize="25dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="170dp"
+        android:id="@+id/scrollView"
+        android:fillViewport="true"
+        android:layout_above="@+id/textView2"></ScrollView>
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/lista_mensagens"
+        android:layout_gravity="center_horizontal"
+        android:fastScrollAlwaysVisible="true"
+        android:background="@color/body_background"
+        android:layout_above="@+id/linearLayout"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/textView2" />
 
 </RelativeLayout>
