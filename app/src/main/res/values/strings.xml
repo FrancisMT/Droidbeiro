@@ -6,5 +6,12 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_login">Login</string>
+    <string name="title_activity_chefe__main">Chefe_Main</string>
+    <string name="title_activity_chefe__fire_line">Chefe_FireLine</string>
+    <string name="title_activity_bombeiro__main">Bombeiro_Main</string>
+    <string name="title_activity_chefe_main">ChefeMain</string>
+    <string name="title_activity_bombeiro_main">BombeiroMain</string>
+    <string name="title_activity_chefe_lf">ChefeLF</string>
+    <string name="title_activity_bombeiro_mc">BombeiroMC</string>
 
 </resources>

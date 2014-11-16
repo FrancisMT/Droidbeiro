@@ -18,8 +18,8 @@ public class Connection extends Activity {
     private EditText ip_address_field;
     private EditText porta_field;
 
-    public static int SERVER_PORT;
-    public static String SERVER_IP;
+    private static int SERVER_PORT;
+    private static String SERVER_IP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

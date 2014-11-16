@@ -1,0 +1,71 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@color/actionbar"
+    android:orientation="vertical"
+    tools:context="pt.up.fe.droidbeiro.Presentation.BombeiroMain">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:id="@+id/linearLayout"
+        android:weightSum="1"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/message_list">
+
+        <Button
+            android:id="@+id/btn_entrar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/bg_btn_join"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:text="Enviar"
+            android:textColor="@color/white"
+            android:layout_gravity="center_horizontal"
+            android:layout_alignBottom="@+id/linearLayout" />
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="50dp"
+        android:background="@color/bg_btn_join"
+        android:text="Modo Combate"
+        android:id="@+id/btn_modo_combate"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:textColor="@color/white"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/linearLayout" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:id="@+id/message_list"
+        android:fastScrollAlwaysVisible="true"
+        android:choiceMode="singleChoice"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/textView2"
+        android:layout_above="@+id/linearLayout" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mensagens"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:id="@+id/textView2"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/btn_modo_combate"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
