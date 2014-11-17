@@ -21,9 +21,6 @@ public class BombeiroMC extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bombeiro_mc);
 
-        // Hiding the action bar
-        getActionBar().hide();
-
         btn_sair_modo_combate=(Button)findViewById(R.id.btn_modo_combate);
 
         btn_sair_modo_combate.setOnClickListener(new View.OnClickListener() {

@@ -41,10 +41,6 @@ public class ChefeLF extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chefe_lf);
 
-
-        // Hiding the action bar
-        getActionBar().hide();
-
         lista_distancias_layout = (ListView) findViewById(R.id.lista_dst);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, distancias);
         lista_distancias_layout.setAdapter(arrayAdapter);

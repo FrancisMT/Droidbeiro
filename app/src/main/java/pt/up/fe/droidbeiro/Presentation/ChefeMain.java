@@ -43,9 +43,6 @@ public class ChefeMain extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chefe_main);
 
-        // Hiding the action bar
-        getActionBar().hide();
-
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);
         lista_mensagens_layout.setAdapter(arrayAdapter);

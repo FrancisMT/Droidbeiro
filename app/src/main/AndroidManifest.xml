@@ -36,19 +36,19 @@
         </activity>
         <activity
             android:name="pt.up.fe.droidbeiro.Presentation.ChefeMain"
-            android:label="@string/title_activity_chefe_main" >
+            android:label="Chefe" >
         </activity>
         <activity
             android:name="pt.up.fe.droidbeiro.Presentation.BombeiroMain"
-            android:label="@string/title_activity_bombeiro_main" >
+            android:label="Bombeiro" >
         </activity>
         <activity
             android:name="pt.up.fe.droidbeiro.Presentation.ChefeLF"
-            android:label="@string/title_activity_chefe_lf" >
+            android:label="Linha de Fogo" >
         </activity>
         <activity
             android:name="pt.up.fe.droidbeiro.Presentation.BombeiroMC"
-            android:label="@string/title_activity_bombeiro_mc" >
+            android:label="Modo de Combate" >
         </activity>
     </application>
 
