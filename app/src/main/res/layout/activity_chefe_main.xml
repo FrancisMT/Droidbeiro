@@ -1,12 +1,79 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    xmlns:tools="http://schemas.android.com/tools"  xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@color/actionbar"
+    android:orientation="vertical"
     tools:context="pt.up.fe.droidbeiro.Presentation.ChefeMain">
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Mensagens"
+        android:id="@+id/textView2"
+        android:textSize="25dp"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/btn_enviar_msg"
+        android:layout_marginTop="139dp" />
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/lista_mensagens"
+        android:layout_gravity="center_horizontal"
+        android:fastScrollAlwaysVisible="true"
+        android:background="@color/body_background"
+        android:layout_alignParentEnd="true"
+        android:fastScrollStyle="@android:color/black"
+        android:cacheColorHint="#FFDAFF7F"
+        android:focusable="false"
+        android:fastScrollEnabled="true"
+        android:focusableInTouchMode="false"
+        android:choiceMode="singleChoice"
+        android:descendantFocusability="beforeDescendants"
+        android:listSelector="@android:color/darker_gray"
+        android:layout_below="@+id/textView2" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="50dp"
+        android:background="@color/bg_btn_join"
+        android:text="Linha de Fogo"
+        android:id="@+id/btn_linha_fogo"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textSize="25dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/msg_custom"
+        android:layout_toStartOf="@+id/btn_enviar_msg"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/body_background"
+        android:hint="Mensagem"
+        android:layout_alignTop="@+id/btn_enviar_msg" />
+
+    <Button
+        android:id="@+id/btn_enviar_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_btn_join"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:text="Enviar"
+        android:textColor="@color/white"
+        android:layout_gravity="right"
+        android:layout_alignBottom="@+id/lista_mensagens"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

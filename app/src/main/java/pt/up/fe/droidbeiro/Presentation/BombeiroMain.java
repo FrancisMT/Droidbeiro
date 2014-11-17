@@ -55,7 +55,7 @@ public class BombeiroMain extends Activity {
 
         custom_message=(EditText)findViewById(R.id.msg_custom);
         btn_enviar_msg = (Button)findViewById(R.id.btn_enviar_msg);
-        btn_modo_combate= (Button)findViewById(R.id.btn_sair_modo_combate);
+        btn_modo_combate= (Button)findViewById(R.id.btn_modo_combate);
 
         lista_mensagens_layout.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> a, View v, int position, long id) {//    if (!msg_type) {

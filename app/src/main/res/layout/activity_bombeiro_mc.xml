@@ -16,7 +16,7 @@
         android:padding="50dp"
         android:background="@color/bg_btn_join"
         android:text="Sair \n Modo \nCombate"
-        android:id="@+id/btn_sair_modo_combate"
+        android:id="@+id/btn_modo_combate"
         android:layout_gravity="center_horizontal"
         android:textColor="@color/white"
         android:textSize="40dp"
