@@ -51,7 +51,7 @@ public class ChefeMain extends Activity {
         lista_mensagens_layout.setAdapter(arrayAdapter);
 
         custom_message=(EditText)findViewById(R.id.msg_custom);
-        btn_enviar_msg = (Button)findViewById(R.id.btn_enviar_msg);
+        btn_enviar_msg = (Button)findViewById(R.id.btn_enviar_dst);
         btn_linha_fogo= (Button)findViewById(R.id.btn_linha_fogo);
 
         lista_mensagens_layout.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -13,7 +13,7 @@
     <ListView
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
-        android:id="@+id/lista_mensagens"
+        android:id="@+id/lista_dst"
         android:layout_gravity="center_horizontal"
         android:fastScrollAlwaysVisible="true"
         android:background="@color/body_background"
@@ -26,25 +26,28 @@
         android:descendantFocusability="beforeDescendants"
         android:listSelector="@android:color/darker_gray"
         android:layout_below="@+id/textView3"
-        android:layout_above="@+id/msg_custom"
-        android:layout_alignEnd="@+id/btn_enviar_msg"
-        android:layout_alignStart="@+id/btn_enviar_msg" />
+        android:layout_alignEnd="@+id/btn_enviar_dst"
+        android:layout_alignStart="@+id/btn_enviar_dst"
+        android:layout_above="@+id/dst_custom" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/msg_custom"
+        android:id="@+id/dst_custom"
         android:singleLine="true"
-        android:layout_toStartOf="@+id/btn_enviar_msg"
+        android:layout_toStartOf="@+id/btn_enviar_dst"
         android:background="@color/body_background"
-        android:hint="Mensagem"
-        android:layout_above="@+id/btn_enviar_msg"
-        android:layout_alignStart="@+id/lista_mensagens"
-        android:layout_marginBottom="51dp"
-        android:layout_alignEnd="@+id/lista_mensagens" />
+        android:hint="metros"
+        android:padding="15dp"
+        android:textSize="15dp"
+        android:inputType="number"
+        android:layout_above="@+id/btn_enviar_dst"
+        android:layout_alignStart="@+id/lista_dst"
+        android:layout_marginBottom="45dp"
+        android:layout_alignEnd="@+id/lista_dst" />
 
     <Button
-        android:id="@+id/btn_enviar_msg"
+        android:id="@+id/btn_enviar_dst"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/bg_btn_join"
@@ -60,7 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Distância"
+        android:text="\nDistância\n"
         android:id="@+id/textView3"
         android:textSize="30dp"
         android:layout_centerHorizontal="true"
