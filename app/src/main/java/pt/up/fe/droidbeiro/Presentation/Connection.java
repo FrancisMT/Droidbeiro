@@ -1,6 +1,8 @@
 package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -41,7 +43,6 @@ public class Connection extends Activity {
                     SERVER_IP=ip_address_field.getText().toString().trim();
                     SERVER_PORT= Integer.parseInt(porta_field.getText().toString());
 
-
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);
 
@@ -52,6 +53,24 @@ public class Connection extends Activity {
             }
         });
     }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_lock_power_off).setTitle("Sair")
+                .setMessage("Tem a certeza?")
+                .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        Intent intent = new Intent(Intent.ACTION_MAIN);
+                        intent.addCategory(Intent.CATEGORY_HOME);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                }).setNegativeButton("Não", null).show();
+    }
+
 
 
     @Override

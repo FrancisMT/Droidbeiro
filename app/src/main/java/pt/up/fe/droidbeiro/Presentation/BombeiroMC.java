@@ -42,6 +42,7 @@ public class BombeiroMC extends Activity {
                         //Start NewActivity.class
                         Intent myIntent = new Intent(BombeiroMC.this,
                                 BombeiroMain.class);
+                        myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(myIntent);
                     }
                 });
@@ -62,6 +63,10 @@ public class BombeiroMC extends Activity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        //Bombeiro apenas pode sair deste menu através do botão desennhado para o efeito
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
