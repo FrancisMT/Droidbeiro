@@ -165,16 +165,22 @@ public class BombeiroMain extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.login:
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                Intent login_Intent= new Intent(BombeiroMain.this, Login.class);
+                login_Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(login_Intent);
+
+                return true;
+            case R.id.connection:
+                Intent connection_Intent= new Intent(BombeiroMain.this, Connection.class);
+                connection_Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(connection_Intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }

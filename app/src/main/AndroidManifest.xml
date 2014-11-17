@@ -36,7 +36,7 @@
         </activity>
         <activity
             android:name="pt.up.fe.droidbeiro.Presentation.ChefeMain"
-            android:label="Chefe" >
+            android:label="Chefe de Equipa" >
         </activity>
         <activity
             android:name="pt.up.fe.droidbeiro.Presentation.BombeiroMain"
