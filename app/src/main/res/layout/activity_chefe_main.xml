@@ -61,7 +61,7 @@
         android:layout_toStartOf="@+id/btn_enviar_dst"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:background="@color/body_background"
+        android:background="@color/body_background_green"
         android:hint="Mensagem"
         android:layout_alignTop="@+id/btn_enviar_dst" />
 
