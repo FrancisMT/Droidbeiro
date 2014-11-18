@@ -72,6 +72,8 @@ public class ChefeLF extends Activity {
                     //Setting Positive "Sim" Button
                     alertDialog.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            //string GPS_DATA=getGPS();
+                            //envia_msg(GPS_DATA);
                             //envia a mensagem para o centro de controlo
                             custom_dst.setText("");
                         }
