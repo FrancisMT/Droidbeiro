@@ -15,10 +15,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Service.Acelarometro;
 import pt.up.fe.droidbeiro.Service.GPS;
 
 public class BombeiroMain extends Activity {
@@ -41,13 +43,16 @@ public class BombeiroMain extends Activity {
     private Button btn_modo_combate;
     private String mensagem;
     private EditText custom_message;
+    Acelarometro acelarometro;
+    GPS appLocationManager;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bombeiro_main);
-        GPS appLocationManager = new GPS(BombeiroMain.this);
+        appLocationManager = new GPS(this);
+        //acelarometro = new Acelarometro(this);
 
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
@@ -142,6 +147,10 @@ public class BombeiroMain extends Activity {
 
     }
 
+    public void onResume(){
+        super.onResume();
+        acelarometro = new Acelarometro(this);
+    }
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_lock_power_off).setTitle("Sair")
@@ -186,5 +195,13 @@ public class BombeiroMain extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+
+
+    public void finish() {
+
+        acelarometro.stop();
+        super.finish();
     }
 }
