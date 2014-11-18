@@ -40,7 +40,6 @@ public class Acelarometro implements SensorEventListener {
         gravity0 = 0f;
         gravity1 = 0f;
         gravity2 = 0f;
-
         mSensorManager = (SensorManager)context.getSystemService(context.SENSOR_SERVICE);
         acelarometro = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, acelarometro, SensorManager.SENSOR_DELAY_UI);
