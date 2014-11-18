@@ -2,6 +2,7 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Service.GPS;
 
 public class BombeiroMain extends Activity {
 
@@ -45,6 +47,8 @@ public class BombeiroMain extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bombeiro_main);
+        GPS appLocationManager = new GPS(BombeiroMain.this);
+
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);

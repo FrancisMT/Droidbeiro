@@ -15,12 +15,15 @@ public class GPS {
     public double longitude;
     public double latitude;
 
-    public void create(Context context) {
+    public GPS (Context context) {
         lManager = (LocationManager) context
                 .getSystemService(Context.LOCATION_SERVICE);
         LocationListener lListener = new LocationListener() {
 
-            public void onLocationChanged(Location locat) {}
+            public void onLocationChanged(Location locat) {
+                longitude = (double) (locat.getLongitude());
+                latitude = (double) (locat.getLatitude());
+            }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
             }
