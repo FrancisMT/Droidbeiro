@@ -2,9 +2,11 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,18 +14,28 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+
+import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.R;
-import pt.up.fe.droidbeiro.Communication.ClientSocket;
+//import pt.up.fe.droidbeiro.Communication.Client_Connection;
 
 public class Connection extends Activity {
 
     private Button btn_ligar;
     private EditText ip_address_field;
     private EditText porta_field;
-    ClientSocket cs=null;
 
     private static int SERVER_PORT;
     private static String SERVER_IP;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +44,11 @@ public class Connection extends Activity {
 
         // Hiding the action bar
         getActionBar().hide();
+
+
+        //Binding the activity to the service to perform client-server operations
+        startService(new Intent(Connection.this,Client_Socket.class));
+        //start service on create
 
         btn_ligar = (Button)findViewById(R.id.btn_ligar);
         ip_address_field = (EditText)findViewById(R.id.ip_address_field);
@@ -44,11 +61,6 @@ public class Connection extends Activity {
 
                     SERVER_IP=ip_address_field.getText().toString().trim();
                     SERVER_PORT= Integer.parseInt(porta_field.getText().toString());
-
-                    cs = new ClientSocket();
-                    cs.setSERVER_IP(SERVER_IP);
-                    cs.setSERVER_PORT(SERVER_PORT);
-                    cs.start();
 
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);
@@ -100,5 +112,34 @@ public class Connection extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void new_Client_Config_file(String SERVER_IP, int SERVER_PORT) throws IOException {
+
+        String nameOfFile = "Client_Config.txt";
+        String file_content = SERVER_IP + ">" + Integer.toString(SERVER_PORT);
+
+        try {
+            File newFolder = new File(Environment.getExternalStorageDirectory(), "Droidbeiro_config");
+            if (!newFolder.exists()) {
+                newFolder.mkdir();
+            }
+            try {
+                File file = new File(newFolder, nameOfFile);
+                file.createNewFile();
+            } catch (Exception ex) {
+                System.out.println("Cannot open folder " + ex);
+            }
+        } catch (Exception e) {
+            System.out.println("e: " + e);
+        }
+
+        FileOutputStream fosAppend;
+
+        fosAppend = openFileOutput(nameOfFile, Context.MODE_APPEND);
+        fosAppend.write(Integer.parseInt(file_content));
+        fosAppend.flush();
+        fosAppend.close();
+
     }
 }
