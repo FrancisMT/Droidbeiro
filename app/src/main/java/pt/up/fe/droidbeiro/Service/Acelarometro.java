@@ -20,6 +20,7 @@ import pt.up.fe.droidbeiro.Presentation.BombeiroMain;
 /**
  * Created by Edgar on 18/11/2014.
  */
+
 public class Acelarometro implements SensorEventListener {
     private SensorManager mSensorManager;
     Sensor acelarometro;
