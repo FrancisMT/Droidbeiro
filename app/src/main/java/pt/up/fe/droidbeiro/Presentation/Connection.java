@@ -13,12 +13,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Communication.ClientSocket;
 
 public class Connection extends Activity {
 
     private Button btn_ligar;
     private EditText ip_address_field;
     private EditText porta_field;
+    ClientSocket cs=null;
 
     private static int SERVER_PORT;
     private static String SERVER_IP;
@@ -42,6 +44,11 @@ public class Connection extends Activity {
 
                     SERVER_IP=ip_address_field.getText().toString().trim();
                     SERVER_PORT= Integer.parseInt(porta_field.getText().toString());
+
+                    cs = new ClientSocket();
+                    cs.setSERVER_IP(SERVER_IP);
+                    cs.setSERVER_PORT(SERVER_PORT);
+                    cs.start();
 
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);
