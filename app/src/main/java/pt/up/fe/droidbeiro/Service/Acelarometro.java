@@ -9,13 +9,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.CountDownTimer;
-import android.view.ContextMenu;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import pt.up.fe.droidbeiro.Presentation.BombeiroMain;
 
 /**
  * Created by Edgar on 18/11/2014.
