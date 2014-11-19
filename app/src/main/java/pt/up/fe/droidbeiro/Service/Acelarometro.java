@@ -34,10 +34,11 @@ public class Acelarometro implements SensorEventListener {
         gravity0 = 0f;
         gravity1 = 0f;
         gravity2 = 0f;
+
         mSensorManager = (SensorManager)context.getSystemService(context.SENSOR_SERVICE);
         acelarometro = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, acelarometro, SensorManager.SENSOR_DELAY_UI);
-        timer = new CounterClass(60000, 100);
+        timer = new CounterClass(5000, 100);
         ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         r = RingtoneManager.getRingtone(context.getApplicationContext(), ring);
 
@@ -46,36 +47,41 @@ public class Acelarometro implements SensorEventListener {
 
     public void onSensorChanged(SensorEvent event) {
 
-        accelerometer = event.values;
 
-        float kFilteringFactor = 0.6f;
+            accelerometer = event.values;
 
-        gravity0 = (accelerometer[0] * kFilteringFactor) + (gravity0 * (1.0f - kFilteringFactor));
-        gravity1 = (accelerometer[1] * kFilteringFactor) + (gravity1 * (1.0f - kFilteringFactor));
-        gravity2 = (accelerometer[2] * kFilteringFactor) + (gravity2 * (1.0f - kFilteringFactor));
+            float kFilteringFactor = 0.6f;
 
-        linear0 = (accelerometer[0] - gravity0);
-        linear1 = (accelerometer[1] - gravity1);
-        linear2 = (accelerometer[2] - gravity2);
+            gravity0 = (accelerometer[0] * kFilteringFactor) + (gravity0 * (1.0f - kFilteringFactor));
+            gravity1 = (accelerometer[1] * kFilteringFactor) + (gravity1 * (1.0f - kFilteringFactor));
+            gravity2 = (accelerometer[2] * kFilteringFactor) + (gravity2 * (1.0f - kFilteringFactor));
 
-        float magnitude = 0.0f;
-        magnitude = (float) Math.sqrt(linear0 * linear0 + linear1 * linear1 + linear2 * linear2);
-        magnitude = Math.abs(magnitude);
-        if (magnitude > 0.2) {
-            contador = 0;
-            r.stop();
+            linear0 = (accelerometer[0] - gravity0);
+            linear1 = (accelerometer[1] - gravity1);
+            linear2 = (accelerometer[2] - gravity2);
 
-        } else {
-            if (contador == 0) {
-                timer.start();
-                contador++;
+            float magnitude = 0.0f;
+            magnitude = (float) Math.sqrt(linear0 * linear0 + linear1 * linear1 + linear2 * linear2);
+            magnitude = Math.abs(magnitude);
+            if (magnitude > 0.2) {
+                contador = 0;
+                r.stop();
+
             } else {
-                contador++;
+                if (contador == 0) {
+                    timer.start();
+                    contador++;
+                } else {
+                    contador++;
+                }
+
             }
+
 
         }
 
-    }
+
+
     public class CounterClass extends CountDownTimer {
 
         public CounterClass(long millisInFuture, long countDownInterval) {

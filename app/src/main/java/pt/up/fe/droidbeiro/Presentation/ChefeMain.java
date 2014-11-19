@@ -16,6 +16,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Service.Acelarometro;
+import pt.up.fe.droidbeiro.Service.Bussola;
 import pt.up.fe.droidbeiro.Service.GPS;
 
 public class ChefeMain extends Activity {
@@ -39,11 +41,13 @@ public class ChefeMain extends Activity {
     private String mensagem;
     private EditText custom_message;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chefe_main);
         new GPS(this);
+        new Bussola(this);
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);
@@ -153,4 +157,5 @@ public class ChefeMain extends Activity {
                 return super.onOptionsItemSelected(item);
             }
         }
+
     }

@@ -16,6 +16,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Service.Acelarometro;
+import pt.up.fe.droidbeiro.Service.Bussola;
 import pt.up.fe.droidbeiro.Service.GPS;
 
 public class ChefeLF extends Activity {
@@ -72,9 +74,11 @@ public class ChefeLF extends Activity {
 
 
                     GPS gps = new GPS();
-                    String Latitude = gps.getLatitude();
+                    Bussola ace = new Bussola();
+                    String direccao =ace.get();
+
                    // String Longitude = gps. getLongitude();
-                    Toast.makeText(getApplicationContext(), Latitude, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), direccao, Toast.LENGTH_LONG).show();
 
 
                     //Setting Positive "Sim" Button
@@ -139,4 +143,6 @@ public class ChefeLF extends Activity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
 }

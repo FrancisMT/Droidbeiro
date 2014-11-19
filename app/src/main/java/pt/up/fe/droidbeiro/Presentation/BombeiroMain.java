@@ -52,7 +52,7 @@ public class BombeiroMain extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bombeiro_main);
         new GPS(this);
-        //acelarometro = new Acelarometro(this);
+        acelarometro = new Acelarometro(this);
 
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
