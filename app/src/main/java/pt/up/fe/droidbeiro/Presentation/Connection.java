@@ -13,12 +13,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Communication.ClientSocket;
 
 public class Connection extends Activity {
 
     private Button btn_ligar;
     private EditText ip_address_field;
     private EditText porta_field;
+    ClientSocket cs=null;
 
     private static int SERVER_PORT;
     private static String SERVER_IP;
@@ -30,6 +32,9 @@ public class Connection extends Activity {
 
         // Hiding the action bar
         getActionBar().hide();
+
+        cs = new ClientSocket();
+        cs.start();
 
         btn_ligar = (Button)findViewById(R.id.btn_ligar);
         ip_address_field = (EditText)findViewById(R.id.ip_address_field);
