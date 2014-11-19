@@ -10,7 +10,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.CountDownTimer;
 
-
 /**
  * Created by Edgar on 18/11/2014.
  */
