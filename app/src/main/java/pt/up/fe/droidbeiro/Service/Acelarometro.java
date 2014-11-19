@@ -40,8 +40,6 @@ public class Acelarometro implements SensorEventListener {
         timer = new CounterClass(60000, 100);
         ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         r = RingtoneManager.getRingtone(context.getApplicationContext(), ring);
-
-
     }
 
     public void onSensorChanged(SensorEvent event) {

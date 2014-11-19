@@ -2,9 +2,13 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.R;
 
 public class Login extends Activity {
@@ -23,6 +28,41 @@ public class Login extends Activity {
     private static String username;
     private static String password;
 
+    Client_Socket CS = null;
+    boolean CSisBound;
+
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(Login.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
+
+    private void doUnbindService() {
+        if (CSisBound) {
+            // Detach our existing connection.
+            unbindService(mConnection);
+            CSisBound = false;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +70,8 @@ public class Login extends Activity {
 
         // Hiding the action bar
         getActionBar().hide();
+
+        doBindService();
 
         btn_entrar = (Button)findViewById(R.id.btn_entrar);
         username_field = (EditText)findViewById(R.id.username);
@@ -43,6 +85,8 @@ public class Login extends Activity {
                     username=username_field.getText().toString().trim();
                     password=password_field.getText().toString().trim();
 
+                    CS.sendMessage("login screen");
+
                     //Used to test
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(Login.this);
                     //Setting Dialog Title
@@ -55,7 +99,6 @@ public class Login extends Activity {
                         public void onClick(DialogInterface dialog,int which) {
 
                             // Write your code here to invoke SIM event
-
                             //Start NewActivity.class
                             Intent myIntent = new Intent(Login.this,
                                     ChefeMain.class);
@@ -122,5 +165,11 @@ public class Login extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
     }
 }
