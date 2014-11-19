@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Service.GPS;
 
 public class ChefeLF extends Activity {
 
@@ -68,6 +69,13 @@ public class ChefeLF extends Activity {
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(ChefeLF.this);
                     alertDialog.setTitle("Enviar distância ?");
                     alertDialog.setMessage(distancia);
+
+
+                    GPS gps = new GPS();
+                    String Latitude = gps.getLatitude();
+                   // String Longitude = gps. getLongitude();
+                    Toast.makeText(getApplicationContext(), Latitude, Toast.LENGTH_LONG).show();
+
 
                     //Setting Positive "Sim" Button
                     alertDialog.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {

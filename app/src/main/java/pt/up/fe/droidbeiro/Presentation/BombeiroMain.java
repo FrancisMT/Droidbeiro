@@ -51,7 +51,7 @@ public class BombeiroMain extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bombeiro_main);
-        appLocationManager = new GPS(this);
+        new GPS(this);
         //acelarometro = new Acelarometro(this);
 
 
