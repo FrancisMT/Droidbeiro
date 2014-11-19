@@ -33,9 +33,6 @@ public class Connection extends Activity {
         // Hiding the action bar
         getActionBar().hide();
 
-        cs = new ClientSocket();
-        cs.start();
-
         btn_ligar = (Button)findViewById(R.id.btn_ligar);
         ip_address_field = (EditText)findViewById(R.id.ip_address_field);
         porta_field = (EditText)findViewById(R.id.porta_field);
@@ -47,6 +44,11 @@ public class Connection extends Activity {
 
                     SERVER_IP=ip_address_field.getText().toString().trim();
                     SERVER_PORT= Integer.parseInt(porta_field.getText().toString());
+
+                    cs = new ClientSocket();
+                    cs.setSERVER_IP(SERVER_IP);
+                    cs.setSERVER_PORT(SERVER_PORT);
+                    cs.start();
 
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);

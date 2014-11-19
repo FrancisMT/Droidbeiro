@@ -16,8 +16,8 @@ public class ClientSocket extends Thread{
 
     private int isSocketAlive = 0;
 
-    private static final String SERVER_IP = "172.30.45.224";
-    private static final int SERVER_PORT = 80;
+    private static String SERVER_IP;// = "172.30.45.224";
+    private static int SERVER_PORT;// = 80;
     private static final int SERVER_TIMEOUT = 1000;
 
     private boolean dataToSend = false;
@@ -70,6 +70,14 @@ public class ClientSocket extends Thread{
             e1.printStackTrace();
             this.isSocketAlive=2;
         }
+    }
+
+    public void setSERVER_IP(String ip_address){
+        this.SERVER_IP=ip_address;
+    }
+
+    public void setSERVER_PORT(int port_number){
+        this.SERVER_PORT=port_number;
     }
 
     public void send(String s){
