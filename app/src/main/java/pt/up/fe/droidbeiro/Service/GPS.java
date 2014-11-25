@@ -52,25 +52,25 @@ public class GPS {
 
 
 
-    public String getLatitude() {
+    public Double getLatitude() {
         Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if(location != null) {
             latitude = location.getLatitude();
-            return Double.toString(latitude);
+            return latitude;
         }
         else
-            return Double.toString(0);
+            return 0d;
     }
 
-    public String getLongitude()
+    public Double getLongitude()
     {
         Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     if(location != null) {
         longitude = location.getLongitude();
-        return Double.toString(longitude);
+        return longitude;
     }
     else
-            return Double.toString(0);
+            return 0d;
 }
 
 }
