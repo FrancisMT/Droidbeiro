@@ -41,7 +41,6 @@ public class ChefeMain extends Activity {
     private String mensagem;
     private EditText custom_message;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
