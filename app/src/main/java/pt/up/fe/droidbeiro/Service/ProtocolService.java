@@ -217,6 +217,7 @@ public class ProtocolService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return protocol_response;
     }
 
