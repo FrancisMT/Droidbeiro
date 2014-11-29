@@ -28,7 +28,7 @@ public class Client_Socket extends Service {
     /**
      * Designação do ficheiro de configuracao do cliente
      */
-    final static private String Client_Config = "Client_Config.txt";
+    //final static private String Client_Config = "Client_Config.txt";
 
     private Socket cSocket = null;
     private PrintWriter out = null;
@@ -36,8 +36,8 @@ public class Client_Socket extends Service {
 
     private int isSocketAlive = 0;
 
-    private static String SERVER_IP= "172.30.57.86";
-    private static int SERVER_PORT = 4055;
+    private static String SERVER_IP= "192.168.1.65";
+    private static int SERVER_PORT = 4200;
     private static final int SERVER_TIMEOUT = 1000;
 
     private boolean dataToSend = false;
@@ -76,11 +76,11 @@ public class Client_Socket extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        try {
+        /*try {
             read_client_config_data();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         super.onStartCommand(intent, flags, startId);
         System.out.println("I am in on start");
