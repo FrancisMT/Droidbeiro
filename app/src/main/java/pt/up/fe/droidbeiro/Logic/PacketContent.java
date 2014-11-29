@@ -1,4 +1,4 @@
-package pt.up.fe.droidbeiro.Communication;
+package pt.up.fe.droidbeiro.Logic;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

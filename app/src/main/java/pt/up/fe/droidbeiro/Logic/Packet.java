@@ -1,4 +1,4 @@
-package pt.up.fe.droidbeiro.Communication;
+package pt.up.fe.droidbeiro.Logic;
 
 /**
  * Created by Francisco on 29/11/2014.
