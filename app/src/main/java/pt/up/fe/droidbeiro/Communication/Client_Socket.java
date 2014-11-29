@@ -109,6 +109,7 @@ public class Client_Socket extends Service {
 
                 try {
                     //send the message to the server
+                    
                     out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(cSocket.getOutputStream())), true);
                     Log.e("TCP Client", "C: Sent.");
                     Log.e("TCP Client", "C: Done.");
