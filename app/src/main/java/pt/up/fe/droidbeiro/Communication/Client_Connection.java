@@ -6,7 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
-import pt.up.fe.droidbeiro.protocolapi.*;
+import pt.up.fe.droidbeiro.Protocol_API.*;
 
 /**
  * Created by Francisco on 19/11/2014.
