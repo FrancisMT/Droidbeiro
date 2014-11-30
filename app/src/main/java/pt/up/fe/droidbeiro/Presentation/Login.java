@@ -16,7 +16,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Logic.Packet;
 import pt.up.fe.droidbeiro.R;
 
 public class Login extends Activity {
@@ -86,7 +89,17 @@ public class Login extends Activity {
                     username=username_field.getText().toString().trim();
                     password=password_field.getText().toString().trim();
 
-                    CS.sendMessage("login screen");
+                    byte[] pck_content = "Hello".getBytes();
+                    Packet pck = new Packet(false,pck_content);
+
+                    /*
+                    try {
+                        CS.sendMessage(pck);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    */
+
 
                     //Used to test
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(Login.this);

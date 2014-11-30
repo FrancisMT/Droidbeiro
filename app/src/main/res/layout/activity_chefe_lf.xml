@@ -10,7 +10,7 @@
     android:orientation="vertical"
     tools:context="pt.up.fe.droidbeiro.Presentation.ChefeLF">
 
-<<<<<<< HEAD
+<!--<<<<<<< HEAD-->
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,27 +31,20 @@
             android:id="@+id/seta"
             android:src="@drawable/ic_launcher"
             android:layout_below="@+id/bussola"/>
-    </RelativeLayout>
+    </RelativeLayout><![CDATA[
 
 
 =======
-    <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/seta"
-        android:src="@drawable/ic_launcher"
-        android:layout_centerVertical="true"
-        android:layout_alignParentStart="true"
-        android:layout_gravity="center_horizontal|top" />
->>>>>>> FETCH_HEAD
+    >>>>>>> FETCH_HEAD
+
+    ]]>
 
     <TextView
     android:id="@+id/tvHeading"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginBottom="40dp"
-    android:layout_marginTop="20dp"
-    android:text="Heading: 0.0" />
+    android:layout_marginTop="20dp" />
 
     <TextView
         android:layout_width="wrap_content"

@@ -187,7 +187,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
         ra.setFillAfter(true);
         image.startAnimation(ra);
         currentDegree = -degree;
-        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
+        //tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
 
 
     }

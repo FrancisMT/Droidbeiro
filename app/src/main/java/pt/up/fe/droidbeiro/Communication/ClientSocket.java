@@ -1,35 +1,23 @@
 package pt.up.fe.droidbeiro.Communication;
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 
 import pt.up.fe.droidbeiro.Logic.Packet;
 
-public class Client_Socket extends Service {
+public class ClientSocket extends Service {
 
     /**
      * Designação do ficheiro de configuracao do cliente
@@ -37,8 +25,6 @@ public class Client_Socket extends Service {
     //final static private String Client_Config = "Client_Config.txt";
 
     private Socket cSocket = null;
-    //private PrintWriter out = null;
-    //private BufferedReader in = null;
     private ObjectOutputStream out = null;
     private ObjectInputStream in = null;
 
@@ -71,9 +57,9 @@ public class Client_Socket extends Service {
     }
 
     public class LocalBinder extends Binder {
-        public Client_Socket getService() {
+        public ClientSocket getService() {
             System.out.println("I am in Localbinder ");
-            return Client_Socket.this;
+            return ClientSocket.this;
         }
     }
 
@@ -103,27 +89,18 @@ public class Client_Socket extends Service {
         return START_STICKY;
     }
 
-   /* public void sendMessage(String message) {
-        if (out != null && !out.checkError()) {
-            System.out.println("in sendMessage" + message);
-            out.println(message);
-            out.flush();
+    public void sendMessage(Packet packet_to_send) {
+
+        try {
+            out.writeObject(packet_to_send);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }*/
-
-    public void sendMessage(Packet packet_to_send) throws IOException {
-
-        out.writeObject(packet_to_send);
-    }
-
-    /*public void sendMessage() throws IOException {
-         out.writeObject("Hi");
-    }*/
-
-    public void getMessage() throws IOException, ClassNotFoundException {
-
-        String message = (String) in.readObject();
-        System.out.println("Message: " + message);
+        /*
+        if (out != null) {
+            System.out.println("in sendMessage: " + Arrays.toString(packet_to_send.packetContent));
+            out.writeObject(packet_to_send);
+        }*/
     }
 
     class connectSocket implements Runnable {
@@ -137,14 +114,8 @@ public class Client_Socket extends Service {
 
                 try {
                     //send the message to the server
-                    
-                   // out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(cSocket.getOutputStream())), true);
-                    out = new ObjectOutputStream(cSocket.getOutputStream());
-                    //out.writeObject("Hi");
-                    in = new ObjectInputStream(cSocket.getInputStream());
-                    //String message = (String) in.readObject();
-                    //System.out.println("Message: " + message);
 
+                    out = new ObjectOutputStream(cSocket.getOutputStream());
                     Log.e("TCP Client", "C: Sent.");
                     Log.e("TCP Client", "C: Done.");
                 } catch (Exception e) {

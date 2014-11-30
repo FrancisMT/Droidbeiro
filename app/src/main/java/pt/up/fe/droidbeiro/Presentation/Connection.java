@@ -2,11 +2,14 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,19 +17,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 
-//import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Logic.Packet;
 import pt.up.fe.droidbeiro.R;
-//import pt.up.fe.droidbeiro.Communication.Client_Connection;
 
 public class Connection extends Activity {
 
@@ -36,6 +33,41 @@ public class Connection extends Activity {
 
     private static String SERVER_PORT;
     private static String SERVER_IP;
+
+    Client_Socket CS = null;
+    boolean CSisBound;
+
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(Connection.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
+
+    private void doUnbindService() {
+        if (CSisBound) {
+            // Detach our existing connection.
+            unbindService(mConnection);
+            CSisBound = false;
+        }
+    }
 
 
     @Override
@@ -53,15 +85,17 @@ public class Connection extends Activity {
         btn_ligar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if ((ip_address_field.getText().toString().trim().length() > 0) && (porta_field.getText().toString().trim().length() > 0)){
+                if ((ip_address_field.getText().toString().trim().length() > 0) && (porta_field.getText().toString().trim().length() > 0)) {
 
-                    SERVER_IP=ip_address_field.getText().toString().trim();
-                    SERVER_PORT= porta_field.getText().toString();
+                    SERVER_IP = ip_address_field.getText().toString().trim();
+                    SERVER_PORT = porta_field.getText().toString();
 
                     Intent Connection = new Intent(Connection.this, Client_Socket.class);
-                    Connection.putExtra("IP",SERVER_IP);
-                    Connection.putExtra("PORT",SERVER_PORT);
+                    Connection.putExtra("IP", SERVER_IP);
+                    Connection.putExtra("PORT", SERVER_PORT);
                     startService(Connection);
+                    doBindService();
+                    /********************************/
 
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);
@@ -113,34 +147,5 @@ public class Connection extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void new_Client_Config_file(String SERVER_IP, int SERVER_PORT) throws IOException {
-
-        String nameOfFile = "Client_Config.txt";
-        String file_content = SERVER_IP + ">" + Integer.toString(SERVER_PORT);
-
-        try {
-            File newFolder = new File(Environment.getExternalStorageDirectory(), "Droidbeiro_config");
-            if (!newFolder.exists()) {
-                newFolder.mkdir();
-            }
-            try {
-                File file = new File(newFolder, nameOfFile);
-                file.createNewFile();
-            } catch (Exception ex) {
-                System.out.println("Cannot open folder " + ex);
-            }
-        } catch (Exception e) {
-            System.out.println("e: " + e);
-        }
-
-        FileOutputStream fosAppend;
-
-        fosAppend = openFileOutput(nameOfFile, Context.MODE_APPEND);
-        fosAppend.write(Integer.parseInt(file_content));
-        fosAppend.flush();
-        fosAppend.close();
-
     }
 }
