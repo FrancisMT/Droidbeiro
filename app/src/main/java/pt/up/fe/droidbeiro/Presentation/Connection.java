@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
+//import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.R;
 //import pt.up.fe.droidbeiro.Communication.Client_Connection;
@@ -33,7 +34,7 @@ public class Connection extends Activity {
     private EditText ip_address_field;
     private EditText porta_field;
 
-    private static int SERVER_PORT;
+    private static String SERVER_PORT;
     private static String SERVER_IP;
 
 
@@ -45,11 +46,6 @@ public class Connection extends Activity {
         // Hiding the action bar
         getActionBar().hide();
 
-
-        //Binding the activity to the service to perform client-server operations
-        startService(new Intent(Connection.this,Client_Socket.class));
-        //start service on create
-
         btn_ligar = (Button)findViewById(R.id.btn_ligar);
         ip_address_field = (EditText)findViewById(R.id.ip_address_field);
         porta_field = (EditText)findViewById(R.id.porta_field);
@@ -60,7 +56,12 @@ public class Connection extends Activity {
                 if ((ip_address_field.getText().toString().trim().length() > 0) && (porta_field.getText().toString().trim().length() > 0)){
 
                     SERVER_IP=ip_address_field.getText().toString().trim();
-                    SERVER_PORT= Integer.parseInt(porta_field.getText().toString());
+                    SERVER_PORT= porta_field.getText().toString();
+
+                    Intent Connection = new Intent(Connection.this, Client_Socket.class);
+                    Connection.putExtra("IP",SERVER_IP);
+                    Connection.putExtra("PORT",SERVER_PORT);
+                    startService(Connection);
 
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);

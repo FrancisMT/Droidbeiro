@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
@@ -36,8 +37,8 @@ public class Client_Socket extends Service {
 
     private int isSocketAlive = 0;
 
-    private static String SERVER_IP= "192.168.1.65";
-    private static int SERVER_PORT = 4200;
+    private static String SERVER_IP;//= "192.168.1.65";
+    private static int SERVER_PORT;// = 4200;
     private static final int SERVER_TIMEOUT = 1000;
 
     private boolean dataToSend = false;
@@ -48,6 +49,11 @@ public class Client_Socket extends Service {
     private InetAddress serverAddr;
 
     private final IBinder myBinder = new LocalBinder();
+
+    public void setSERVER_config(String IP, int PORT){
+        this.SERVER_IP=IP;
+        this.SERVER_PORT=PORT;
+    }
 
 
     @Override
@@ -81,6 +87,11 @@ public class Client_Socket extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }*/
+
+        Bundle extras = intent.getExtras();
+
+        this.SERVER_IP= (String) extras.get("IP");
+        this.SERVER_PORT= Integer.parseInt((String) extras.get("PORT"));
 
         super.onStartCommand(intent, flags, startId);
         System.out.println("I am in on start");
@@ -133,12 +144,6 @@ public class Client_Socket extends Service {
         }
         cSocket = null;
     }
-
-    public void setSERVER_config(String ip_address, int port_number) {
-        this.SERVER_IP = ip_address;
-        this.SERVER_PORT = port_number;
-    }
-
 
     /**
      * Obtenção da informação necessária à configuração do cliente:

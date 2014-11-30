@@ -71,6 +71,7 @@ public class Login extends Activity {
         // Hiding the action bar
         getActionBar().hide();
 
+        //start service on create
         doBindService();
 
         btn_entrar = (Button)findViewById(R.id.btn_entrar);

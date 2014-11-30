@@ -16,4 +16,8 @@ public class Packet {
         this.hasProtocolHeader=hasPTCHeader;
         this.packetContent=pktContent;
     }
+
+    public boolean getHasProtocolHeader(){
+        return this.hasProtocolHeader;
+    }
 }
