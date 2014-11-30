@@ -60,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:background="@color/bg_btn_join"
+            android:background="@drawable/btnok"
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
             android:text="Entrar"

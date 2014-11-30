@@ -10,16 +10,19 @@
     android:orientation="vertical"
     tools:context="pt.up.fe.droidbeiro.Presentation.ChefeMain">
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Mensagens"
-        android:id="@+id/textView2"
-        android:textSize="25dp"
+        android:background="@drawable/btnred"
+        android:text="Linha&#10;de Fogo"
+        android:id="@+id/btn_linha_fogo"
         android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/btn_enviar_dst"
-        android:layout_marginTop="139dp" />
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textSize="20dp" />
+
+
 
     <ListView
         android:layout_width="fill_parent"
@@ -37,21 +40,10 @@
         android:choiceMode="singleChoice"
         android:descendantFocusability="beforeDescendants"
         android:listSelector="@android:color/darker_gray"
-        android:layout_below="@+id/textView2" />
+        android:layout_below="@+id/btn_linha_fogo"
+        android:layout_marginTop="10dp"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="50dp"
-        android:background="@color/bg_btn_join"
-        android:text="Linha de Fogo"
-        android:id="@+id/btn_linha_fogo"
-        android:layout_gravity="center_horizontal"
-        android:textColor="@color/white"
-        android:textSize="25dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/lista_mensagens" />
+
 
     <EditText
         android:layout_width="match_parent"
@@ -61,7 +53,7 @@
         android:layout_toStartOf="@+id/btn_enviar_dst"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:background="@color/body_background_green"
+        android:background="#CFF0FF"
         android:hint="Mensagem"
         android:layout_alignTop="@+id/btn_enviar_dst" />
 
@@ -69,7 +61,7 @@
         android:id="@+id/btn_enviar_dst"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/bg_btn_join"
+        android:background="#5A747F"
         android:paddingLeft="25dp"
         android:paddingRight="25dp"
         android:text="Enviar"

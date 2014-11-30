@@ -10,27 +10,50 @@
     android:orientation="vertical"
     tools:context="pt.up.fe.droidbeiro.Presentation.ChefeLF">
 
-    <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/seta"
-        android:src="@drawable/seta"
-        android:layout_centerVertical="true"
-        android:layout_alignParentStart="true"
-        android:layout_gravity="center_horizontal|top" />
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|right"
+        android:background="@drawable/btnok"
+        android:layout_alignParentRight="true"
+        android:padding="15dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bússola"
+            android:id="@+id/bussola"/>
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/seta"
+            android:src="@drawable/ic_launcher"
+            android:layout_below="@+id/bussola"/>
+    </RelativeLayout>
+
+
 
     <TextView
     android:id="@+id/tvHeading"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_centerHorizontal="true"
     android:layout_marginBottom="40dp"
     android:layout_marginTop="20dp"
     android:text="Heading: 0.0" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="\nDistância\n"
+        android:id="@+id/textView3"
+        android:textSize="30dp"
+        android:layout_alignParentTop="true" />
+
 
     <ListView
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/lista_dst"
         android:layout_gravity="center_horizontal"
@@ -45,8 +68,6 @@
         android:descendantFocusability="beforeDescendants"
         android:listSelector="@android:color/darker_gray"
         android:layout_below="@+id/textView3"
-        android:layout_alignEnd="@+id/btn_enviar_dst"
-        android:layout_alignStart="@+id/btn_enviar_dst"
         android:layout_above="@+id/dst_custom" />
 
     <EditText
@@ -67,26 +88,18 @@
 
     <Button
         android:id="@+id/btn_enviar_dst"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/bg_btn_join"
+        android:background="@drawable/btnok"
         android:paddingLeft="25dp"
         android:paddingRight="25dp"
         android:text="Enviar"
         android:textColor="@color/white"
         android:layout_gravity="right"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentStart="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="\nDistância\n"
-        android:id="@+id/textView3"
-        android:textSize="30dp"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true" />
+
 
 
 </RelativeLayout>

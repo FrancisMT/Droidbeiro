@@ -12,18 +12,20 @@
     tools:context="pt.up.fe.droidbeiro.Presentation.BombeiroMain">
 
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Mensagens"
-        android:id="@+id/textView2"
-        android:textSize="25dp"
-        android:layout_below="@+id/btn_modo_combate"
-        android:layout_centerHorizontal="true" />
+        android:background="@drawable/btnred"
+        android:text="Modo&#10;Combate"
+        android:id="@+id/btn_modo_combate"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textSize="20dp" />
 
     <ListView
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/lista_mensagens"
         android:layout_gravity="center_horizontal"
@@ -38,21 +40,10 @@
         android:choiceMode="singleChoice"
         android:descendantFocusability="beforeDescendants"
         android:listSelector="@android:color/darker_gray"
-        android:layout_below="@+id/textView2" />
+        android:layout_below="@+id/btn_modo_combate"
+        android:layout_marginTop="10dp"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="50dp"
-        android:background="@color/bg_btn_join"
-        android:text="Modo Combate"
-        android:id="@+id/btn_modo_combate"
-        android:layout_gravity="center_horizontal"
-        android:textColor="@color/white"
-        android:textSize="25dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/lista_mensagens" />
+
 
     <EditText
         android:layout_width="match_parent"
@@ -70,7 +61,7 @@
         android:id="@+id/btn_enviar_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/bg_btn_join"
+        android:background="#5A747F"
         android:paddingLeft="25dp"
         android:paddingRight="25dp"
         android:text="Enviar"
