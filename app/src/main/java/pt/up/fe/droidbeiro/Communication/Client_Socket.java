@@ -111,14 +111,22 @@ public class Client_Socket extends Service {
         }
     }*/
 
-    public void sendMessage(Packet packet_to_send) throws IOException {
+   /* public void sendMessage(Packet packet_to_send) throws IOException {
 
         out.writeObject(packet_to_send);
-    }
-
-    /*public void sendMessage() throws IOException {
-         out.writeObject("Hi");
+        out.flush();
     }*/
+
+    /**
+     * Justo to test writeObjet
+     * @param message_to_send
+     * @throws IOException
+     */
+    public void sendMessage(String message_to_send) throws IOException {
+
+        out.writeObject(message_to_send);
+        out.flush();
+    }
 
     public void getMessage() throws IOException, ClassNotFoundException {
 

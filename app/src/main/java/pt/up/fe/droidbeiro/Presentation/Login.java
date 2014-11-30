@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
@@ -89,17 +90,34 @@ public class Login extends Activity {
                     username=username_field.getText().toString().trim();
                     password=password_field.getText().toString().trim();
 
-                    byte[] pck_content = "Hello".getBytes();
+                    /****************************************************************/
+                    /*ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    outputStream.write(0x00);
+                    outputStream.write(0x01);
+                    try {
+                        outputStream.write("Hello".getBytes());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    byte[] pck_content = outputStream.toByteArray();
+
                     Packet pck = new Packet(false,pck_content);
 
-                    /*
                     try {
                         CS.sendMessage(pck);
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }
-                    */
+                    }*/
 
+                    /**
+                     * Just to test the connection
+                     */
+                    try {
+                        CS.sendMessage("Hello");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    /****************************************************************/
 
                     //Used to test
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(Login.this);

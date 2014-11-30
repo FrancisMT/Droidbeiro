@@ -21,17 +21,6 @@ public class Packet {
         this.packetContent=pktContent;
     }
 
-    public Packet(boolean hasPTCHeader, byte msg_type, byte ff_id, byte[] message) throws IOException {
-        this.hasProtocolHeader=hasPTCHeader;
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.write(msg_type);
-        outputStream.write(ff_id);
-        outputStream.write(message);
-
-        this.packetContent=outputStream.toByteArray();
-    }
-
     public boolean getHasProtocolHeader(){
         return this.hasProtocolHeader;
     }
