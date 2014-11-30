@@ -1,4 +1,4 @@
-package pt.up.fe.droidbeiro.protocolapi;
+package pt.up.fe.droidbeiro.Protocol_API;
 
 
 import java.io.Serializable;
@@ -10,8 +10,8 @@ import java.io.Serializable;
 
 /*These class must be Serializable!*/
 public class rspns implements Serializable {
-    public final byte id;
 
+    public final byte id;       //identification character of the response
 
     public rspns(byte id){
         this.id = id;
