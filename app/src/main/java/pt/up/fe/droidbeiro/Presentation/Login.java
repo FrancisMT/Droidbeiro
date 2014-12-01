@@ -82,6 +82,7 @@ public class Login extends Activity {
         username_field = (EditText)findViewById(R.id.username);
         password_field = (EditText)findViewById(R.id.password);
 
+
         btn_entrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -112,11 +113,23 @@ public class Login extends Activity {
                     /**
                      * Just to test the connection
                      */
+
                     try {
                         CS.sendMessage("Hello");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
+
+
+
+                  /*  try {
+                        CS.getMessage();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }*/
                     /****************************************************************/
 
                     //Used to test

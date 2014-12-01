@@ -24,8 +24,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import pt.up.fe.droidbeiro.Logic.Packet;
 
@@ -130,8 +132,30 @@ public class Client_Socket extends Service {
 
     public void getMessage() throws IOException, ClassNotFoundException {
 
+        //String message = (String) in.readObject();
+
+        /**
+         * Notice: in.readObject() will block if no data return
+         */
+
+
         String message = (String) in.readObject();
-        System.out.println("Message: " + message);
+
+        System.out.println(message);
+
+
+    }
+
+    public void send(String s){
+        this.dataSend = s;
+        this.dataToSend = true;
+    }
+
+    public String read(){
+        if(dataToRead)
+            return dataRead;
+        else
+            return null;
     }
 
     class connectSocket implements Runnable {
@@ -143,13 +167,50 @@ public class Client_Socket extends Service {
                 //create a socket to make the connection with the server
                 cSocket = new Socket(serverAddr, SERVER_PORT);
 
-                try {
+                if (cSocket.isConnected()) {
+                    ServerAlive = true;
+
+                    out = new ObjectOutputStream(cSocket.getOutputStream());
+                    in = new ObjectInputStream(cSocket.getInputStream());
+
+                    while (isServerAlive()) {
+
+                        if (dataToSend) {
+
+                            out.writeObject(dataSend);
+                            dataToSend = false;
+                            while ((dataRead = (String) in.readObject()) == null) {
+                            }
+                            dataToRead = true;
+                        }
+                    }
+                    out.close();
+                    in.close();
+                    cSocket.close();
+                } else {
+                    ServerAlive = false;
+                    Log.w("CLientSocket", "SOCKET IS NOT CONNECTED::::" + isSocketAlive);
+                    throw new UnknownHostException();
+                }
+
+            } catch (StreamCorruptedException e1) {
+                e1.printStackTrace();
+            } catch (UnknownHostException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            } catch (ClassNotFoundException e1) {
+                e1.printStackTrace();
+            }
+
+                /*try {
                     //send the message to the server
                     
                    // out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(cSocket.getOutputStream())), true);
                     out = new ObjectOutputStream(cSocket.getOutputStream());
-                    //out.writeObject("Hi");
                     in = new ObjectInputStream(cSocket.getInputStream());
+
+                    //out.writeObject("Hi");
                     //String message = (String) in.readObject();
                     //System.out.println("Message: " + message);
 
@@ -160,7 +221,7 @@ public class Client_Socket extends Service {
                 }
             } catch (Exception e) {
                 Log.e("TCP", "C: Error", e);
-            }
+            }*/
         }
     }
 
