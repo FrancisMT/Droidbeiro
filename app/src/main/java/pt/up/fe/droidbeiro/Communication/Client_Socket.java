@@ -179,7 +179,8 @@ public class Client_Socket extends Service {
 
                             out.writeObject(dataSend);
                             dataToSend = false;
-                            while ((dataRead = (String) in.readObject()) == null) {
+                            while ((dataRead = (String) in.readObject()) == null)
+                            {
                             }
                             dataToRead = true;
                         }

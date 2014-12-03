@@ -92,6 +92,7 @@ public class Login extends Activity {
                     password=password_field.getText().toString().trim();
 
                     /****************************************************************/
+
                     /*ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     outputStream.write(0x00);
                     outputStream.write(0x01);
@@ -109,16 +110,17 @@ public class Login extends Activity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }*/
-
                     /**
                      * Just to test the connection
                      */
 
-                    try {
+                    /*try {
                         CS.sendMessage("Hello");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
+                    CS.send("New Hello");*/
 
 
 

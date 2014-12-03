@@ -94,7 +94,7 @@ public class Connection extends Activity {
                     Connection.putExtra("IP", SERVER_IP);
                     Connection.putExtra("PORT", SERVER_PORT);
                     startService(Connection);
-                    doBindService();
+                    //doBindService();
 
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);
