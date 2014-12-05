@@ -38,7 +38,7 @@ public class Acelarometro implements SensorEventListener {
         mSensorManager = (SensorManager)context.getSystemService(context.SENSOR_SERVICE);
         acelarometro = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, acelarometro, SensorManager.SENSOR_DELAY_UI);
-        timer = new CounterClass(5000, 100);
+        timer = new CounterClass(900000000, 100);
         ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         r = RingtoneManager.getRingtone(context.getApplicationContext(), ring);
     }
