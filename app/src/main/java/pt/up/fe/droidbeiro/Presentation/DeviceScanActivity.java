@@ -63,7 +63,7 @@ import pt.up.fe.droidbeiro.Service.BLE.DeviceControlService;
  *                     String hearRate stores the data received by the broadcaster.
  *
  *      private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
-@Override
+ @Override
 public void onReceive(Context context, Intent intent) {
 final String action = intent.getAction();
 
