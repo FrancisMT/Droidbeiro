@@ -71,6 +71,12 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+        <service
+            android:name="pt.up.fe.droidbeiro.Service.GPS"
+            android:enabled="true"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            </service>
     </application>
 
 </manifest>

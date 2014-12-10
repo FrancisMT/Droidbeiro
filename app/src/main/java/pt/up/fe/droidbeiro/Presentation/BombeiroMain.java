@@ -2,10 +2,15 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,8 +19,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 
@@ -24,6 +27,46 @@ import pt.up.fe.droidbeiro.Service.Acelarometro;
 import pt.up.fe.droidbeiro.Service.GPS;
 
 public class BombeiroMain extends Activity {
+
+    public GPS gps;
+    boolean isBound;
+
+
+    private ServiceConnection Connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            GPS.LocalBinder binder = (GPS.LocalBinder) service;
+            gps = binder.getService();
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            gps = null;
+        }
+    };
+
+    private void doBindService() {
+
+      Intent i = new Intent(BombeiroMain.this, GPS.class);
+      bindService(i, Connection, Context.BIND_AUTO_CREATE);
+      //gps.getLatitude();
+
+
+
+
+
+
+    }
+
+    private void doUnbindService() {
+        if (isBound) {
+            // Detach our existing connection.
+            unbindService(Connection);
+            isBound = false;
+        }
+    }
 
     // Initialize the array
     String[] messages = {   "Preciso de ajuda",
@@ -46,13 +89,12 @@ public class BombeiroMain extends Activity {
     Acelarometro acelarometro;
     GPS appLocationManager;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bombeiro_main);
-        new GPS(this);
-        acelarometro = new Acelarometro(this);
+        doBindService();
+       // acelarometro = new Acelarometro(this);
 
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);

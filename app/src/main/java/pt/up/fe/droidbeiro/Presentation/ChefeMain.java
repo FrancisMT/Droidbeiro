@@ -45,7 +45,7 @@ public class ChefeMain extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chefe_main);
-        new GPS(this);
+        //new GPS(this);
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);
