@@ -2,8 +2,11 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -54,11 +57,33 @@ public class ChefeLF extends Activity implements SensorEventListener {
                             "905","910","915","920","925","930","935","940","945","950","955","960","965","970","975","980","985","990","995","1000"
                         };
 
+
     private ListView lista_distancias_layout;
     private ArrayAdapter arrayAdapter;
     private Button btn_enviar_dst;
     private String distancia;
     private EditText custom_dst;
+    private double latitude;
+    private double longitude;
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateUI(intent);
+        }
+    };
+
+    public void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver, new IntentFilter(GPS.BROADCAST_ACTION));
+    }
+
+    private void updateUI(Intent intent) {
+        latitude = Double.parseDouble(intent.getStringExtra("LAT"));
+        longitude = Double.parseDouble(intent.getStringExtra("LONG"));
+
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +129,6 @@ public class ChefeLF extends Activity implements SensorEventListener {
                     alertDialog.setTitle("Enviar distância ?");
                     alertDialog.setMessage(distancia);
 
-
-                    GPS gps = new GPS();
-
                     int dist;
                     double distlat, distlon, finalLat, finalLon;
 
@@ -114,11 +136,11 @@ public class ChefeLF extends Activity implements SensorEventListener {
                     distlat= dist*Math.cos(currentDegree);
                     distlon= dist*Math.sin(currentDegree);
 
-                    finalLat = gps.getLatitude() + 180/Math.PI*(distlat/6378137);
-                    finalLon = gps.getLongitude() + 180/Math.PI*(distlon/(638137*Math.cos(Math.PI/180*gps.latitude)));
+                    finalLat = latitude + 180/Math.PI*(distlat/6378137);
+                    finalLon = longitude + 180/Math.PI*(distlon/(638137*Math.cos(Math.PI/180*latitude)));
 
                     // String Longitude = gps. getLongitude();
-                    //Toast.makeText(getApplicationContext(), Double.toString(finalLat), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), Double.toString(finalLat), Toast.LENGTH_LONG).show();
 
 
                     //Setting Positive "Sim" Button

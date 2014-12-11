@@ -9,43 +9,46 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.widget.Toast;
+import android.os.Looper;
+import android.util.Log;
 
+import java.util.Date;
+import android.os.Handler;
+import android.widget.Toast;
 
 
 /**
  * Created by Edgar on 18/11/2014.
  */
 public class GPS extends Service {
+    public static final String BROADCAST_ACTION = "com.example.GPS.CONTROL_SERVICE_CONNECTED";
+    public static final String LAT = "com.example.GPS.LAT";
+    public static final String LONG = "com.example.GPS.LONG";
     public static LocationManager lManager;
-    public static double longitude;
-    public static double latitude;
-    private final IBinder myBinder = new LocalBinder();
+    public double longitude;
+    public double latitude;
+    private final Handler handler = new Handler();
+    Intent intent;
 
     public IBinder onBind(Intent intent) {
-        return myBinder;
+        return null;
     }
 
-    public class LocalBinder extends Binder {
-        public GPS getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return GPS.this;
-        }
+    public void onStart(Intent intent, int startId) {
+        handler.removeCallbacks(sendUpdatesToUI);
+        handler.postDelayed(sendUpdatesToUI, 1000);
     }
 
-    public void IsBoundable() {
-        Toast.makeText(this, "I bind like butter", Toast.LENGTH_LONG).show();
-    }
-
-
-    public void onStartCommand(){
+    public void onCreate() {
+        super.onCreate();
+        intent = new Intent(BROADCAST_ACTION);
         lManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        Toast.makeText(getApplicationContext(), "Por favor introduza o par IP/Porta", Toast.LENGTH_LONG).show();
         LocationListener lListener = new LocationListener() {
 
             public void onLocationChanged(Location locat) {
-               longitude = (double) (locat.getLongitude());
-               latitude = (double) (locat.getLatitude());
+                longitude = (double) (locat.getLongitude());
+                latitude = (double) (locat.getLatitude());
+                broadcastUpdate(BROADCAST_ACTION);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -56,28 +59,33 @@ public class GPS extends Service {
 
             public void onProviderDisabled(String provider) {
             }
-         };
-     }
 
-    public Double getLatitude() {
+        };
+        broadcastUpdate(BROADCAST_ACTION);
+    }
+
+    private Runnable sendUpdatesToUI = new Runnable() {
+
+        public void run() {
+            broadcastUpdate(BROADCAST_ACTION);
+            handler.postDelayed(this, 5000);
+            // 0.5 seconds
+        }
+    };
+
+    private void broadcastUpdate(final String action) {
+        final Intent intent = new Intent(action);
         Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if(location != null) {
-            latitude = location.getLatitude();
-            return latitude;
+            longitude = location.getLongitude();
+            latitude=location.getLatitude();
         }
-        else
-            return 0d;
+        String lat = Double.toString(latitude);
+        String lon = Double.toString(longitude);
+        intent.putExtra("LAT", lat);
+        intent.putExtra("LONG",lon);
+        sendBroadcast(intent);
     }
 
-    public Double getLongitude()
-    {
-        Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-    if(location != null) {
-        longitude = location.getLongitude();
-        return longitude;
-    }
-    else
-            return 0d;
-}
 
 }

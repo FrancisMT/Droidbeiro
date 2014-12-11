@@ -28,45 +28,6 @@ import pt.up.fe.droidbeiro.Service.GPS;
 
 public class BombeiroMain extends Activity {
 
-    public GPS gps;
-    boolean isBound;
-
-
-    private ServiceConnection Connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            GPS.LocalBinder binder = (GPS.LocalBinder) service;
-            gps = binder.getService();
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            // TODO Auto-generated method stub
-            gps = null;
-        }
-    };
-
-    private void doBindService() {
-
-      Intent i = new Intent(BombeiroMain.this, GPS.class);
-      bindService(i, Connection, Context.BIND_AUTO_CREATE);
-      //gps.getLatitude();
-
-
-
-
-
-
-    }
-
-    private void doUnbindService() {
-        if (isBound) {
-            // Detach our existing connection.
-            unbindService(Connection);
-            isBound = false;
-        }
-    }
 
     // Initialize the array
     String[] messages = {   "Preciso de ajuda",
@@ -92,8 +53,11 @@ public class BombeiroMain extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_bombeiro_main);
-        doBindService();
+        final Intent intentService = new Intent(this, GPS.class);
+
+
        // acelarometro = new Acelarometro(this);
 
 
