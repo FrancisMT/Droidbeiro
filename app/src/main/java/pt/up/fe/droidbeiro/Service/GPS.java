@@ -22,12 +22,20 @@ import android.widget.Toast;
  */
 public class GPS extends Service {
     public static final String BROADCAST_ACTION = "com.example.GPS.CONTROL_SERVICE_CONNECTED";
+    private Runnable sendUpdatesToUI = new Runnable() {
+
+        public void run() {
+            broadcastUpdate(BROADCAST_ACTION);
+            handler.postDelayed(this, 500);
+            // 0.5 seconds
+        }
+    };
     public static final String LAT = "com.example.GPS.LAT";
     public static final String LONG = "com.example.GPS.LONG";
     public static LocationManager lManager;
+    private final Handler handler = new Handler();
     public double longitude;
     public double latitude;
-    private final Handler handler = new Handler();
     Intent intent;
 
     public IBinder onBind(Intent intent) {
@@ -36,7 +44,7 @@ public class GPS extends Service {
 
     public void onStart(Intent intent, int startId) {
         handler.removeCallbacks(sendUpdatesToUI);
-        handler.postDelayed(sendUpdatesToUI, 1000);
+        handler.postDelayed(sendUpdatesToUI, 500);
     }
 
     public void onCreate() {
@@ -63,15 +71,6 @@ public class GPS extends Service {
         };
         broadcastUpdate(BROADCAST_ACTION);
     }
-
-    private Runnable sendUpdatesToUI = new Runnable() {
-
-        public void run() {
-            broadcastUpdate(BROADCAST_ACTION);
-            handler.postDelayed(this, 5000);
-            // 0.5 seconds
-        }
-    };
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);

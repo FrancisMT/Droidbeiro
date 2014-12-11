@@ -33,6 +33,7 @@ import pt.up.fe.droidbeiro.R;
 
 import java.util.ArrayList;
 
+import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.BLE.DeviceControlService;
 
 /**
@@ -95,15 +96,28 @@ heartRate = intent.getStringExtra(DeviceControlService.HR_DATA));}
  */
 
 public class DeviceScanActivity extends ListActivity {
+    private static final int REQUEST_ENABLE_BT = 1;
+    // Stops scanning after 60 seconds. Can take up to 45 seconds to find device.
+    private static final long SCAN_PERIOD = 10000; //10 sec for testing purposes
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
     private boolean mScanning;
     private Handler mHandler;
+    // Device scan callback.
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
 
-    private static final int REQUEST_ENABLE_BT = 1;
-    // Stops scanning after 60 seconds. Can take up to 45 seconds to find device.
-    private static final long SCAN_PERIOD = 10000; //10 sec for testing purposes
-
+                @Override
+                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mLeDeviceListAdapter.addDevice(device);
+                            mLeDeviceListAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -250,6 +264,11 @@ public class DeviceScanActivity extends ListActivity {
         invalidateOptionsMenu();
     }
 
+    static class ViewHolder {
+        TextView deviceName;
+        TextView deviceAddress;
+    }
+
     // Adapter for holding devices found through scanning.
     private class LeDeviceListAdapter extends BaseAdapter {
         private ArrayList<BluetoothDevice> mLeDevices;
@@ -318,26 +337,5 @@ public class DeviceScanActivity extends ListActivity {
             return view;
 
         }
-    }
-
-    // Device scan callback.
-    private BluetoothAdapter.LeScanCallback mLeScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
-
-                @Override
-                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mLeDeviceListAdapter.addDevice(device);
-                            mLeDeviceListAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-            };
-
-    static class ViewHolder {
-        TextView deviceName;
-        TextView deviceAddress;
     }
 }
