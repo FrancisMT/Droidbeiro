@@ -35,6 +35,7 @@ import java.util.ArrayList;
 
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.BLE.DeviceControlService;
+import pt.up.fe.droidbeiro.Service.BLE.SerialPortService;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
@@ -222,25 +223,59 @@ public class DeviceScanActivity extends ListActivity {
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
 
-        //Intent to DeviceControlActivity
+        /**Intent to DeviceControlService(heartRate) and SerialPortService(radioModule)
+         *
+         * the condition bellow reads the name of the device in order to determine which service
+         * starts first and to avoid launching a service that doesn't match that device.
+         *
+         * If the name of the device is different from the name of the radio module, it starts the
+         * the service responsible for reading the heartrate. Otherwise it starts the service responsible
+         * for reading the radio module.
+         *
+         * Remember to fill the condition in the code bellow with the name of the bluetooth device
+         * of the radio module:
+         *
+         *          else if (!device.getName().equals("name of radio module");
+         *
+         * Of course, that both services will be launched, when we exit this activity.
+         *
+         *------------------------------------------//---------------------------------
+         *
+         * You can also add the intent to other activities here.
+        */
 
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
+
         if (device == null) return;
-        final Intent intentService = new Intent(this, DeviceControlService.class);
-        //final Intent intent = new Intent(this,ControlActivity.class);
-        intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_NAME, device.getName());
-        intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_ADDRESS, device.getAddress());
-        //intent.putExtra(ControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-        //intent.putExtra(ControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
 
+        else if (!device.getName().equals("Update this field with the name of the bluetooth device" +
+                "on the radio module")) { // name of device != name of module radio -> start DeviceControlService
+            final Intent intentService = new Intent(this, DeviceControlService.class);
+            //final Intent intent = new Intent(this,ControlActivity.class);
+            intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_NAME, device.getName());
+            intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+            //intent.putExtra(ControlActivity.EXTRAS_DEVICE_NAME, device.getName());
+            //intent.putExtra(ControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
 
-        if (mScanning) {
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            mScanning = false;
+            if (mScanning) {
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                mScanning = false;
+            }
+            //startActivity(intent);
+            startService(intentService);
+
+        } else { // name of the device==name of the module radio-> start SerialPortService
+
+            final Intent intentServiceSPP = new Intent(this, SerialPortService.class);
+            intentServiceSPP.putExtra(DeviceControlService.EXTRAS_DEVICE_NAME, device.getName());
+            intentServiceSPP.putExtra(DeviceControlService.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+
+            if (mScanning) {
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                mScanning = false;
+            }
+            startService(intentServiceSPP);
         }
-        //startActivity(intent);
-        startService(intentService);
-
     }
 
     private void scanLeDevice(final boolean enable) {
