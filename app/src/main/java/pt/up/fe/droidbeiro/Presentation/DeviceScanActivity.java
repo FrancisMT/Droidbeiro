@@ -52,10 +52,14 @@ import pt.up.fe.droidbeiro.Service.BLE.SerialPortService;
  *
  *                      Architecture of BLE feature
  *
- * DeviceScanActivity -> DeviceControlService -> BluetoothLeService (SampleGattAttributes)
- *                                  |
- *                                  v
- *                                 APP
+ *                        ------------------------
+ *                       |   DeviceControlService |
+ * DeviceScanActivity -> |            +           | -> BluetoothLeService (SampleGattAttributes)
+ *                       |   SerialPortService    |
+ *                        ------------------------
+ *                                    |
+ *                                    v
+ *                                   APP
  *
  * Important Note: Data from the Heart Rate monitor should be obtained from the DeviceControlService
  *                 with a BroadcastReceiver. The DeviceControlService uses a broadcaster to broadcast the data.
@@ -80,6 +84,8 @@ heartRate = intent.getStringExtra(DeviceControlService.HR_DATA));}
  * DeviceScanActivity (activity): - Searching and displaying available devices
  *
  * DeviceControlService (service) - Connect and get data from the desired characteristic (HR)
+ *
+ * SerialPortService (service) - Connect and read/write data from the radio module
  *
  * BluetoothLeService (service): - Service for managing connection and data communication with a
  *                                  GATT server hosted on a given Bluetooth LE device.
@@ -229,7 +235,7 @@ public class DeviceScanActivity extends ListActivity {
          * starts first and to avoid launching a service that doesn't match that device.
          *
          * If the name of the device is different from the name of the radio module, it starts the
-         * the service responsible for reading the heartrate. Otherwise it starts the service responsible
+         * the service responsible for reading the heart rate. Otherwise it starts the service responsible
          * for reading the radio module.
          *
          * Remember to fill the condition in the code bellow with the name of the bluetooth device
@@ -237,7 +243,7 @@ public class DeviceScanActivity extends ListActivity {
          *
          *          else if (!device.getName().equals("name of radio module");
          *
-         * Of course, that both services will be launched, when we exit this activity.
+         * Of course, that both services will be launched, when we leave this activity.
          *
          *------------------------------------------//---------------------------------
          *

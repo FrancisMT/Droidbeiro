@@ -27,11 +27,17 @@ import android.util.Log;
  *  connection is not dependent of this approach.
  *
  *  It also already implemented a BROADCAST RECEIVER to receive data from the App
- *  and write it to the Server via socket and a BROADCASTER to pass on to the App
- *  the data received from the Server via socket.
+ *  and write it to the Server via bluetooth socket and a BROADCASTER to pass on to the App
+ *  the data received from the Server via bluetooth socket.
  *
  *  The UUID and MAC address bellow are illustrative and should be
  *  defined according to the server specification.
+ *
+ *  Please refer to method "onListItemClick(...)"(line 224) of "DeviceScanActivity" in order to
+ *  understand how this service is initiated.
+ *
+ *  Finally, I'm not sure if my approach on how to read the inputStream from the bluetooth socket
+ *  is the best (I create a thread that keeps running). Please make sure to take a close look a it (line 204)
  *
  *  For more information:
  *
@@ -61,7 +67,7 @@ public class SerialPortService extends Service {
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
 
-    //Broadcast varia0bles
+    //Broadcast variables
 
     public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
     public static final String BROADCAST_ACTION_READ = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
@@ -90,12 +96,13 @@ public class SerialPortService extends Service {
         if (mDeviceAddress != null) {
 
             // Connect to the SPP server
-            initialize();
-            boolean result = connect(mDeviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
+            initialize(); // Get bluetooth Adapter
+            boolean result = connect(mDeviceAddress); // Connect and establish communication with the server
+            if (result)
+                Log.d(TAG, "Connect request result=" + result);
+            else
+                Log.e(TAG,"Connect request failed");
         }
-
-        // Initialize Broadcaster
 
     }
 
@@ -107,8 +114,7 @@ public class SerialPortService extends Service {
                 if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
                 String dataToWrite = intent.getStringExtra("Update this field with the" +
                         "string of data from the app to be sent to the radio module");
-                    //write server
-                    writeServer(dataToWrite);
+                    writeServer(dataToWrite);     //write server
                 }
         }
     };
@@ -142,7 +148,8 @@ public class SerialPortService extends Service {
         }
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        startServerConnection(device);
+
+        startServerConnection(device); // start connection
 
         if (device == null) {
             Log.w(TAG, "SPP: Device not found.  Unable to connect.");
@@ -193,11 +200,17 @@ public class SerialPortService extends Service {
             Log.e(TAG, "SSP: inpuy stream creation failed:" + e.getMessage() + ".");
         }
 
+        // Initiate readServer Thread
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                readServer();
+            }
+        }).start();
 
     }
 
     private void readServer (){
-
 
         String receivedMessage = null;
         byte[] msgReadBuffer = null;
@@ -214,6 +227,7 @@ public class SerialPortService extends Service {
             Log.e(TAG,msg);
         }
         broadcastUpdate(BROADCAST_ACTION_READ, receivedMessage);
+
     }
 
     private void writeServer(String message){
@@ -221,7 +235,6 @@ public class SerialPortService extends Service {
         byte[] msgWriteBuffer = message.getBytes();
 
         try {
-            inStream.read();
             outStream.write(msgWriteBuffer);
         } catch (IOException e) {
             String msg = "Exception occurred during write: " + e.getMessage();
