@@ -2,9 +2,13 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +19,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
+import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.Acelarometro;
 import pt.up.fe.droidbeiro.Service.Bussola;
@@ -25,12 +32,12 @@ public class ChefeMain extends Activity {
     // Initialize the array
     String[] messages = {   "Preciso de ajuda",
                             "Preciso afastar-me",
+                            "Camião com problemas",
                             "Preciso de suporte aéreo",
                             "Fogo a espalhar-se",
-                            "Fogo perto de casa",
-                            "Camião com problemas",
-                            "Casa queimada",
                             "A retirar-me",
+                            "Fogo perto de casa",
+                            "Casa queimada",
                         };
 
     // Declare the UI components
@@ -41,12 +48,51 @@ public class ChefeMain extends Activity {
     private String mensagem;
     private EditText custom_message;
 
+    Client_Socket CS = null;
+    boolean CSisBound;
+
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(ChefeMain.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
+
+    private void doUnbindService() {
+        if (CSisBound) {
+            // Detach our existing connection.
+            unbindService(mConnection);
+            CSisBound = false;
+        }
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chefe_main);
         final Intent intentService = new Intent(this, GPS.class);
         startService(intentService);
+
+        //start service on create
+        doBindService();
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);
@@ -80,6 +126,11 @@ public class ChefeMain extends Activity {
                     alertDialog.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             //envia a mensagem para o centro de controlo
+                            try {
+                                CS.sendMessage(mensagem);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             custom_message.setText("");
                         }
                     });

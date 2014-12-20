@@ -1,42 +1,29 @@
 package pt.up.fe.droidbeiro.Communication;
 
-import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import pt.up.fe.droidbeiro.Logic.Packet;
+import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
 
-public class Client_Socket extends Service {
-
-    /**
-     * Designação do ficheiro de configuracao do cliente
-     */
-    //final static private String Client_Config = "Client_Config.txt";
+public class Client_Socket extends Service{
 
     private Socket cSocket = null;
     //private PrintWriter out = null;
@@ -56,14 +43,23 @@ public class Client_Socket extends Service {
     private String dataRead = null;
 
     private InetAddress serverAddr;
-    private boolean ServerAlive = false;
+    private boolean running = false;
+
+    final static String ACTION = "NotifyServiceAction";
+    final static String STOP_SERVICE = "";
+    final static int RQS_STOP_SERVICE = 1;
+
+    private static final int MY_NOTIFICATION_ID=1;
+    private NotificationManager notificationManager;
+    private Notification myNotification;
 
     private final IBinder myBinder = new LocalBinder();
 
-    public boolean isServerAlive(){
-        return this.ServerAlive;
-    }
-
+    /**
+     * Just for initial tests
+     */
+    private String msgToServer = null;
+    public String response = "";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -105,60 +101,29 @@ public class Client_Socket extends Service {
         return START_STICKY;
     }
 
-   /* public void sendMessage(String message) {
-        if (out != null && !out.checkError()) {
-            System.out.println("in sendMessage" + message);
-            out.println(message);
-            out.flush();
-        }
-    }*/
-
-   /* public void sendMessage(Packet packet_to_send) throws IOException {
-
-        out.writeObject(packet_to_send);
-        out.flush();
-    }*/
-
     /**
      * Justo to test writeObjet
      * @param message_to_send
      * @throws IOException
      */
     public void sendMessage(String message_to_send) throws IOException {
-
         out.writeObject(message_to_send);
+        //out.println(message_to_send);
         out.flush();
     }
 
-    public void getMessage() throws IOException, ClassNotFoundException {
-
-        //String message = (String) in.readObject();
-
-        /**
-         * Notice: in.readObject() will block if no data return
-         */
-
-
-        String message = (String) in.readObject();
-
-        System.out.println(message);
-
-
+    public void sendMessage_test(Packet pck_to_send) throws IOException {
+        out.writeObject(pck_to_send);
+        //out.println(message_to_send);
+        out.flush();
     }
 
-    public void send(String s){
-        this.dataSend = s;
-        this.dataToSend = true;
+    public String getMessage(){
+
+        return this.response;
     }
 
-    public String read(){
-        if(dataToRead)
-            return dataRead;
-        else
-            return null;
-    }
-
-    class connectSocket implements Runnable {
+    public class connectSocket implements Runnable {
         @Override
         public void run() {
             try {
@@ -166,30 +131,39 @@ public class Client_Socket extends Service {
                 Log.e("TCP Client", "C: Connecting...");
                 //create a socket to make the connection with the server
                 cSocket = new Socket(serverAddr, SERVER_PORT);
+                running = true;
 
                 if (cSocket.isConnected()) {
-                    ServerAlive = true;
+                    Log.e("TCP Client", "C: Connected!");
 
+                    //out = new PrintWriter(cSocket.getOutputStream(), true);
+                    //in = new BufferedReader(new InputStreamReader(cSocket.getInputStream()));
                     out = new ObjectOutputStream(cSocket.getOutputStream());
                     in = new ObjectInputStream(cSocket.getInputStream());
 
-                    while (isServerAlive()) {
+                    while(running){
+                        //response = (String) in.readLine();
+                        response = (String) in.readObject();
+                        Log.d("response", response);
+                        if(response!=null) {
+                            Log.d("response", response);
 
-                        if (dataToSend) {
+                            // Send Notification
+                            notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+                            myNotification = new Notification(R.drawable.droidbeiro_app_icon,"Nova Mensagem",System.currentTimeMillis());
+                            String notificationTitle = "Nova mensagem";
+                            String notificationText = response;
+                            Intent myIntent = new Intent(Intent.ACTION_VIEW);
 
-                            out.writeObject(dataSend);
-                            dataToSend = false;
-                            while ((dataRead = (String) in.readObject()) == null)
-                            {
-                            }
-                            dataToRead = true;
+                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),0, new Intent(),PendingIntent.FLAG_UPDATE_CURRENT);
+                            myNotification.defaults |= Notification.DEFAULT_SOUND;
+                            myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+                            myNotification.setLatestEventInfo(getApplicationContext(),notificationTitle,notificationText,pendingIntent);
+                            notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
                         }
                     }
-                    out.close();
-                    in.close();
-                    cSocket.close();
                 } else {
-                    ServerAlive = false;
+
                     Log.w("CLientSocket", "SOCKET IS NOT CONNECTED::::" + isSocketAlive);
                     throw new UnknownHostException();
                 }
@@ -200,29 +174,9 @@ public class Client_Socket extends Service {
                 e1.printStackTrace();
             } catch (IOException e1) {
                 e1.printStackTrace();
-            } catch (ClassNotFoundException e1) {
-                e1.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
-
-                /*try {
-                    //send the message to the server
-                    
-                   // out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(cSocket.getOutputStream())), true);
-                    out = new ObjectOutputStream(cSocket.getOutputStream());
-                    in = new ObjectInputStream(cSocket.getInputStream());
-
-                    //out.writeObject("Hi");
-                    //String message = (String) in.readObject();
-                    //System.out.println("Message: " + message);
-
-                    Log.e("TCP Client", "C: Sent.");
-                    Log.e("TCP Client", "C: Done.");
-                } catch (Exception e) {
-                    Log.e("TCP", "S: Error", e);
-                }
-            } catch (Exception e) {
-                Log.e("TCP", "C: Error", e);
-            }*/
         }
     }
 
@@ -235,7 +189,11 @@ public class Client_Socket extends Service {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        try {
+            cSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         cSocket = null;
     }
-
 }

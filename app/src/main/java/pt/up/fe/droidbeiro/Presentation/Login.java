@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,12 +17,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
-import pt.up.fe.droidbeiro.Logic.Packet;
+import pt.up.fe.droidbeiro.Messages.LoginMessage;
+import pt.up.fe.droidbeiro.Messages.MD5;
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
 
 public class Login extends Activity {
 
@@ -92,46 +97,20 @@ public class Login extends Activity {
                     password=password_field.getText().toString().trim();
 
                     /****************************************************************/
-
-                    /*ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    outputStream.write(0x00);
-                    outputStream.write(0x01);
+                    LoginMessage login_msg = new LoginMessage((byte)0x01, username, password);
                     try {
-                        outputStream.write("Hello".getBytes());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    byte[] pck_content = outputStream.toByteArray();
-
-                    Packet pck = new Packet(false,pck_content);
-
-                    try {
-                        CS.sendMessage(pck);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }*/
-                    /**
-                     * Just to test the connection
-                     */
-
-                    /*try {
-                        CS.sendMessage("Hello");
+                        login_msg.build_login_packet();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-                    CS.send("New Hello");*/
-
-
-
-
-                  /*  try {
-                        CS.getMessage();
+                    try {
+                        CS.sendMessage_test(login_msg.getLogin_packet());
                     } catch (IOException e) {
                         e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }*/
+                    }
+                    Log.e("Response from server", CS.getMessage());
+
                     /****************************************************************/
 
                     //Used to test

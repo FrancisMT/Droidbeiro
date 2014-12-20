@@ -2,15 +2,10 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.Message;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +14,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 
@@ -28,17 +25,16 @@ import pt.up.fe.droidbeiro.Service.GPS;
 
 public class BombeiroMain extends Activity {
 
-
     // Initialize the array
     String[] messages = {   "Preciso de ajuda",
                             "Preciso afastar-me",
+                            "Camião com problemas",
                             "Preciso de suporte aéreo",
                             "Fogo a espalhar-se",
-                            "Fogo perto de casa",
-                            "Camião com problemas",
-                            "Casa queimada",
                             "A retirar-me",
-                        };
+                            "Fogo perto de casa",
+                            "Casa queimada",
+    };
 
     // Declare the UI components
     private ListView lista_mensagens_layout;
@@ -50,15 +46,13 @@ public class BombeiroMain extends Activity {
     Acelarometro acelarometro;
     GPS appLocationManager;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_bombeiro_main);
-        final Intent intentService = new Intent(this, GPS.class);
 
-
-       // acelarometro = new Acelarometro(this);
+        acelarometro = new Acelarometro(this);
 
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);

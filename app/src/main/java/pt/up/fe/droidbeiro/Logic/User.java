@@ -5,7 +5,8 @@ package pt.up.fe.droidbeiro.Logic;
  */
 public class User {
 
-    private final byte firefighter_ID;
+    private byte firefighter_ID;
+    private boolean firefighter_type; //verify importance
 
     public User(byte ID){
         this.firefighter_ID=ID;

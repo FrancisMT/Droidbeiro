@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,12 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
-import pt.up.fe.droidbeiro.Logic.Packet;
 import pt.up.fe.droidbeiro.R;
 
 public class Connection extends Activity {
@@ -37,13 +31,12 @@ public class Connection extends Activity {
     Client_Socket CS = null;
     boolean CSisBound;
 
-
     private ServiceConnection mConnection = new ServiceConnection() {
         //EDITED PART
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // TODO Auto-generated method stub
-            CS = ((Client_Socket.LocalBinder) service).getService();
+            CS = ((Client_Socket.LocalBinder)service).getService();
         }
 
         @Override
@@ -95,6 +88,7 @@ public class Connection extends Activity {
                     Connection.putExtra("PORT", SERVER_PORT);
                     startService(Connection);
                     //doBindService();
+
 
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);
