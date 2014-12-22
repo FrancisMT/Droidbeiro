@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@color/actionbar"
+    android:orientation="vertical">
     <TextView android:id="@+id/device_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -12,4 +17,58 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="12sp"/>
-</LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="400dp"
+        android:layout_orientation="horizontal">
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/lista_dispositivos"
+        android:layout_gravity="center_horizontal"
+        android:fastScrollAlwaysVisible="true"
+        android:background="@color/body_background"
+        android:fastScrollStyle="@android:color/black"
+        android:cacheColorHint="#FFDAFF7F"
+        android:focusable="false"
+        android:fastScrollEnabled="true"
+        android:focusableInTouchMode="false"
+        android:choiceMode="singleChoice"
+        android:descendantFocusability="beforeDescendants"
+        android:listSelector="@android:color/darker_gray"
+        android:layout_marginTop="10dp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lista_dispositivos">
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btnok"
+        android:paddingLeft="55dp"
+        android:paddingRight="55dp"
+        android:text="Iniciar"
+        android:layout_gravity="center"
+        android:textColor="@color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/btn_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btnok"
+        android:paddingLeft="55dp"
+        android:paddingRight="55dp"
+        android:text="Passar"
+        android:layout_gravity="right"
+        android:textColor="@color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+    </RelativeLayout>
+
+</RelativeLayout>
