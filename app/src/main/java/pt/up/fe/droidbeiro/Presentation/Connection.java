@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Logic.User;
 import pt.up.fe.droidbeiro.R;
 
 public class Connection extends Activity {

@@ -47,10 +47,12 @@ public class Packet implements Serializable{
         ByteArrayOutputStream packet_content = new ByteArrayOutputStream();
         packet_content.write(message_type);
         packet_content.write(ff_id);
-        try {
-            packet_content.write(message);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (message!=null) {
+            try {
+                packet_content.write(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         this.hasProtocolHeader=hasPtrclHeader;

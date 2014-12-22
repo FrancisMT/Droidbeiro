@@ -23,8 +23,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Logic.User;
 import pt.up.fe.droidbeiro.Messages.LoginMessage;
 import pt.up.fe.droidbeiro.Messages.MD5;
+import pt.up.fe.droidbeiro.Messages.SOSMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
 
@@ -39,6 +41,8 @@ public class Login extends Activity {
 
     Client_Socket CS = null;
     boolean CSisBound;
+
+    public static User user;
 
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -86,9 +90,6 @@ public class Login extends Activity {
         btn_entrar = (Button)findViewById(R.id.btn_entrar);
         username_field = (EditText)findViewById(R.id.username);
         password_field = (EditText)findViewById(R.id.password);
-
-        //Toast.makeText(getApplicationContext(), "ID atribuído: " + CS.getFirefighter_ID(), Toast.LENGTH_LONG).show();
-
 
         btn_entrar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,7 +149,7 @@ public class Login extends Activity {
                     alertDialog.show();
 
                 }else{
-                    Toast.makeText(getApplicationContext(), "Por favor introduza o par Utilizador/Password", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Por favor introduza o par Utilizador/Password: " + CS.getFirefighter_ID(), Toast.LENGTH_LONG).show();
                 }
             }
         });

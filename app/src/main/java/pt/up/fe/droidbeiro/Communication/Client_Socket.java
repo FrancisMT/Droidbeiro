@@ -25,8 +25,17 @@ import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
 
 public class Client_Socket extends Service{
 
-    public static byte Firefighter_ID;
     private final static byte prelogin_msg_type = (byte)0x84;
+    private final static byte cc_predefined_msg_type = (byte)0x128;
+    private final static byte cc_personalised_msg_type = (byte)0x129;
+    private final static byte cc_requests_fl_update_msg_type = (byte)0x130;
+    private final static byte cc_sends_team_info_msg_type = (byte)0x131;
+    private final static byte cc_sends_ff_id_msg_type = (byte)0x132;
+    private final static byte cc_denies_login_msg_type = (byte)0x133;
+    private final static byte cc_accepts_login_msg_type = (byte)0x134;
+    private final static byte cc_requests_movetogps_msg_type = (byte)0x135;
+
+    public static byte Firefighter_ID;
 
     private Socket cSocket = null;
     //private PrintWriter out = null;
@@ -70,6 +79,7 @@ public class Client_Socket extends Service{
         System.out.println("I am in Ibinder onBind method");
         return myBinder;
     }
+
 
     public class LocalBinder extends Binder {
         public Client_Socket getService() {

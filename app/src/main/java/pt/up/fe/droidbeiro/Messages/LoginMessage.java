@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
+import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
 
 /**
@@ -25,6 +26,8 @@ public class LoginMessage {
     private String password = "";
 
     Packet login_packet;
+
+    Client_Socket CS = null;
 
     public LoginMessage(byte ff_id, String user, String pass){
         this.FireFighter_ID=ff_id;
@@ -63,4 +66,5 @@ public class LoginMessage {
     public Packet getLogin_packet() {
         return login_packet;
     }
+
 }
