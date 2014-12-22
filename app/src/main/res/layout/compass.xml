@@ -1,20 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="#A5C0CC"
     android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bússola"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_centerHorizontal="true"/>
+
+
+    <ImageView
+        android:id="@+id/compass"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/bussola"
+        android:src="@drawable/compass"
+        android:layout_centerHorizontal="true"/>
 
     <TextView
         android:id="@+id/distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bússola"/>
+        android:text="Distancia aparece aqui"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/compass"
+        android:layout_centerHorizontal="true"/>
 
-    <ImageView
-        android:id="@+id/compass"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_below="@+id/bussola"
-        android:src="@drawable/ic_launcher"/>
-
-</LinearLayout>
+</RelativeLayout>
