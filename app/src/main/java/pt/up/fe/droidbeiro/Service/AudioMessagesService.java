@@ -2,16 +2,12 @@ package pt.up.fe.droidbeiro.Service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.IBinder;
-
-import android.app.Service;
-import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.IBinder;
-
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,6 +61,7 @@ public class AudioMessagesService extends Service {
 
     ArrayList<String> audioMessagesList = new ArrayList<String>(10);
 
+    CountDownTimer timer;
 
     @Override
     public void onCreate(){
@@ -79,6 +76,18 @@ public class AudioMessagesService extends Service {
         audioMessagesList.add(7,m_7);
         audioMessagesList.add(8,m_8);
         audioMessagesList.add(9,m_9);
+
+        timer = new CountDownTimer(30000,50000) {
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        };
     }
 
 
@@ -113,6 +122,8 @@ public class AudioMessagesService extends Service {
                     mp.start();
                 }
             });
+
+
 
         } catch (IOException e) {
             e.printStackTrace();
