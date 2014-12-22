@@ -87,6 +87,8 @@ public class Login extends Activity {
         username_field = (EditText)findViewById(R.id.username);
         password_field = (EditText)findViewById(R.id.password);
 
+        //Toast.makeText(getApplicationContext(), "ID atribuído: " + CS.getFirefighter_ID(), Toast.LENGTH_LONG).show();
+
 
         btn_entrar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,12 +107,11 @@ public class Login extends Activity {
                     }
 
                     try {
-                        CS.sendMessage_test(login_msg.getLogin_packet());
+                        CS.send_packet(login_msg.getLogin_packet());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     Log.e("Response from server", CS.getMessage());
-
                     /****************************************************************/
 
                     //Used to test

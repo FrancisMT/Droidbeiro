@@ -25,6 +25,9 @@ import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
 
 public class Client_Socket extends Service{
 
+    public static byte Firefighter_ID;
+    private final static byte prelogin_msg_type = (byte)0x84;
+
     private Socket cSocket = null;
     //private PrintWriter out = null;
     //private BufferedReader in = null;
@@ -112,15 +115,18 @@ public class Client_Socket extends Service{
         out.flush();
     }
 
-    public void sendMessage_test(Packet pck_to_send) throws IOException {
+    public void send_packet(Packet pck_to_send) throws IOException {
         out.writeObject(pck_to_send);
         //out.println(message_to_send);
         out.flush();
     }
 
     public String getMessage(){
-
         return this.response;
+    }
+
+    public  byte getFirefighter_ID(){
+        return this.Firefighter_ID;
     }
 
     public class connectSocket implements Runnable {
@@ -143,8 +149,22 @@ public class Client_Socket extends Service{
 
                     while(running){
                         //response = (String) in.readLine();
-                        response = (String) in.readObject();
-                        Log.d("response", response);
+                        /*response = (String) in.readObject();
+                        Log.d("response", response);*/
+                        Packet pck_received = (Packet) in.readObject();
+
+                        response = pck_received.getMessage().toString();
+
+                        switch(pck_received.getMessageType()){
+
+                            case prelogin_msg_type:
+                                Firefighter_ID=pck_received.getFirefighterID();
+                                break;
+
+                            default:
+                                break;
+                        }
+
                         if(response!=null) {
                             Log.d("response", response);
 
