@@ -163,7 +163,7 @@ public class TapDetection extends Service implements SensorEventListener {
                 state2 = 1;
             }
 
-            //////////////////////////
+            ///////////////////////////
             //Detecao do padrao SOS//
             /////////////////////////
             if (state3 == 0)
