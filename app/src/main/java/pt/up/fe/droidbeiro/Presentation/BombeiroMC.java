@@ -64,7 +64,7 @@ public class BombeiroMC extends Activity {
             }
         });
 
-        //Start TapDetection Service
+        // Start TapDetection Service
         startService(new Intent(this, TapDetection.class));
 
     }

@@ -76,7 +76,7 @@ public class AudioMessagesService extends Service {
         audioMessagesList.add(7,m_7);
         audioMessagesList.add(8,m_8);
         audioMessagesList.add(9,m_9);
-
+        //timer para verificar se ja passaram 30seg
         timer = new CountDownTimer(30000,50000) {
             @Override
             public void onTick(long l) {
