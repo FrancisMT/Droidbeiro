@@ -1,5 +1,7 @@
 package pt.up.fe.droidbeiro.Messages;
 
+import android.util.Log;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -74,6 +76,10 @@ public class PredefinedMessage {
         //Get Packet
         this.predefinedmessage_packet = new Packet();
         this.predefinedmessage_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
+    }
+
+    public byte[] getMessageContent(){
+        return predefinedmessage_packet.getMessage();
     }
 
     public Packet getPredefinedmessage_packet() {

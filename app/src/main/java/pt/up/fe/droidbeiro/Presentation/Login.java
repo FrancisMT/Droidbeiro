@@ -100,7 +100,7 @@ public class Login extends Activity {
                     password=password_field.getText().toString().trim();
 
                     /****************************************************************/
-                    LoginMessage login_msg = new LoginMessage((byte)0x01, username, password);
+                    LoginMessage login_msg = new LoginMessage(CS.getFirefighter_ID(), username, password);
                     try {
                         login_msg.build_login_packet();
                     } catch (IOException e) {

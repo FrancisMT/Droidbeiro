@@ -23,6 +23,8 @@ import java.io.IOException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Messages.LogoutMessage;
+import pt.up.fe.droidbeiro.Messages.PersonalizedMessage;
+import pt.up.fe.droidbeiro.Messages.PredefinedMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.Acelarometro;
 import pt.up.fe.droidbeiro.Service.Bussola;
@@ -48,6 +50,7 @@ public class ChefeMain extends Activity {
     private Button btn_linha_fogo;
     private String mensagem;
     private EditText custom_message;
+    private boolean personalization = true;
 
     Client_Socket CS = null;
     boolean CSisBound;
@@ -108,6 +111,7 @@ public class ChefeMain extends Activity {
                 custom_message.setText("");
                 mensagem = lista_mensagens_layout.getItemAtPosition(position).toString();
                 custom_message.setText(mensagem);
+                personalization=false;
             }
         });
 
@@ -128,7 +132,65 @@ public class ChefeMain extends Activity {
                         public void onClick(DialogInterface dialog, int which) {
                             //envia a mensagem para o centro de controlo
 
+                            if ((mensagem).equals("Preciso de ajuda")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Preciso afastar-me")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Camião com problemas")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Preciso de suporte aéreo")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Fogo a espalhar-se")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("A retirar-me")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Fogo perto de casa")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Casa queimada")){
+                                personalization=false;
+                            }else{
+                                personalization=true;
+                            }
+
+                            if (personalization){
+                                PersonalizedMessage pers_msg = new PersonalizedMessage(CS.getFirefighter_ID(), mensagem);
+                                try {
+                                    pers_msg.build_personalizedmessage_packet();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    CS.send_packet(pers_msg.getPersonalizedmessage_packet());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                custom_message.setText("");
+                                personalization=true;
+                            }else{
+                                PredefinedMessage pred_msg = new PredefinedMessage(CS.getFirefighter_ID(), mensagem);
+                                try {
+                                    pred_msg.build_predefinedmessage_packet();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    CS.send_packet(pred_msg.getPredefinedmessage_packet());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                custom_message.setText("");
+                                personalization=true;
+                            }
+
                             custom_message.setText("");
+                            personalization=true;
                         }
                     });
 
