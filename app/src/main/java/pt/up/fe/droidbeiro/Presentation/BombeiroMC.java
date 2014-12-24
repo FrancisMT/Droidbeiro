@@ -16,6 +16,7 @@ import android.widget.Button;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Service.TapDetection;
 
 public class BombeiroMC extends Activity {
 
@@ -82,6 +83,9 @@ public class BombeiroMC extends Activity {
 
                         // Write your code here to invoke SIM event
 
+                        //Stop TapDetection Service
+                        stopService(new Intent(BombeiroMC.this, TapDetection.class));
+
                         //Start NewActivity.class
                         Intent myIntent = new Intent(BombeiroMC.this,
                                 BombeiroMain.class);
@@ -103,6 +107,8 @@ public class BombeiroMC extends Activity {
             }
         });
 
+        // Start TapDetection Service
+        startService(new Intent(this, TapDetection.class));
 
     }
 

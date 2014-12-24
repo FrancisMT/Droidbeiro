@@ -82,6 +82,11 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+        <service
+            android:name=".Service.TapDetection"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>
