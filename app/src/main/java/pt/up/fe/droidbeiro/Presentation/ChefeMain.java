@@ -22,6 +22,7 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Messages.LogoutMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.Acelarometro;
 import pt.up.fe.droidbeiro.Service.Bussola;
@@ -126,11 +127,7 @@ public class ChefeMain extends Activity {
                     alertDialog.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             //envia a mensagem para o centro de controlo
-                            try {
-                                CS.sendMessage(mensagem);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+
                             custom_message.setText("");
                         }
                     });
@@ -193,12 +190,48 @@ public class ChefeMain extends Activity {
         switch (item.getItemId()) {
             case R.id.login:
 
+                /****************************************************************/
+                LogoutMessage logout_msg = new LogoutMessage(CS.getFirefighter_ID());
+                try {
+                    logout_msg.build_logout_packet();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    CS.send_packet(logout_msg.getLogout_packet());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                doUnbindService();
+                /****************************************************************/
+
                 Intent login_Intent = new Intent(ChefeMain.this, Login.class);
                 login_Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(login_Intent);
 
                 return true;
             case R.id.connection:
+
+                /****************************************************************/
+                LogoutMessage logout_msg_ = new LogoutMessage(CS.getFirefighter_ID());
+                try {
+                    logout_msg_.build_logout_packet();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    CS.send_packet(logout_msg_.getLogout_packet());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                doUnbindService();
+                try {
+                    CS.disconnect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                /****************************************************************/
+
                 Intent connection_Intent = new Intent(ChefeMain.this, Connection.class);
                 connection_Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(connection_Intent);

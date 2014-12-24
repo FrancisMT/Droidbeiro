@@ -210,6 +210,18 @@ public class Client_Socket extends Service{
         }
     }
 
+    public void disconnect() throws IOException {
+
+        this.running=false;
+
+        try {
+            cSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
