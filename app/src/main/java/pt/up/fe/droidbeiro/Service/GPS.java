@@ -1,20 +1,28 @@
 package pt.up.fe.droidbeiro.Service;
 
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import android.os.Handler;
 import android.widget.Toast;
+
+import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Messages.GPSMessage;
 
 
 /**
@@ -36,7 +44,35 @@ public class GPS extends Service {
     private final Handler handler = new Handler();
     public double longitude;
     public double latitude;
+    private boolean data_sent = false;
+
     Intent intent;
+
+    public Client_Socket CS = null;
+    boolean CSisBound;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(GPS.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
 
     public IBinder onBind(Intent intent) {
         return null;
@@ -49,6 +85,10 @@ public class GPS extends Service {
 
     public void onCreate() {
         super.onCreate();
+
+        doBindService();
+        Log.e("On Service", "GPS");
+
         intent = new Intent(BROADCAST_ACTION);
         lManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         LocationListener lListener = new LocationListener() {
@@ -72,9 +112,14 @@ public class GPS extends Service {
         broadcastUpdate(BROADCAST_ACTION);
     }
 
-    private void broadcastUpdate(final String action) {
+    private void broadcastUpdate(final String action){
         final Intent intent = new Intent(action);
-        Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        //Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        /**
+         * For Debuging
+         */
+        Location location = lManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
         if(location != null) {
             longitude = location.getLongitude();
             latitude=location.getLatitude();
@@ -84,6 +129,36 @@ public class GPS extends Service {
         intent.putExtra("LAT", lat);
         intent.putExtra("LONG",lon);
         sendBroadcast(intent);
+
+        /****************************************************************/
+        Calendar cal = Calendar.getInstance();
+        int seconds = cal.get(Calendar.SECOND);
+
+        if (seconds==0 || seconds ==30){
+            data_sent=false;
+        }else
+        if (seconds==29 || seconds == 59){
+
+            if(!data_sent){
+                Log.e("Latitude sent",lat);
+                Log.e("Longitude sent",lon);
+
+                GPSMessage gps_msg = new GPSMessage(CS.getFirefighter_ID(), lat, lon);
+
+                try {
+                    gps_msg.build_gps_packet();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    CS.send_packet(gps_msg.getGps_packet());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                data_sent=true;
+            }
+        }
+        /****************************************************************/
     }
 
 

@@ -1,7 +1,10 @@
 package pt.up.fe.droidbeiro.Service;
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -10,9 +13,12 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
+import android.util.Log;
 
 import java.io.IOException;
 
+import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Messages.PersonalizedMessage;
 import pt.up.fe.droidbeiro.Messages.SOSMessage;
 import pt.up.fe.droidbeiro.Messages.SurroundedByFlamesMessage;
 
@@ -36,6 +42,31 @@ public class TapDetection extends Service implements SensorEventListener {
     Uri ring;
     Ringtone r;
 
+    public Client_Socket CS = null;
+    boolean CSisBound;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(TapDetection.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
 
     @Override
     public IBinder onBind(Intent intent) {return null;}
@@ -43,6 +74,10 @@ public class TapDetection extends Service implements SensorEventListener {
     @Override
     public void onCreate(){
         super.onCreate();
+
+        Log.e("On Service", "Tap detection");
+        doBindService();
+        //bindService(new Intent(TapDetection.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
 
         state1 =0;
         state2=0;
@@ -121,6 +156,8 @@ public class TapDetection extends Service implements SensorEventListener {
                 ///////////////////////////////////////////////////////////////
                 // MSG OK DETETADA COM SUCESSO ESCREVER AQUI FRANCISCO!!!!!! //
                 //////////////////////////////////////////////////////////////
+                Log.e("TAP Detected:", "OK");
+
                 return;
             }
 
@@ -145,18 +182,20 @@ public class TapDetection extends Service implements SensorEventListener {
                 //signal.setText("Message sent: SURROUNDED BY FLAMES");
                 r.play();
                 state2 = 0;
+
                 //Envio da mensagem de Surrounded by flames
-                SurroundedByFlamesMessage surrounded_msg = new SurroundedByFlamesMessage((byte)0x01);
+                SurroundedByFlamesMessage surrounded_msg = new SurroundedByFlamesMessage(CS.getFirefighter_ID());
                 try {
                     surrounded_msg.build_sos_packet();
                 } catch (IOException e){
                     e.printStackTrace();
                 }
-                    /*try {
-                        CS.send_packet(surrounded_msg.getSurroundedbyflames_packet());
-                    }catch (IOException e){
-                        e.printStackTrace();
-                    }*/
+                try {
+                    CS.send_packet(surrounded_msg.getSurroundedbyflames_packet());
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+                Log.e("TAP Detected:", "Surrounded by flames");
                 return;
             }
             else {
@@ -178,19 +217,21 @@ public class TapDetection extends Service implements SensorEventListener {
                 //signal.setText("Message sent: SOS");
                 r.play();
                 state3 = 0;
-                //Envio da mensagem de SOS
-                SOSMessage sos_msg = new SOSMessage((byte)0x01);
-                    try {
-                        sos_msg.build_sos_packet();
-                    } catch (IOException e){
-                        e.printStackTrace();
-                      }
-                    /*try {
-                        CS.send_packet(sos_msg.getSos_packet());
-                    }catch (IOException e){
-                        e.printStackTrace();
-                    }*/
 
+                //Envio da mensagem de SOS
+                SOSMessage sos_msg = new SOSMessage(CS.getFirefighter_ID());
+                try {
+                    sos_msg.build_sos_packet();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+                try {
+                    CS.send_packet(sos_msg.getSos_packet());
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+
+                Log.e("TAP Detected:", "SOS");
                 return;
             }
             else {

@@ -15,6 +15,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +33,8 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Messages.ChangeFireLineStatusMessage;
+import pt.up.fe.droidbeiro.Messages.FirelineMessage;
 import pt.up.fe.droidbeiro.Messages.LogoutMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.Acelarometro;
@@ -68,10 +71,15 @@ public class ChefeLF extends Activity implements SensorEventListener {
     private ListView lista_distancias_layout;
     private ArrayAdapter arrayAdapter;
     private Button btn_enviar_dst;
+    private Button btn_apagar;
+    private Button btn_active;
+    private Button btn_controlled;
+    private Button btn_vigilance;
     private String distancia;
     private EditText custom_dst;
     private double latitude;
     private double longitude;
+    private int min_counter = 1;
 
     Client_Socket CS = null;
     boolean CSisBound;
@@ -124,7 +132,6 @@ public class ChefeLF extends Activity implements SensorEventListener {
     private void updateUI(Intent intent) {
         latitude = Double.parseDouble(intent.getStringExtra("LAT"));
         longitude = Double.parseDouble(intent.getStringExtra("LONG"));
-
     }
 
 
@@ -155,6 +162,157 @@ public class ChefeLF extends Activity implements SensorEventListener {
 
         custom_dst=(EditText)findViewById(R.id.dst_custom);
         btn_enviar_dst = (Button)findViewById(R.id.btn_enviar_dst);
+        btn_active = (Button)findViewById(R.id.btn_active);
+        btn_controlled = (Button)findViewById(R.id.btn_controlled);
+        btn_vigilance = (Button)findViewById(R.id.btn_vigilance);
+        btn_apagar = (Button)findViewById(R.id.btn_apagar);
+
+        btn_active.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(ChefeLF.this);
+                alertDialog.setTitle("Estado da Linha de Fogo");
+                alertDialog.setMessage("Activo?");
+
+                //Setting Positive "Sim" Button
+                alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        ChangeFireLineStatusMessage cfls_msg = new ChangeFireLineStatusMessage(CS.getFirefighter_ID(), 0);
+                        try {
+                            cfls_msg.build_changefirelinestatus_packet();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            CS.send_packet(cfls_msg.getChangefirelinestatus_packet());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                // Setting Negative "NÃO" Button
+                alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                alertDialog.show();
+
+            }
+        });
+
+        btn_controlled.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(ChefeLF.this);
+                alertDialog.setTitle("Estado da Linha de Fogo");
+                alertDialog.setMessage("Controlada?");
+
+                //Setting Positive "Sim" Button
+                alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        ChangeFireLineStatusMessage cfls_msg = new ChangeFireLineStatusMessage(CS.getFirefighter_ID(), 1);
+                        try {
+                            cfls_msg.build_changefirelinestatus_packet();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            CS.send_packet(cfls_msg.getChangefirelinestatus_packet());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                // Setting Negative "NÃO" Button
+                alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                alertDialog.show();
+            }
+        });
+
+        btn_vigilance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(ChefeLF.this);
+                alertDialog.setTitle("Estado da Linha de Fogo");
+                alertDialog.setMessage("Em Vigilância?");
+
+                //Setting Positive "Sim" Button
+                alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        ChangeFireLineStatusMessage cfls_msg = new ChangeFireLineStatusMessage(CS.getFirefighter_ID(), 2);
+                        try {
+                            cfls_msg.build_changefirelinestatus_packet();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            CS.send_packet(cfls_msg.getChangefirelinestatus_packet());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                // Setting Negative "NÃO" Button
+                alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                alertDialog.show();
+            }
+        });
+
+
+        btn_apagar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(ChefeLF.this);
+                alertDialog.setTitle("Estado da Linha de Fogo");
+                alertDialog.setMessage("Apagar Linha de Fogo?");
+
+                //Setting Positive "Sim" Button
+                alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        ChangeFireLineStatusMessage cfls_msg = new ChangeFireLineStatusMessage(CS.getFirefighter_ID(), 3);
+                        try {
+                            cfls_msg.build_changefirelinestatus_packet();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            CS.send_packet(cfls_msg.getChangefirelinestatus_packet());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        min_counter=1;
+                    }
+                });
+
+                // Setting Negative "NÃO" Button
+                alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                alertDialog.show();
+            }
+        });
+
 
         lista_distancias_layout.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> a, View v, int position, long id) {//    if (!msg_type) {
@@ -173,10 +331,10 @@ public class ChefeLF extends Activity implements SensorEventListener {
                 if (!(distancia.isEmpty())) {
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(ChefeLF.this);
                     alertDialog.setTitle("Enviar distância ?");
-                    alertDialog.setMessage(distancia);
+                    alertDialog.setMessage(distancia + " metros");
 
                     int dist;
-                    double distlat, distlon, finalLat, finalLon;
+                    final double distlat, distlon, finalLat, finalLon;
 
                     dist= Integer.parseInt(distancia);
                     distlat= dist*Math.cos(currentDegree);
@@ -186,8 +344,8 @@ public class ChefeLF extends Activity implements SensorEventListener {
                     finalLon = longitude + 180/Math.PI*(distlon/(638137*Math.cos(Math.PI/180*latitude)));
 
                     // String Longitude = gps. getLongitude();
-                    Toast.makeText(getApplicationContext(), Double.toString(finalLat), Toast.LENGTH_LONG).show();
-
+                    //=Toast.makeText(getApplicationContext(), Double.toString(finalLat), Toast.LENGTH_LONG).show();
+                    Log.e("Fire Line Coordinates", String.valueOf(finalLat) + " > " + String.valueOf(finalLon));
 
                     //Setting Positive "Sim" Button
                     alertDialog.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
@@ -195,11 +353,29 @@ public class ChefeLF extends Activity implements SensorEventListener {
                             //string GPS_DATA=getGPS();
                             //envia_msg(GPS_DATA);
                             //envia a mensagem para o centro de controlo
+
+                            if (min_counter <3) {
+
+                                Toast.makeText(getApplicationContext(), "Obrigatório enviar mais " + (3-min_counter) + " coordenadas", Toast.LENGTH_LONG).show();
+                                custom_dst.setText("");
+
+                                min_counter++;
+                            }
+
+                            FirelineMessage fl_msg = new FirelineMessage(CS.getFirefighter_ID(), String.valueOf(finalLat), String.valueOf(finalLon));
+                            try {
+                                fl_msg.build_fireline_packet();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                CS.send_packet(fl_msg.getFireline_packet());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             custom_dst.setText("");
                         }
                     });
-
-
 
                     // Setting Negative "NÃO" Button
                     alertDialog.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -219,13 +395,26 @@ public class ChefeLF extends Activity implements SensorEventListener {
 
     @Override
     public void onBackPressed() {
-        //Start NewActivity.class
-        Intent myIntent = new Intent(ChefeLF.this,ChefeMain.class);
-        myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(myIntent);
+        new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_lock_power_off).setTitle("Sair")
+                .setMessage("Tem a certeza?")
+                .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
+                        try {
+                            CS.disconnect();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        Intent intent = new Intent(Intent.ACTION_MAIN);
+                        intent.addCategory(Intent.CATEGORY_HOME);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                }).setNegativeButton("Não", null).show();
     }
-
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }

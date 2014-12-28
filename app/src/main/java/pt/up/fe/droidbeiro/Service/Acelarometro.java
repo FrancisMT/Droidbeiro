@@ -9,6 +9,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.CountDownTimer;
+import android.util.Log;
 
 /**
  * Created by Edgar on 18/11/2014.
@@ -38,13 +39,13 @@ public class Acelarometro implements SensorEventListener {
         mSensorManager = (SensorManager)context.getSystemService(context.SENSOR_SERVICE);
         acelarometro = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, acelarometro, SensorManager.SENSOR_DELAY_UI);
-        timer = new CounterClass(900000000, 100);
+        //timer = new CounterClass(900000000, 100);
+        timer = new CounterClass(30000, 1000);
         ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         r = RingtoneManager.getRingtone(context.getApplicationContext(), ring);
     }
 
     public void onSensorChanged(SensorEvent event) {
-
 
             accelerometer = event.values;
 
@@ -62,6 +63,8 @@ public class Acelarometro implements SensorEventListener {
             magnitude = (float) Math.sqrt(linear0 * linear0 + linear1 * linear1 + linear2 * linear2);
             magnitude = Math.abs(magnitude);
             if (magnitude > 0.2) {
+
+                Log.e("In onSensorChange", "here");
                 contador = 0;
                 r.stop();
 
@@ -95,7 +98,7 @@ public class Acelarometro implements SensorEventListener {
         @Override
         public void onFinish() {
             r.play();
-
+            Log.e("APS", "ALERT");
         }
     }
 

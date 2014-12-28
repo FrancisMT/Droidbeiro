@@ -96,60 +96,63 @@ public class Login extends Activity {
             public void onClick(View view) {
                 if ((username_field.getText().toString().trim().length() > 0) && (password_field.getText().toString().trim().length() > 0)){
 
-                    username=username_field.getText().toString().trim();
-                    password=password_field.getText().toString().trim();
+                    if ((username_field.getText().toString().trim().length() <= 3) && (password_field.getText().toString().trim().length() <= 16)) {
+                        username = username_field.getText().toString().trim();
+                        password = password_field.getText().toString().trim();
 
-                    /****************************************************************/
-                    LoginMessage login_msg = new LoginMessage(CS.getFirefighter_ID(), username, password);
-                    try {
-                        login_msg.build_login_packet();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        CS.send_packet(login_msg.getLogin_packet());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Log.e("Response from server", CS.getMessage());
-                    /****************************************************************/
-
-                    //Used to test
-                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(Login.this);
-                    //Setting Dialog Title
-                    alertDialog.setTitle("Apenas para testes");
-                    //Setting Dialog Message
-                    alertDialog.setMessage("Bombeiro ou Chefe?");
-
-                    //Setting Positive "Sim" Button
-                    alertDialog.setPositiveButton("Chefe", new DialogInterface.OnClickListener(){
-                        public void onClick(DialogInterface dialog,int which) {
-
-                            // Write your code here to invoke SIM event
-                            //Start NewActivity.class
-                            Intent myIntent = new Intent(Login.this,
-                                    ChefeMain.class);
-                            startActivity(myIntent);
+                        /****************************************************************/
+                        LoginMessage login_msg = new LoginMessage(CS.getFirefighter_ID(), username, password);
+                        try {
+                            login_msg.build_login_packet();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                    });
 
-                    // Setting Negative "NÃO" Button
-                    alertDialog.setNegativeButton("Bombeiro", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Write your code here to invoke NÃO event
-                            //Start NewActivity.class
-                            Intent myIntent = new android.content.Intent(Login.this,
-                                    BombeiroMain.class);
-                            startActivity(myIntent);
+                        try {
+                            CS.send_packet(login_msg.getLogin_packet());
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                    });
+                        Log.e("Response from server", CS.getMessage());
+                        /****************************************************************/
 
-                    // Showing Alert Message
-                    alertDialog.show();
+                        //Used to test
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Login.this);
+                        //Setting Dialog Title
+                        alertDialog.setTitle("Apenas para testes");
+                        //Setting Dialog Message
+                        alertDialog.setMessage("Bombeiro ou Chefe?");
 
+                        //Setting Positive "Sim" Button
+                        alertDialog.setPositiveButton("Chefe", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                // Write your code here to invoke SIM event
+                                //Start NewActivity.class
+                                Intent myIntent = new Intent(Login.this,
+                                        ChefeMain.class);
+                                startActivity(myIntent);
+                            }
+                        });
+
+                        // Setting Negative "NÃO" Button
+                        alertDialog.setNegativeButton("Bombeiro", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Write your code here to invoke NÃO event
+                                //Start NewActivity.class
+                                Intent myIntent = new android.content.Intent(Login.this,
+                                        BombeiroMain.class);
+                                startActivity(myIntent);
+                            }
+                        });
+
+                        // Showing Alert Message
+                        alertDialog.show();
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Utilizador/Password demasiado grandes", Toast.LENGTH_LONG).show();
+                    }
                 }else{
-                    Toast.makeText(getApplicationContext(), "Por favor introduza o par Utilizador/Password: " + CS.getFirefighter_ID(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Por favor introduza o par Utilizador/Password", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -162,6 +165,12 @@ public class Login extends Activity {
                 .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
+                        try {
+                            CS.disconnect();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
                         Intent intent = new Intent(Intent.ACTION_MAIN);
                         intent.addCategory(Intent.CATEGORY_HOME);

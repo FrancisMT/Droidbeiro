@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +23,7 @@ public class BombeiroMC extends Activity {
 
     private Button btn_sair_modo_combate;
 
-    Client_Socket CS = null;
+    public Client_Socket CS = null;
     boolean CSisBound;
 
 
@@ -65,6 +66,10 @@ public class BombeiroMC extends Activity {
         //start service on create
         doBindService();
 
+        // Start TapDetection Service
+        startService(new Intent(this, TapDetection.class));
+
+
         btn_sair_modo_combate=(Button)findViewById(R.id.btn_modo_combate);
 
         btn_sair_modo_combate.setOnClickListener(new View.OnClickListener() {
@@ -86,6 +91,8 @@ public class BombeiroMC extends Activity {
                         //Stop TapDetection Service
                         stopService(new Intent(BombeiroMC.this, TapDetection.class));
 
+                        doUnbindService();
+
                         //Start NewActivity.class
                         Intent myIntent = new Intent(BombeiroMC.this,
                                 BombeiroMain.class);
@@ -106,9 +113,6 @@ public class BombeiroMC extends Activity {
                 alertDialog.show();
             }
         });
-
-        // Start TapDetection Service
-        startService(new Intent(this, TapDetection.class));
 
     }
 

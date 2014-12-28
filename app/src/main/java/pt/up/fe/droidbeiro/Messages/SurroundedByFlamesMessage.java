@@ -9,7 +9,7 @@ import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
  */
 public class SurroundedByFlamesMessage {
 
-    private byte MessageType = 12;
+    private byte MessageType = 13;
     private byte FireFighter_ID;
 
     Packet surroundedbyflames_packet;

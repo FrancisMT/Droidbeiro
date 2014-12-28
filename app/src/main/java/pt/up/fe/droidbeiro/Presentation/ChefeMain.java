@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -92,8 +93,12 @@ public class ChefeMain extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chefe_main);
-        final Intent intentService = new Intent(this, GPS.class);
-        startService(intentService);
+
+        // Start GPS Service
+        startService(new Intent(this, GPS.class));
+
+        //Start APS Service
+        //startService(new Intent(this, Acelarometro.class));
 
         //start service on create
         doBindService();
@@ -130,8 +135,8 @@ public class ChefeMain extends Activity {
                     //Setting Positive "Sim" Button
                     alertDialog.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            /****************************************************************/
                             //envia a mensagem para o centro de controlo
-
                             if ((mensagem).equals("Preciso de ajuda")){
                                 personalization=false;
                             }else
@@ -191,6 +196,7 @@ public class ChefeMain extends Activity {
 
                             custom_message.setText("");
                             personalization=true;
+                            /****************************************************************/
                         }
                     });
 
@@ -228,6 +234,12 @@ public class ChefeMain extends Activity {
                 .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
+                        try {
+                            CS.disconnect();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
                         Intent intent = new Intent(Intent.ACTION_MAIN);
                         intent.addCategory(Intent.CATEGORY_HOME);

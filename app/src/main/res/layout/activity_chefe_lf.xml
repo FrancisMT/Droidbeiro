@@ -16,7 +16,8 @@
         android:layout_gravity="top|right"
         android:background="@drawable/btnok"
         android:layout_alignParentRight="true"
-        android:padding="15dp">
+        android:padding="15dp"
+        android:id="@+id/relativeLayout">
 
         <TextView
             android:layout_width="wrap_content"
@@ -78,16 +79,14 @@
         android:layout_height="wrap_content"
         android:id="@+id/dst_custom"
         android:singleLine="true"
-        android:layout_toStartOf="@+id/btn_enviar_dst"
         android:background="@color/body_background"
         android:hint="metros"
         android:padding="15dp"
         android:textSize="15dp"
         android:inputType="number"
+        android:layout_marginBottom="122dp"
         android:layout_above="@+id/btn_enviar_dst"
-        android:layout_alignStart="@+id/lista_dst"
-        android:layout_marginBottom="45dp"
-        android:layout_alignEnd="@+id/lista_dst" />
+        android:layout_alignParentStart="true" />
 
     <Button
         android:id="@+id/btn_enviar_dst"
@@ -100,9 +99,78 @@
         android:textColor="@color/white"
         android:layout_gravity="right"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true" />
+        android:layout_toStartOf="@+id/btn_apagar" />
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/btn_enviar_dst"
+        android:layout_marginBottom="38dp"
+        android:layout_toStartOf="@+id/relativeLayout"
+        android:layout_alignEnd="@+id/lista_dst"
+        android:weightSum="1">
 
+        <Button
+            android:id="@+id/btn_active"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btnok"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:text="Activa"
+            android:textColor="@color/white"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_weight="0.37"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btn_controlled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btnok"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:text="Controlada"
+            android:textColor="@color/white"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_weight="0.37"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/btn_vigilance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btnok"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:text="Vigiada"
+            android:textColor="@color/white"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_weight="0.37"
+            android:textSize="12dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_apagar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btnok"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:text="Apagar"
+        android:textColor="@color/white"
+        android:layout_gravity="bottom"
+        android:layout_weight="0.37"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
 
 
 </RelativeLayout>

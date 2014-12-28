@@ -54,7 +54,6 @@ public class Packet implements Serializable{
                 e.printStackTrace();
             }
         }
-
         this.hasProtocolHeader=hasPtrclHeader;
         this.packetContent= packet_content.toByteArray();
     }

@@ -2,6 +2,8 @@ package pt.up.fe.droidbeiro.Messages;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
 
@@ -26,11 +28,19 @@ public class FirelineMessage {
 
     public void build_fireline_packet() throws IOException {
 
-        byte[] latitude_pkt = new byte[4];
-        latitude_pkt = latitude.getBytes("ISO-8859-1");
+        Float lat = Float.parseFloat(latitude);
+        Float lon = Float.parseFloat(longitude);
 
-        byte[] longitude_pkt = new byte[4];
-        longitude_pkt = longitude.getBytes("ISO-8859-1");
+        ByteBuffer bb_lat = ByteBuffer.allocate(4);
+        bb_lat.order(ByteOrder.LITTLE_ENDIAN);
+        bb_lat.putFloat(lat.floatValue ());
+        byte [] latitude_pkt = bb_lat.array();
+
+        ByteBuffer bb_lon = ByteBuffer.allocate(4);
+        bb_lon.order(ByteOrder.LITTLE_ENDIAN);
+        bb_lon.putFloat(lon.floatValue ());
+        byte [] longitude_pkt = bb_lon.array();
+
 
         //Get Message Content
         ByteArrayOutputStream packet_content = new ByteArrayOutputStream();

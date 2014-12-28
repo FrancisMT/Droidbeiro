@@ -22,7 +22,7 @@ public class ChangeFireLineStatusMessage {
         this.status=stat;
     }
 
-    public void get_changefirelinestatus_packet()throws IOException {
+    public void build_changefirelinestatus_packet()throws IOException {
 
         byte status_pkt = (byte)status;
 

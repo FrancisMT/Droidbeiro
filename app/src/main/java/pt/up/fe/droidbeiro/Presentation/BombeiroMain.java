@@ -97,6 +97,7 @@ public class BombeiroMain extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bombeiro_main);
 
+        //Start APS Service
         acelarometro = new Acelarometro(this);
 
         //start service on create
@@ -230,7 +231,7 @@ public class BombeiroMain extends Activity {
                     public void onClick(DialogInterface dialog,int which) {
 
                         // Write your code here to invoke SIM event
-
+                        doUnbindService();
                         //Start NewActivity.class
                         Intent myIntent = new Intent(BombeiroMain.this,
                                 BombeiroMC.class);
@@ -264,6 +265,12 @@ public class BombeiroMain extends Activity {
                 .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
+                        try {
+                            CS.disconnect();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
                         Intent intent = new Intent(Intent.ACTION_MAIN);
                         intent.addCategory(Intent.CATEGORY_HOME);
