@@ -94,14 +94,14 @@ public class ChefeMain extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chefe_main);
 
-        // Start GPS Service
-        startService(new Intent(this, GPS.class));
-
-        //Start APS Service
-        //startService(new Intent(this, Acelarometro.class));
-
         //start service on create
         doBindService();
+
+        //Start APS Service
+        startService(new Intent(this, Acelarometro.class));
+
+        // Start GPS Service
+        startService(new Intent(this, GPS.class));
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);

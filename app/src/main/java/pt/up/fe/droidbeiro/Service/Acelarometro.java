@@ -1,6 +1,10 @@
 package pt.up.fe.droidbeiro.Service;
 
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,13 +13,19 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.CountDownTimer;
+import android.os.IBinder;
 import android.util.Log;
+
+import java.io.IOException;
+
+import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Messages.APSAlertMessage;
 
 /**
  * Created by Edgar on 18/11/2014.
  */
 
-public class Acelarometro implements SensorEventListener {
+public class Acelarometro extends Service implements SensorEventListener {
     private SensorManager mSensorManager;
     Sensor acelarometro;
     float gravity0;
@@ -30,8 +40,67 @@ public class Acelarometro implements SensorEventListener {
     Ringtone r;
     CounterClass timer;
 
-    public Acelarometro(Context context)
+    private boolean data_sent = false;
+
+    public Client_Socket CS = null;
+    boolean CSisBound;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(Acelarometro.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        Log.e("On Service", "APS");
+        doBindService();
+
+        gravity0 = 0f;
+        gravity1 = 0f;
+        gravity2 = 0f;
+
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        acelarometro = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorManager.registerListener(this, acelarometro, SensorManager.SENSOR_DELAY_UI);
+        //timer = new CounterClass(900000000, 100);
+        /**
+         * For debugging
+         */
+        timer = new CounterClass(30000, 1000);
+        ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        r = RingtoneManager.getRingtone(getApplicationContext(), ring);
+    }
+
+    /*public Acelarometro(Context context)
     {
+        Log.e("On Service", "APS");
+        doBindService();
+
         gravity0 = 0f;
         gravity1 = 0f;
         gravity2 = 0f;
@@ -40,10 +109,13 @@ public class Acelarometro implements SensorEventListener {
         acelarometro = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, acelarometro, SensorManager.SENSOR_DELAY_UI);
         //timer = new CounterClass(900000000, 100);
-        timer = new CounterClass(30000, 1000);
+        /**
+         * For debugging
+         */
+        /*timer = new CounterClass(30000, 1000);
         ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         r = RingtoneManager.getRingtone(context.getApplicationContext(), ring);
-    }
+    }*/
 
     public void onSensorChanged(SensorEvent event) {
 
@@ -64,7 +136,6 @@ public class Acelarometro implements SensorEventListener {
             magnitude = Math.abs(magnitude);
             if (magnitude > 0.2) {
 
-                Log.e("In onSensorChange", "here");
                 contador = 0;
                 r.stop();
 
@@ -72,16 +143,12 @@ public class Acelarometro implements SensorEventListener {
                 if (contador == 0) {
                     timer.start();
                     contador++;
+                    data_sent=false;
                 } else {
                     contador++;
                 }
-
             }
-
-
         }
-
-
 
     public class CounterClass extends CountDownTimer {
 
@@ -92,13 +159,30 @@ public class Acelarometro implements SensorEventListener {
         @Override
         public void onTick(long millisUntilFinished) {
             long millis = millisUntilFinished;
-
         }
 
         @Override
         public void onFinish() {
             r.play();
-            Log.e("APS", "ALERT");
+
+            if(!data_sent) {
+                Log.e("APS", "Alert");
+
+                APSAlertMessage aps_msg = new APSAlertMessage(CS.getFirefighter_ID());
+                try {
+                    aps_msg.build_apsalert_packet();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    CS.send_packet(aps_msg.getApsalert_packet());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                data_sent=true;
+            }
+
         }
     }
 

@@ -97,11 +97,15 @@ public class BombeiroMain extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bombeiro_main);
 
-        //Start APS Service
-        acelarometro = new Acelarometro(this);
-
         //start service on create
         doBindService();
+
+        //Start APS Service
+        startService(new Intent(this, Acelarometro.class));
+
+        // Start GPS Service
+        startService(new Intent(this, GPS.class));
+
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);
@@ -256,7 +260,8 @@ public class BombeiroMain extends Activity {
 
     public void onResume(){
         super.onResume();
-        acelarometro = new Acelarometro(this);
+        //acelarometro = new Acelarometro(this);
+        startService(new Intent(BombeiroMain.this, Acelarometro.class));
     }
     @Override
     public void onBackPressed() {
