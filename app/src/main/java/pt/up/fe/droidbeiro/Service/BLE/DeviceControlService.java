@@ -131,6 +131,7 @@ public class DeviceControlService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 

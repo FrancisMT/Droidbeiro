@@ -11,6 +11,7 @@ import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -110,6 +111,9 @@ public class DeviceScanActivity extends ListActivity {
     private BluetoothAdapter mBluetoothAdapter;
     private boolean mScanning;
     private Handler mHandler;
+
+    private String heartRate="";
+
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
@@ -257,18 +261,20 @@ public class DeviceScanActivity extends ListActivity {
         else if (!device.getName().equals("Update this field with the name of the bluetooth device" +
                 "on the radio module")) { // name of device != name of module radio -> start DeviceControlService
             final Intent intentService = new Intent(this, DeviceControlService.class);
-            //final Intent intent = new Intent(this,ControlActivity.class);
+
             intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_NAME, device.getName());
             intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_ADDRESS, device.getAddress());
-            //intent.putExtra(ControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-            //intent.putExtra(ControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
 
             if (mScanning) {
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 mScanning = false;
             }
-            //startActivity(intent);
+
             startService(intentService);
+            Toast.makeText(getApplicationContext(), "Here", Toast.LENGTH_LONG).show();
+
+            Intent intent = new Intent(DeviceScanActivity.this, Connection.class);
+            startActivity(intent);
 
         } else { // name of the device==name of the module radio-> start SerialPortService
 

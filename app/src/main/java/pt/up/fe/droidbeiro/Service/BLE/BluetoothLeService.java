@@ -14,14 +14,20 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+
+import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Messages.LoginMessage;
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
@@ -58,6 +64,33 @@ public class BluetoothLeService extends Service {
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
 
     public final static UUID UUID_BATTERY_LEVEL = UUID.fromString(SampleGattAttributes.BATTERY_LEVEL);
+
+
+    public Client_Socket CS = null;
+    boolean CSisBound;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(BluetoothLeService.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.

@@ -25,14 +25,18 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".Presentation.Connection"
-            android:label="@string/app_name"
+            android:name=".Presentation.DeviceScanActivity"
+            android:label="Droidbeiro"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".Presentation.Connection"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".Presentation.Login"
@@ -79,6 +83,16 @@
         </service>
         <service
             android:name=".Service.BLE.SerialPortService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".Service.BLE.DeviceControlService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".Service.BLE.BluetoothLeService"
             android:enabled="true"
             android:exported="true" >
         </service>

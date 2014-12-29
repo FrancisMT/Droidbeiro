@@ -2,6 +2,7 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Logic.User;
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Service.BLE.DeviceControlService;
 
 public class Connection extends Activity {
 
@@ -31,6 +34,8 @@ public class Connection extends Activity {
 
     Client_Socket CS = null;
     boolean CSisBound;
+
+    private String heartRate="";
 
     private ServiceConnection mConnection = new ServiceConnection() {
         //EDITED PART
@@ -72,6 +77,7 @@ public class Connection extends Activity {
         // Hiding the action bar
         getActionBar().hide();
 
+
         btn_ligar = (Button)findViewById(R.id.btn_ligar);
         ip_address_field = (EditText)findViewById(R.id.ip_address_field);
         porta_field = (EditText)findViewById(R.id.porta_field);
@@ -90,12 +96,11 @@ public class Connection extends Activity {
                     startService(Connection);
                     //doBindService();
 
-
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);
 
                 }else{
-                    Toast.makeText(getApplicationContext(), "Por favor introduza o par IP/Porta", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Por favor introduza o par IP/Porta: " + heartRate, Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -142,4 +147,19 @@ public class Connection extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            final String action = intent.getAction();
+
+            if (DeviceControlService.BROADCAST_ACTION.equals(action)) {
+                heartRate = intent.getStringExtra(DeviceControlService.HR_DATA);
+                Log.e("Heart Rate", heartRate);
+            }
+        }
+    };
+
 }

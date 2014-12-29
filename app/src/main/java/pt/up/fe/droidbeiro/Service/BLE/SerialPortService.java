@@ -92,6 +92,8 @@ public class SerialPortService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        Log.e("On Service", "Serial Port Service");
+
         registerReceiver(UpdateReceiver, null);
         if (mDeviceAddress != null) {
 
