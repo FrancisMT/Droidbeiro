@@ -77,7 +77,6 @@ public class Connection extends Activity {
         // Hiding the action bar
         getActionBar().hide();
 
-
         btn_ligar = (Button)findViewById(R.id.btn_ligar);
         ip_address_field = (EditText)findViewById(R.id.ip_address_field);
         porta_field = (EditText)findViewById(R.id.porta_field);
@@ -95,6 +94,8 @@ public class Connection extends Activity {
                     Connection.putExtra("PORT", SERVER_PORT);
                     startService(Connection);
                     //doBindService();
+
+                    //registerReceiver(heartRateReceiver, null);
 
                     Intent intent = new Intent(Connection.this, Login.class);
                     startActivity(intent);
@@ -148,7 +149,7 @@ public class Connection extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver heartRateReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -157,7 +158,6 @@ public class Connection extends Activity {
 
             if (DeviceControlService.BROADCAST_ACTION.equals(action)) {
                 heartRate = intent.getStringExtra(DeviceControlService.HR_DATA);
-                Log.e("Heart Rate", heartRate);
             }
         }
     };

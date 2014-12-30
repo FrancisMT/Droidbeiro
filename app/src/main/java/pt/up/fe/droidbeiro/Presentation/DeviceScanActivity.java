@@ -271,7 +271,6 @@ public class DeviceScanActivity extends ListActivity {
             }
 
             startService(intentService);
-            Toast.makeText(getApplicationContext(), "Here", Toast.LENGTH_LONG).show();
 
             Intent intent = new Intent(DeviceScanActivity.this, Connection.class);
             startActivity(intent);

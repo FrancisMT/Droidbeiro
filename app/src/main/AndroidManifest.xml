@@ -30,6 +30,7 @@
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -103,6 +104,17 @@
         </service>
         <service
             android:name=".Service.Acelarometro"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <activity
+            android:name=".Presentation.ChangeTeam"
+            android:label="@string/title_activity_change_team" >
+        </activity>
+
+        <service
+            android:name=".Service.BatteryLevel"
             android:enabled="true"
             android:exported="true" >
         </service>

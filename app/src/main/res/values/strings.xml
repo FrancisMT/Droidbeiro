@@ -14,7 +14,6 @@
     <string name="title_activity_chefe_lf">ChefeLF</string>
     <string name="title_activity_bombeiro_mc">BombeiroMC</string>
 
-
     <!-- Strings BLE -->
 
     <string name="ble_not_supported">BLE is not supported</string>
@@ -40,6 +39,6 @@
     <string name="title_activity_display_data">DisplayDataActivity</string>
     <string name="title_activity_control">ControlActivity</string>
     <string name="title_activity_test">test</string>
-
+    <string name="title_activity_change_team">ChangeTeam</string>
 
 </resources>

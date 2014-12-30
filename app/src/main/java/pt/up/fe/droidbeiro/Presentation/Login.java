@@ -131,6 +131,7 @@ public class Login extends Activity {
                                 //Start NewActivity.class
                                 Intent myIntent = new Intent(Login.this,
                                         ChefeMain.class);
+                                CS.setAfter_login(true);
                                 startActivity(myIntent);
                             }
                         });
@@ -142,6 +143,7 @@ public class Login extends Activity {
                                 //Start NewActivity.class
                                 Intent myIntent = new android.content.Intent(Login.this,
                                         BombeiroMain.class);
+                                CS.setAfter_login(true);
                                 startActivity(myIntent);
                             }
                         });

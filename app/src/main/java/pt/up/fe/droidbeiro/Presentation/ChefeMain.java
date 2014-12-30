@@ -2,11 +2,14 @@ package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -28,6 +31,7 @@ import pt.up.fe.droidbeiro.Messages.PersonalizedMessage;
 import pt.up.fe.droidbeiro.Messages.PredefinedMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.Acelarometro;
+import pt.up.fe.droidbeiro.Service.BatteryLevel;
 import pt.up.fe.droidbeiro.Service.Bussola;
 import pt.up.fe.droidbeiro.Service.GPS;
 
@@ -56,6 +60,14 @@ public class ChefeMain extends Activity {
     Client_Socket CS = null;
     boolean CSisBound;
 
+    private int battery_level;
+
+    private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context ctxt, Intent intent) {
+            battery_level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+        }
+    };
 
     private ServiceConnection mConnection = new ServiceConnection() {
         //EDITED PART
@@ -88,7 +100,6 @@ public class ChefeMain extends Activity {
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,8 +111,14 @@ public class ChefeMain extends Activity {
         //Start APS Service
         startService(new Intent(this, Acelarometro.class));
 
-        // Start GPS Service
+        //Start GPS Service
         startService(new Intent(this, GPS.class));
+
+        //BroadcastReceiver for the battery level
+        this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
+        //Start Battery Level Service
+        startService(new Intent(this, BatteryLevel.class));
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);
@@ -284,6 +301,15 @@ public class ChefeMain extends Activity {
                 startActivity(login_Intent);
 
                 return true;
+
+            case R.id.team:
+
+                Intent team_Intent= new Intent(ChefeMain.this, ChangeTeam.class);
+                team_Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(team_Intent);
+
+                return true;
+
             case R.id.connection:
 
                 /****************************************************************/
@@ -314,5 +340,4 @@ public class ChefeMain extends Activity {
                 return super.onOptionsItemSelected(item);
             }
         }
-
-    }
+}

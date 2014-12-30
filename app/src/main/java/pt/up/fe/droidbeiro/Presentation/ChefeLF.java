@@ -36,6 +36,7 @@ import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Messages.ChangeFireLineStatusMessage;
 import pt.up.fe.droidbeiro.Messages.FirelineMessage;
 import pt.up.fe.droidbeiro.Messages.LogoutMessage;
+import pt.up.fe.droidbeiro.Messages.ReplaceFireLineMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.Acelarometro;
 import pt.up.fe.droidbeiro.Service.Bussola;
@@ -75,6 +76,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
     private Button btn_active;
     private Button btn_controlled;
     private Button btn_vigilance;
+    private Button btn_extinct;
     private String distancia;
     private EditText custom_dst;
     private double latitude;
@@ -162,10 +164,11 @@ public class ChefeLF extends Activity implements SensorEventListener {
 
         custom_dst=(EditText)findViewById(R.id.dst_custom);
         btn_enviar_dst = (Button)findViewById(R.id.btn_enviar_dst);
+        btn_apagar = (Button)findViewById(R.id.btn_apagar);
         btn_active = (Button)findViewById(R.id.btn_active);
         btn_controlled = (Button)findViewById(R.id.btn_controlled);
         btn_vigilance = (Button)findViewById(R.id.btn_vigilance);
-        btn_apagar = (Button)findViewById(R.id.btn_apagar);
+        btn_extinct = (Button)findViewById(R.id.btn_extinct);
 
         btn_active.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -276,12 +279,12 @@ public class ChefeLF extends Activity implements SensorEventListener {
         });
 
 
-        btn_apagar.setOnClickListener(new View.OnClickListener() {
+        btn_extinct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(ChefeLF.this);
                 alertDialog.setTitle("Estado da Linha de Fogo");
-                alertDialog.setMessage("Apagar Linha de Fogo?");
+                alertDialog.setMessage("Linha de Fogo Extinta?");
 
                 //Setting Positive "Sim" Button
                 alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
@@ -298,8 +301,6 @@ public class ChefeLF extends Activity implements SensorEventListener {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
-                        min_counter=1;
                     }
                 });
 
@@ -391,29 +392,71 @@ public class ChefeLF extends Activity implements SensorEventListener {
 
             }
         });
-    }
 
-    @Override
-    public void onBackPressed() {
-        new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_lock_power_off).setTitle("Sair")
-                .setMessage("Tem a certeza?")
-                .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        btn_apagar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-                        try {
-                            CS.disconnect();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                distancia = custom_dst.getText().toString().trim();
+
+                if (!(distancia.isEmpty())) {
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(ChefeLF.this);
+                    alertDialog.setTitle("Apagar LF e Enviar nova distância?");
+                    alertDialog.setMessage(distancia + " metros");
+
+                    int dist;
+                    final double distlat, distlon, finalLat, finalLon;
+
+                    dist = Integer.parseInt(distancia);
+                    distlat = dist * Math.cos(currentDegree);
+                    distlon = dist * Math.sin(currentDegree);
+
+                    finalLat = latitude + 180 / Math.PI * (distlat / 6378137);
+                    finalLon = longitude + 180 / Math.PI * (distlon / (638137 * Math.cos(Math.PI / 180 * latitude)));
+
+                    // String Longitude = gps. getLongitude();
+                    //=Toast.makeText(getApplicationContext(), Double.toString(finalLat), Toast.LENGTH_LONG).show();
+                    Log.e("Fire Line Coordinates", String.valueOf(finalLat) + " > " + String.valueOf(finalLon));
+
+                    //Setting Positive "Sim" Button
+                    alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            //string GPS_DATA=getGPS();
+                            //envia_msg(GPS_DATA);
+                            //envia a mensagem para o centro de controlo
+
+                            ReplaceFireLineMessage fl_msg = new ReplaceFireLineMessage(CS.getFirefighter_ID(), String.valueOf(finalLat), String.valueOf(finalLon));
+                            try {
+                                fl_msg.build_replacefireline_packet();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                CS.send_packet(fl_msg.getReplacefireline_packet());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            custom_dst.setText("");
+                            min_counter=1;
+                            Toast.makeText(getApplicationContext(), "Obrigatório enviar mais " + (3-min_counter) + " coordenadas", Toast.LENGTH_LONG).show();
+                            min_counter++;
                         }
+                    });
 
-                        Intent intent = new Intent(Intent.ACTION_MAIN);
-                        intent.addCategory(Intent.CATEGORY_HOME);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                    }
-                }).setNegativeButton("Não", null).show();
+                    // Setting Negative "NÃO" Button
+                    alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            //envia a mensagem para o centro de controlo
+                            custom_dst.setText("");
+                        }
+                    });
+                    alertDialog.show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Nada a enviar", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -482,6 +525,15 @@ public class ChefeLF extends Activity implements SensorEventListener {
                 startActivity(login_Intent);
 
                 return true;
+
+            case R.id.team:
+
+                Intent team_Intent= new Intent(ChefeLF.this, ChangeTeam.class);
+                team_Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(team_Intent);
+
+                return true;
+
             case R.id.connection:
 
                 /****************************************************************/

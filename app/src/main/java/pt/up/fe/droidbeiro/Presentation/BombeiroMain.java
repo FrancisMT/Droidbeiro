@@ -320,6 +320,15 @@ public class BombeiroMain extends Activity {
                 startActivity(login_Intent);
 
                 return true;
+
+            case R.id.team:
+
+                Intent team_Intent= new Intent(BombeiroMain.this, ChangeTeam.class);
+                team_Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(team_Intent);
+
+                return true;
+
             case R.id.connection:
 
                 /****************************************************************/

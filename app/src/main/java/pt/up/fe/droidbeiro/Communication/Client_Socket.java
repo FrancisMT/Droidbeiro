@@ -35,7 +35,8 @@ public class Client_Socket extends Service{
     private final static byte cc_accepts_login_msg_type = (byte)0x134;
     private final static byte cc_requests_movetogps_msg_type = (byte)0x135;
 
-    public static byte Firefighter_ID;
+    public static byte Firefighter_ID=0;
+    public static boolean after_login = false;
 
     private Socket cSocket = null;
     //private PrintWriter out = null;
@@ -112,6 +113,14 @@ public class Client_Socket extends Service{
         Runnable connect = new connectSocket();
         new Thread(connect).start();
         return START_STICKY;
+    }
+
+    public static void setAfter_login(boolean after_login) {
+        Client_Socket.after_login = after_login;
+    }
+
+    public static boolean isAfter_login() {
+        return after_login;
     }
 
     /**

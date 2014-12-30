@@ -5,6 +5,9 @@
     <item android:id="@+id/login"
         android:title="Mudar Utilizador"
         android:showAsAction="never" />
+    <item android:id="@+id/team"
+        android:title="Mudar Equipa"
+        android:showAsAction="never" />
     <item android:id="@+id/connection"
         android:title="Mudar Centro Controlo"
         android:showAsAction="never" />

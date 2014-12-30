@@ -91,7 +91,7 @@
     <Button
         android:id="@+id/btn_enviar_dst"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="22pt"
         android:background="@drawable/btnok"
         android:paddingLeft="25dp"
         android:paddingRight="25dp"
@@ -116,14 +116,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btnok"
-            android:paddingLeft="25dp"
-            android:paddingRight="25dp"
             android:text="Activa"
             android:textColor="@color/white"
             android:layout_gravity="bottom"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:layout_weight="0.37"
+            android:layout_weight="1"
             android:textSize="12dp" />
 
         <Button
@@ -131,14 +129,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btnok"
-            android:paddingLeft="25dp"
-            android:paddingRight="25dp"
+
             android:text="Controlada"
             android:textColor="@color/white"
             android:layout_gravity="bottom"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:layout_weight="0.37"
+            android:layout_weight="1"
             android:textSize="12dp" />
 
         <Button
@@ -146,29 +143,44 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btnok"
-            android:paddingLeft="25dp"
-            android:paddingRight="25dp"
+
             android:text="Vigiada"
             android:textColor="@color/white"
             android:layout_gravity="bottom"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:layout_weight="0.37"
+            android:layout_weight="1"
+            android:textSize="12dp" />
+
+
+        <Button
+            android:id="@+id/btn_extinct"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btnok"
+
+            android:text="Extinta"
+            android:textColor="@color/white"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_weight="1"
             android:textSize="12dp" />
 
     </LinearLayout>
 
     <Button
         android:id="@+id/btn_apagar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50pt"
+        android:layout_height="22pt"
         android:background="@drawable/btnok"
         android:paddingLeft="25dp"
         android:paddingRight="25dp"
-        android:text="Apagar"
+        android:text="Apagar e Enviar"
         android:textColor="@color/white"
         android:layout_gravity="bottom"
         android:layout_weight="0.37"
+        android:textSize="12dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true" />
 
