@@ -173,12 +173,14 @@ public class DeviceScanActivity extends ListActivity {
         if (!mScanning) {
             menu.findItem(R.id.menu_stop).setVisible(false);
             menu.findItem(R.id.menu_scan).setVisible(true);
+            menu.findItem(R.id.menu_skip).setVisible(false);
             menu.findItem(R.id.menu_refresh).setActionView(null);
 
 
         } else {
             menu.findItem(R.id.menu_stop).setVisible(true);
             menu.findItem(R.id.menu_scan).setVisible(false);
+            menu.findItem(R.id.menu_skip).setVisible(true);
             menu.findItem(R.id.menu_refresh).setActionView(
                     R.layout.action_bar_indeterminate_progress);
         }
@@ -194,6 +196,10 @@ public class DeviceScanActivity extends ListActivity {
                 break;
             case R.id.menu_stop:
                 scanLeDevice(false);
+                break;
+            case R.id.menu_skip:
+                Intent intent = new Intent(this, Connection.class);
+                startActivity(intent);
                 break;
         }
         return true;
