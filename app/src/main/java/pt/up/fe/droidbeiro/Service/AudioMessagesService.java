@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +65,15 @@ public class AudioMessagesService extends Service {
     CountDownTimer timer;
 
     @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
     public void onCreate(){
+        Log.e("On Service", "Audio Messages");
+
+
         //Add messages to list
         audioMessagesList.add(0,m_0);
         audioMessagesList.add(1,m_1);
@@ -77,7 +86,7 @@ public class AudioMessagesService extends Service {
         audioMessagesList.add(8,m_8);
         audioMessagesList.add(9,m_9);
         //timer para verificar se ja passaram 30seg
-        timer = new CountDownTimer(30000,50000) {
+        /*timer = new CountDownTimer(30000,50000) {
             @Override
             public void onTick(long l) {
 
@@ -87,7 +96,7 @@ public class AudioMessagesService extends Service {
             public void onFinish() {
 
             }
-        };
+        };*/
     }
 
 
@@ -100,11 +109,7 @@ public class AudioMessagesService extends Service {
         return messageID;
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+
 
 
     private void playAudioMessages() {

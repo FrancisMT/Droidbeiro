@@ -29,6 +29,7 @@ import java.util.UUID;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Messages.APSAlertMessage;
+import pt.up.fe.droidbeiro.Messages.ExitAlertMessage;
 import pt.up.fe.droidbeiro.Messages.HeartRateAlertMessage;
 import pt.up.fe.droidbeiro.Messages.HeartRateMessage;
 import pt.up.fe.droidbeiro.Messages.LoginMessage;
@@ -74,6 +75,7 @@ public class BluetoothLeService extends Service {
     boolean CSisBound;
 
     private boolean data_sent = false;
+    private boolean recovery = true;
 
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -176,11 +178,11 @@ public class BluetoothLeService extends Service {
             final int heartRate = characteristic.getIntValue(format, 1);
             Log.d(TAG, String.format("Received heart rate: %d", heartRate));
 
-            Calendar cal = Calendar.getInstance();
-            int seconds = cal.get(Calendar.SECOND);
-            if (heartRate > 76){
+            if (CS.isAfter_login()) {
+                Calendar cal = Calendar.getInstance();
+                int seconds = cal.get(Calendar.SECOND);
 
-                if((seconds%10)==0){
+                if ((seconds % 10) == 0) {
                     Log.d(TAG, String.format("Received heart rate: %d", heartRate));
 
                     HeartRateMessage hr_msg = new HeartRateMessage(CS.getFirefighter_ID(), heartRate);
@@ -196,14 +198,26 @@ public class BluetoothLeService extends Service {
                     }
                 }
 
-                //data_sent=false;
-            }
-            else
-            if (heartRate <= 76){
-                Log.e("Low Heart Rate", "Alert");
-                //if (!data_sent) {
-                if((seconds%10)==0){
-                    if (CS.isAfter_login()){
+                if (heartRate > 76) {
+                    data_sent = false;
+                    if (!recovery) {
+                        ExitAlertMessage ea_msg = new ExitAlertMessage(CS.getFirefighter_ID());
+                        try {
+                            ea_msg.build_exitalert_packet();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            CS.send_packet(ea_msg.getExitalert_packet());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        recovery = true;
+                    }
+                } else if (heartRate <= 76) {
+                    recovery = false;
+                    Log.e("Low Heart Rate", "Alert");
+                    if (!data_sent) {
                         Log.e("Low Heart Alert", "Sent to Command Center");
 
                         HeartRateAlertMessage hr_a_msg = new HeartRateAlertMessage(CS.getFirefighter_ID(), heartRate);
@@ -217,11 +231,10 @@ public class BluetoothLeService extends Service {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        //data_sent=true;
+                        data_sent = true;
                     }
                 }
             }
-
 
 
             intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));

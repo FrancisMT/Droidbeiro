@@ -106,6 +106,7 @@ public class BombeiroMain extends Activity {
         // Start GPS Service
         startService(new Intent(this, GPS.class));
 
+        CS.setAfter_login(true);
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);
@@ -312,6 +313,7 @@ public class BombeiroMain extends Activity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                CS.setAfter_login(false);
                 doUnbindService();
                 /****************************************************************/
 
@@ -343,6 +345,7 @@ public class BombeiroMain extends Activity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                CS.setAfter_login(false);
                 doUnbindService();
                 try {
                     CS.disconnect();
@@ -365,6 +368,11 @@ public class BombeiroMain extends Activity {
     public void finish() {
 
         acelarometro.stop();
+        try {
+            CS.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         super.finish();
     }
 }

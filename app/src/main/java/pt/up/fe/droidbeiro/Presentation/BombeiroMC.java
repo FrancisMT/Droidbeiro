@@ -7,16 +7,25 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Service.AudioMessagesService;
 import pt.up.fe.droidbeiro.Service.TapDetection;
 
 public class BombeiroMC extends Activity {
@@ -69,6 +78,7 @@ public class BombeiroMC extends Activity {
         // Start TapDetection Service
         startService(new Intent(this, TapDetection.class));
 
+        CS.setIn_Combate_Mode(true);
 
         btn_sair_modo_combate=(Button)findViewById(R.id.btn_modo_combate);
 
@@ -92,6 +102,7 @@ public class BombeiroMC extends Activity {
                         stopService(new Intent(BombeiroMC.this, TapDetection.class));
 
                         doUnbindService();
+                        CS.setIn_Combate_Mode(false);
 
                         //Start NewActivity.class
                         Intent myIntent = new Intent(BombeiroMC.this,

@@ -517,6 +517,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                CS.setAfter_login(false);
                 doUnbindService();
                 /****************************************************************/
 
@@ -548,6 +549,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                CS.setAfter_login(false);
                 doUnbindService();
                 try {
                     CS.disconnect();

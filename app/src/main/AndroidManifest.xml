@@ -113,11 +113,6 @@
             android:label="@string/title_activity_change_team" >
         </activity>
 
-        <service
-            android:name=".Service.BatteryLevel"
-            android:enabled="true"
-            android:exported="true" >
-        </service>
     </application>
 
 </manifest>

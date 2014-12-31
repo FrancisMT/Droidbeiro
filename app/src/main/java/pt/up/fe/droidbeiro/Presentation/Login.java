@@ -101,6 +101,11 @@ public class Login extends Activity {
                         password = password_field.getText().toString().trim();
 
                         /****************************************************************/
+                        CS.setIncorrect_login(false);
+                        CS.setCorrect_login(false);
+                        CS.setFirefighter_login(false);
+                        CS.setTeamleader_login(false);
+
                         LoginMessage login_msg = new LoginMessage(CS.getFirefighter_ID(), username, password);
                         try {
                             login_msg.build_login_packet();
@@ -114,8 +119,29 @@ public class Login extends Activity {
                             e.printStackTrace();
                         }
                         Log.e("Response from server", CS.getMessage());
-                        /****************************************************************/
 
+
+                        while( (!(CS.isIncorrect_login())) && (!(CS.isCorrect_login())) ){}
+                        if (CS.isIncorrect_login()){
+                            Toast.makeText(getApplicationContext(), "Dados incorrectos", Toast.LENGTH_LONG).show();
+                        }
+                        if (CS.isCorrect_login()){
+                            //Toast.makeText(getApplicationContext(), "Dados correctos", Toast.LENGTH_LONG).show();
+                            if (CS.isTeamleader_login()){
+                                //Toast.makeText(getApplicationContext(), "Dados correctos: Chefe de equipa", Toast.LENGTH_LONG).show();
+                                Intent myIntent = new Intent(Login.this,ChefeMain.class);
+                                startActivity(myIntent);
+                            }
+                            else
+                            if (CS.isFirefighter_login()) {
+                                //Toast.makeText(getApplicationContext(), "Dados correctos: Bombeiro", Toast.LENGTH_LONG).show();
+                                Intent myIntent = new android.content.Intent(Login.this, BombeiroMain.class);
+                                startActivity(myIntent);
+                            }
+                        }
+
+                        /****************************************************************/
+/*
                         //Used to test
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(Login.this);
                         //Setting Dialog Title
@@ -150,6 +176,7 @@ public class Login extends Activity {
 
                         // Showing Alert Message
                         alertDialog.show();
+*/
                     }else{
                         Toast.makeText(getApplicationContext(), "Utilizador/Password demasiado grandes", Toast.LENGTH_LONG).show();
                     }

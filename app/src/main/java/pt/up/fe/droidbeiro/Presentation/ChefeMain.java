@@ -12,7 +12,6 @@ import android.content.ServiceConnection;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,8 +30,6 @@ import pt.up.fe.droidbeiro.Messages.PersonalizedMessage;
 import pt.up.fe.droidbeiro.Messages.PredefinedMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.Acelarometro;
-import pt.up.fe.droidbeiro.Service.BatteryLevel;
-import pt.up.fe.droidbeiro.Service.Bussola;
 import pt.up.fe.droidbeiro.Service.GPS;
 
 public class ChefeMain extends Activity {
@@ -114,11 +111,7 @@ public class ChefeMain extends Activity {
         //Start GPS Service
         startService(new Intent(this, GPS.class));
 
-        //BroadcastReceiver for the battery level
-        this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-
-        //Start Battery Level Service
-        startService(new Intent(this, BatteryLevel.class));
+        CS.setAfter_login(true);
 
         lista_mensagens_layout = (ListView) findViewById(R.id.lista_mensagens);
         arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, messages);
@@ -293,6 +286,7 @@ public class ChefeMain extends Activity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                CS.setAfter_login(false);
                 doUnbindService();
                 /****************************************************************/
 
@@ -324,6 +318,7 @@ public class ChefeMain extends Activity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                CS.setAfter_login(false);
                 doUnbindService();
                 try {
                     CS.disconnect();

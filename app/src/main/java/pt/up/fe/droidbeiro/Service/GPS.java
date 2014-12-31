@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.location.Location;
 import android.location.LocationListener;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Messages.GPSMessage;
+import pt.up.fe.droidbeiro.Messages.LowBatteryWarningMessage;
 
 
 /**
@@ -45,6 +47,7 @@ public class GPS extends Service {
     public double longitude;
     public double latitude;
     private boolean data_sent = false;
+    private boolean battery_level_sent = false;
 
     Intent intent;
 
@@ -112,6 +115,12 @@ public class GPS extends Service {
         broadcastUpdate(BROADCAST_ACTION);
     }
 
+    public float getMyBatteryLevel() {
+        Intent batteryIntent = this.getApplicationContext().registerReceiver(null,
+                new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        return batteryIntent.getIntExtra("level", -1);
+    }
+
     private void broadcastUpdate(final String action){
         final Intent intent = new Intent(action);
         //Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -131,32 +140,66 @@ public class GPS extends Service {
         sendBroadcast(intent);
 
         /****************************************************************/
-        Calendar cal = Calendar.getInstance();
-        int seconds = cal.get(Calendar.SECOND);
+        if (CS.isAfter_login()) {
 
-        if (seconds==0 || seconds ==30){
-            data_sent=false;
-        }else
-        if (seconds==29 || seconds == 59){
+            Calendar cal = Calendar.getInstance();
+            int seconds = cal.get(Calendar.SECOND);
 
-            if(!data_sent){
-                Log.e("Latitude sent",lat);
-                Log.e("Longitude sent",lon);
+            if (seconds == 0 || seconds == 30) {
+                data_sent = false;
+                battery_level_sent = false;
 
-                GPSMessage gps_msg = new GPSMessage(CS.getFirefighter_ID(), lat, lon);
+            } else if (seconds == 29 || seconds == 59) {
 
-                try {
-                    gps_msg.build_gps_packet();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (!data_sent) {
+                    Log.e("Latitude sent", lat);
+                    Log.e("Longitude sent", lon);
+
+                    GPSMessage gps_msg = new GPSMessage(CS.getFirefighter_ID(), lat, lon);
+
+                    try {
+                        gps_msg.build_gps_packet();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        CS.send_packet(gps_msg.getGps_packet());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    data_sent = true;
                 }
-                try {
-                    CS.send_packet(gps_msg.getGps_packet());
-                } catch (IOException e) {
-                    e.printStackTrace();
+            } else if (seconds == 49) {
+                if (!battery_level_sent) {
+                    Log.e("Low Battery Level: ", String.valueOf(getMyBatteryLevel()));
+
+                    LowBatteryWarningMessage lbw_msg = new LowBatteryWarningMessage(CS.getFirefighter_ID());
+                    try {
+                        lbw_msg.build_LowBatteryWarning_packet();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        CS.send_packet(lbw_msg.getLowbatterywarning_packet());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    battery_level_sent = true;
                 }
-                data_sent=true;
-            }
+            }/*else
+            if ((seconds%10)==0) {
+                //if (CS.isIn_Combate_Mode()) {
+
+                    String ID = String.valueOf(CS.getPred_Msg_Type()); //MessageID = ID(0-9) of desired message
+                    Intent audio_intent = new Intent(this, AudioMessagesService.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("ID", ID);
+                    audio_intent.putExtras(bundle);
+
+                //}
+            }*/
+
+
         }
         /****************************************************************/
     }
