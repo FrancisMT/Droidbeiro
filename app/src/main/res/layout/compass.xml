@@ -37,7 +37,7 @@
         android:textColor="@color/white"
         android:textSize="30sp"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/compass"
-        android:layout_centerHorizontal="true"/>
+        android:layout_alignBottom="@+id/compass"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

@@ -24,7 +24,10 @@ import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import pt.up.fe.droidbeiro.Messages.DenyIDMessage;
 import pt.up.fe.droidbeiro.Messages.DenyRequestMessage;
@@ -60,8 +63,14 @@ public class Client_Socket extends Service{
     public static byte Pred_Msg_Type = (byte)0x00;
     public static boolean Pred_Msg_Received = false;
     public static boolean In_Combate_Mode=false;
+    public static boolean In_Fire_Line_Update=false;
+    public static boolean In_Compass=false;
 
     public static boolean fireline_update_request=false;
+    public static double lat=0;
+    public static double lon=0;
+
+    public static boolean compass_request=false;
     /***********************************************************/
 
 
@@ -233,6 +242,26 @@ public class Client_Socket extends Service{
         return fireline_update_request;
     }
 
+    public static double getLat() {
+        return lat;
+    }
+
+    public static double getLon() {
+        return lon;
+    }
+
+    public static void setIn_Fire_Line_Update(boolean in_Fire_Line_Update) {
+        In_Fire_Line_Update = in_Fire_Line_Update;
+    }
+
+    public static void setIn_Compass(boolean in_Compass) {
+        In_Compass = in_Compass;
+    }
+
+    public static boolean isCompass_request() {
+        return compass_request;
+    }
+
     /***********************************************************/
 
     public class connectSocket implements Runnable {
@@ -265,6 +294,7 @@ public class Client_Socket extends Service{
 
                         Pred_Msg_Received=false;
                         fireline_update_request=false;
+                        compass_request=false;
                         response=null;
                         MY_NOTIFICATION_ID=1;
 
@@ -373,6 +403,7 @@ public class Client_Socket extends Service{
                                 MY_NOTIFICATION_ID=4;
                                 response="Actualizar Linha de Fogo";
                                 fireline_update_request=true;
+                                In_Fire_Line_Update=false;
 
                                 break;
 
@@ -382,8 +413,22 @@ public class Client_Socket extends Service{
                                 break;
 
                             case cc_requests_movetogps_msg_type:
+                                compass_request=true;
+                                In_Compass=false;
                                 MY_NOTIFICATION_ID=6;
                                 response="Move to GPS";
+
+                                byte[] latitude =  Arrays.copyOfRange(pck_received.getMessage(), 0, 4);
+                                byte[] longitude =  Arrays.copyOfRange(pck_received.getMessage(), 4, pck_received.getMessage().length);
+
+                                ByteBuffer lat_bb = ByteBuffer.wrap(latitude);
+                                lat_bb.order(ByteOrder.LITTLE_ENDIAN);
+                                lat = lat_bb.getFloat();
+
+                                ByteBuffer lon_bb = ByteBuffer.wrap(longitude);
+                                lon_bb.order(ByteOrder.LITTLE_ENDIAN);
+                                lon = lon_bb.getFloat();
+
                                 break;
 
                             default:
@@ -488,7 +533,7 @@ public class Client_Socket extends Service{
                 .setSmallIcon(R.drawable.droidbeiro_app_icon)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setContentIntent(pIntent)
-                .addAction(0, "Aceitar", pIntent)
+                //.addAction(0, "Aceitar", pIntent)
                .setDeleteIntent(pendingIntent)
                .build();
 
@@ -501,13 +546,13 @@ public class Client_Socket extends Service{
     public void notification_buttons_gps(){
 
         String resp;
-        Intent intent;
+        Intent intent_gps;
 
         resp="Mover para coordenada";
-        intent = new Intent(this, Compass.class);
+        intent_gps = new Intent(this, Compass.class);
 
         // intent triggered, you can add other intent for other actions
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent_gps, 0);
 
         //
         Intent intent_delete = new Intent(this, MyBroadcastReceiver_gps.class);
@@ -522,7 +567,7 @@ public class Client_Socket extends Service{
                 .setSmallIcon(R.drawable.droidbeiro_app_icon)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setContentIntent(pIntent)
-                .addAction(0, "Aceitar", pIntent)
+                //.addAction(0, "Aceitar", pIntent)
                 .setDeleteIntent(pendingIntent)
                 .build();
 
@@ -538,18 +583,19 @@ public class Client_Socket extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.d("Here", "I am here");
 
-            DenyRequestMessage dr_msg = new DenyRequestMessage(Firefighter_ID);
-            try {
-                dr_msg.build_denyrequest_packet();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(!In_Fire_Line_Update) {
+                DenyRequestMessage dr_msg = new DenyRequestMessage(Firefighter_ID);
+                try {
+                    dr_msg.build_denyrequest_packet();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    send_packet(dr_msg.getDenyrequest_packet());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            try {
-                send_packet(dr_msg.getDenyrequest_packet());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
         }
     }
 
@@ -559,18 +605,19 @@ public class Client_Socket extends Service{
         public void onReceive(Context context, Intent intent) {
             Log.d("Here", "I am here");
 
-            DenyRequestMessage dr_msg = new DenyRequestMessage(Firefighter_ID);
-            try {
-                dr_msg.build_denyrequest_packet();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (!In_Compass) {
+                DenyRequestMessage dr_msg = new DenyRequestMessage(Firefighter_ID);
+                try {
+                    dr_msg.build_denyrequest_packet();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    send_packet(dr_msg.getDenyrequest_packet());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            try {
-                send_packet(dr_msg.getDenyrequest_packet());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
         }
     }
 

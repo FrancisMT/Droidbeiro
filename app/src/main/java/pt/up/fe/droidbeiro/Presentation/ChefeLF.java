@@ -146,6 +146,8 @@ public class ChefeLF extends Activity implements SensorEventListener {
         //start service on create
         doBindService();
 
+        CS.setIn_Fire_Line_Update(true);
+
         gravity0 = 0f;
         gravity1 = 0f;
         gravity2 = 0f;
@@ -537,6 +539,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
                     e.printStackTrace();
                 }
                 CS.setAfter_login(false);
+                CS.setIn_Fire_Line_Update(false);
                 doUnbindService();
                 /****************************************************************/
 
@@ -569,6 +572,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
                     e.printStackTrace();
                 }
                 CS.setAfter_login(false);
+                CS.setIn_Fire_Line_Update(false);
                 doUnbindService();
                 try {
                     CS.disconnect();
@@ -588,6 +592,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
 
     @Override
     public void onBackPressed() {
+        CS.setIn_Fire_Line_Update(false);
         Intent Intent = new Intent(ChefeLF.this, ChefeMain.class);
         Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(Intent);

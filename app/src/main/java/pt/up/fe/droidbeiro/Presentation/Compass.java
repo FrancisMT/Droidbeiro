@@ -16,12 +16,16 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.GPS;
 
@@ -33,8 +37,8 @@ public class Compass extends Activity implements SensorEventListener {
     public double longitude=0;
     public double latitude=0;
     float degree;
-    double lat1 =41.149686;
-    double long1 = -8.59873;
+    double lat1;
+    double long1;
     float gravity0;
     float gravity1;
     float gravity2;
@@ -55,7 +59,43 @@ public class Compass extends Activity implements SensorEventListener {
     // device sensor manager
     private SensorManager mSensorManager;
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    Client_Socket CS = null;
+    boolean CSisBound;
+    private static boolean hotfix=false;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(Compass.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
+
+    private void doUnbindService() {
+        if (CSisBound) {
+            // Detach our existing connection.
+            unbindService(mConnection);
+            CSisBound = false;
+        }
+    }
+
+
+    public  BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateUI(intent);
@@ -66,14 +106,19 @@ public class Compass extends Activity implements SensorEventListener {
     private void updateUI(Intent intent) {
         latitude = Double.parseDouble(intent.getStringExtra("LAT"));
         longitude = Double.parseDouble(intent.getStringExtra("LONG"));
+
+        Log.e("Mover de coordenadas: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
         getDistancia();
-        nova_posicao();
+        //nova_posicao();
         }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.compass);
+
+        hotfix=true;
+
         gravity0 = 0f;
         gravity1 = 0f;
         gravity2 = 0f;
@@ -83,25 +128,30 @@ public class Compass extends Activity implements SensorEventListener {
         image = (ImageView) findViewById(R.id.compass);
         text = (TextView) findViewById(R.id.distance);
 
+        //start service on create
+        doBindService();
+
+        CS.setIn_Compass(true);
+
+        lat1=CS.getLat();
+        long1=CS.getLon();
+
+        Log.e("Mover de coordenadas: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
+        Log.e("Mover para coordenadas: ", String.valueOf(lat1) + " || " + String.valueOf(long1));
 
         // initialize your android device sensor capabilities
-
         mSensorManager = (SensorManager) this.getSystemService(this.SENSOR_SERVICE);
         Sensor acelarometro = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         Sensor magnometro = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         mSensorManager.registerListener(this, acelarometro, SensorManager.SENSOR_DELAY_UI);
         mSensorManager.registerListener(this, magnometro, SensorManager.SENSOR_DELAY_UI);
 
-        Bundle extras = getIntent().getExtras();
-        lat1 = Double.parseDouble((String) extras.get("LAT"));
-        long1 =Double.parseDouble( (String) extras.get("LONG"));
-
-
         if(longitude!=0 && latitude != 0)
             {
-        nova_posicao();
-        getDistancia();
-             }
+                nova_posicao();
+                getDistancia();
+            }
+
     }
 
     protected void nova_posicao(){
@@ -126,7 +176,7 @@ public class Compass extends Activity implements SensorEventListener {
         super.onResume();
         registerReceiver(broadcastReceiver, new IntentFilter(GPS.BROADCAST_ACTION));
     }
-
+/*
     @Override
     protected void onPause() {
         super.onPause();
@@ -134,7 +184,7 @@ public class Compass extends Activity implements SensorEventListener {
         // to stop the listener and save battery
         mSensorManager.unregisterListener(this);
     }
-
+*/
     @Override
     public void onSensorChanged(SensorEvent event) {
         float degree=currentDegree;
@@ -173,7 +223,24 @@ public class Compass extends Activity implements SensorEventListener {
         image.startAnimation(ra);
         currentDegree = -degree;
 
+        if(hotfix){
+            hotfix=false;
+
+            AcceptRequestMessage ar_msg = new AcceptRequestMessage(CS.getFirefighter_ID());
+            try {
+                ar_msg.build_acceptrequest_packet();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                CS.send_packet(ar_msg.getAcceptrequest_packet());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Log.e("Request:", "Accepted");
+        }
     }
+
 
     public void getDistancia(){
         double dlon, dlat, a, distancia;
@@ -181,14 +248,15 @@ public class Compass extends Activity implements SensorEventListener {
         dlat = long1 - latitude;
         a = Math.pow(Math.sin(dlat/2),2) + Math.cos(latitude) * Math.cos(lat1) * Math.pow(Math.sin(dlon/2),2);
         distancia = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        double distance= 6378140 * distancia; /* 6378140 is the radius of the Earth in meters*/
-        text.setText("Distance: " + Double.toString(distance) + " meters");
+        double distance= 6378140 * distancia; //6378140 is the radius of the Earth in meters
+        text.setText("Distância:\n" + Double.toString((double)Math.round(distance * 100) / 100) + " metros");
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // not in use
     }
+
 }
 
 
