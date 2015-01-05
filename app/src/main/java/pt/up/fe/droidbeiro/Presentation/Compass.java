@@ -1,9 +1,11 @@
 package pt.up.fe.droidbeiro.Presentation;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -21,6 +23,7 @@ import android.widget.TextView;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.R;
+import pt.up.fe.droidbeiro.Service.GPS;
 
 /**
  * Created by Edgar on 17/12/2014.
@@ -29,7 +32,6 @@ public class Compass extends Activity implements SensorEventListener {
 
     public double longitude=0;
     public double latitude=0;
-    protected LocationManager lm;
     float degree;
     double lat1 =41.149686;
     double long1 = -8.59873;
@@ -53,7 +55,20 @@ public class Compass extends Activity implements SensorEventListener {
     // device sensor manager
     private SensorManager mSensorManager;
 
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateUI(intent);
+        }
+    };
 
+
+    private void updateUI(Intent intent) {
+        latitude = Double.parseDouble(intent.getStringExtra("LAT"));
+        longitude = Double.parseDouble(intent.getStringExtra("LONG"));
+        getDistancia();
+        nova_posicao();
+        }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,33 +92,11 @@ public class Compass extends Activity implements SensorEventListener {
         mSensorManager.registerListener(this, acelarometro, SensorManager.SENSOR_DELAY_UI);
         mSensorManager.registerListener(this, magnometro, SensorManager.SENSOR_DELAY_UI);
 
-        lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        longitude= location.getLongitude();
-        latitude = location.getLatitude();
-
-        LocationListener lListener = new LocationListener() {
-
-            public void onLocationChanged(Location locat) {
-                longitude = (double) (locat.getLongitude());
-                latitude = (double) (locat.getLatitude());
-                getDistancia();
-                nova_posicao();
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-
-            public void onProviderEnabled(String provider) {
-            }
-
-            public void onProviderDisabled(String provider) {
-            }
-
-        };
         if(longitude!=0 && latitude != 0)
+            {
         nova_posicao();
-
+        getDistancia();
+             }
     }
 
     protected void nova_posicao(){
@@ -126,6 +119,7 @@ public class Compass extends Activity implements SensorEventListener {
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(broadcastReceiver, new IntentFilter(GPS.BROADCAST_ACTION));
     }
 
     @Override
