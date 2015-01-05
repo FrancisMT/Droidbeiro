@@ -92,6 +92,11 @@ public class Compass extends Activity implements SensorEventListener {
         mSensorManager.registerListener(this, acelarometro, SensorManager.SENSOR_DELAY_UI);
         mSensorManager.registerListener(this, magnometro, SensorManager.SENSOR_DELAY_UI);
 
+        Bundle extras = getIntent().getExtras();
+        lat1 = Double.parseDouble((String) extras.get("LAT"));
+        long1 =Double.parseDouble( (String) extras.get("LONG"));
+
+
         if(longitude!=0 && latitude != 0)
             {
         nova_posicao();
