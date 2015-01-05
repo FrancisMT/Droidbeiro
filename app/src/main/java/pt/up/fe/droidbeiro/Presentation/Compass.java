@@ -27,8 +27,8 @@ import pt.up.fe.droidbeiro.R;
  */
 public class Compass extends Activity implements SensorEventListener {
 
-    public double longitude;
-    public double latitude;
+    public double longitude=0;
+    public double latitude=0;
     protected LocationManager lm;
     float degree;
     double lat1 =41.149686;
@@ -101,7 +101,7 @@ public class Compass extends Activity implements SensorEventListener {
             }
 
         };
-
+        if(longitude!=0 && latitude != 0)
         nova_posicao();
 
     }
