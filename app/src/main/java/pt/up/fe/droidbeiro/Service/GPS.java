@@ -1,8 +1,10 @@
 package pt.up.fe.droidbeiro.Service;
 
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -186,20 +188,7 @@ public class GPS extends Service {
                     }
                     battery_level_sent = true;
                 }
-            }/*else
-            if ((seconds%10)==0) {
-                //if (CS.isIn_Combate_Mode()) {
-
-                    String ID = String.valueOf(CS.getPred_Msg_Type()); //MessageID = ID(0-9) of desired message
-                    Intent audio_intent = new Intent(this, AudioMessagesService.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("ID", ID);
-                    audio_intent.putExtras(bundle);
-
-                //}
-            }*/
-
-
+            }
         }
         /****************************************************************/
     }

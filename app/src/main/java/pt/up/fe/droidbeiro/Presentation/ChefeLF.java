@@ -33,6 +33,7 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
 import pt.up.fe.droidbeiro.Messages.ChangeFireLineStatusMessage;
 import pt.up.fe.droidbeiro.Messages.FirelineMessage;
 import pt.up.fe.droidbeiro.Messages.LogoutMessage;
@@ -457,6 +458,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
 
             }
         });
+
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -496,6 +498,23 @@ public class ChefeLF extends Activity implements SensorEventListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_chefe_l, menu);
+
+
+        if(CS.isFireline_update_request()){
+            AcceptRequestMessage ar_msg = new AcceptRequestMessage(CS.getFirefighter_ID());
+            try {
+                ar_msg.build_acceptrequest_packet();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                CS.send_packet(ar_msg.getAcceptrequest_packet());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Log.e("Request:", "Accepted");
+        }
+
         return true;
     }
 
@@ -567,5 +586,11 @@ public class ChefeLF extends Activity implements SensorEventListener {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent Intent = new Intent(ChefeLF.this, ChefeMain.class);
+        Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(Intent);
+    }
 
 }

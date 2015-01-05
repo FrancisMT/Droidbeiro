@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -13,6 +14,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -24,6 +26,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import pt.up.fe.droidbeiro.Messages.DenyIDMessage;
+import pt.up.fe.droidbeiro.Messages.DenyRequestMessage;
+import pt.up.fe.droidbeiro.Presentation.ChefeLF;
+import pt.up.fe.droidbeiro.Presentation.ChefeMain;
+import pt.up.fe.droidbeiro.Presentation.Compass;
+import pt.up.fe.droidbeiro.Presentation.NotificationRequestResponse;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
 
@@ -53,14 +61,15 @@ public class Client_Socket extends Service{
     public static boolean Pred_Msg_Received = false;
     public static boolean In_Combate_Mode=false;
 
+    public static boolean fireline_update_request=false;
     /***********************************************************/
 
 
     private Socket cSocket = null;
     //private PrintWriter out = null;
     //private BufferedReader in = null;
-    private ObjectOutputStream out = null;
-    private ObjectInputStream in = null;
+    private static ObjectOutputStream out = null;
+    private static ObjectInputStream in = null;
 
     private int isSocketAlive = 0;
 
@@ -80,7 +89,7 @@ public class Client_Socket extends Service{
     final static String STOP_SERVICE = "";
     final static int RQS_STOP_SERVICE = 1;
 
-    private static final int MY_NOTIFICATION_ID=1;
+    private static int MY_NOTIFICATION_ID;
     private NotificationManager notificationManager;
     private Notification myNotification;
 
@@ -152,7 +161,7 @@ public class Client_Socket extends Service{
         out.flush();
     }
 
-    public void send_packet(Packet pck_to_send) throws IOException {
+    public static void send_packet(Packet pck_to_send) throws IOException {
         out.writeObject(pck_to_send);
         //out.println(message_to_send);
         out.flush();
@@ -220,6 +229,10 @@ public class Client_Socket extends Service{
         return In_Combate_Mode;
     }
 
+    public static boolean isFireline_update_request() {
+        return fireline_update_request;
+    }
+
     /***********************************************************/
 
     public class connectSocket implements Runnable {
@@ -251,7 +264,9 @@ public class Client_Socket extends Service{
                         }
 
                         Pred_Msg_Received=false;
+                        fireline_update_request=false;
                         response=null;
+                        MY_NOTIFICATION_ID=1;
 
                         switch(pck_received.getMessageType()){
 
@@ -259,6 +274,7 @@ public class Client_Socket extends Service{
                                 Firefighter_ID=pck_received.getFirefighterID();
 
                                 response="Ligado ao Centro de Controlo";
+                                MY_NOTIFICATION_ID=1;
 
                                 break;
 
@@ -288,6 +304,7 @@ public class Client_Socket extends Service{
 
                             case cc_personalised_msg_type:
                                 response = new String(pck_received.getMessage(), "ISO-8859-1");
+                                MY_NOTIFICATION_ID=2;
                                 break;
 
                             case cc_predefined_msg_type:
@@ -306,6 +323,7 @@ public class Client_Socket extends Service{
                                  * "Casa queimada"              <-> 9
                                  */
 
+                                MY_NOTIFICATION_ID=3;
                                 Pred_Msg_Type=pck_received.getMessage()[0];
                                 switch (Pred_Msg_Type){
 
@@ -352,11 +370,20 @@ public class Client_Socket extends Service{
                                 break;
 
                             case cc_requests_fl_update_msg_type:
+                                MY_NOTIFICATION_ID=4;
                                 response="Actualizar Linha de Fogo";
+                                fireline_update_request=true;
+
                                 break;
 
                             case cc_automatic_ack_msg_type:
-                                response="Alerta Recebido";
+                                MY_NOTIFICATION_ID=5;
+                                response="Alerta Recebido pelo CC";
+                                break;
+
+                            case cc_requests_movetogps_msg_type:
+                                MY_NOTIFICATION_ID=6;
+                                response="Move to GPS";
                                 break;
 
                             default:
@@ -367,17 +394,26 @@ public class Client_Socket extends Service{
                             Log.d("response", response);
                             if (!In_Combate_Mode) {
                                 // Send Notification
-                                notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                                myNotification = new Notification(R.drawable.droidbeiro_app_icon, "Nova Mensagem", System.currentTimeMillis());
-                                String notificationTitle = "Nova mensagem";
-                                String notificationText = response;
-                                Intent myIntent = new Intent(Intent.ACTION_VIEW);
+                                if (MY_NOTIFICATION_ID==4){
+                                    notification_buttons();
+                                }else
+                                if (MY_NOTIFICATION_ID==6){
+                                    Log.e("Move_to:" , "GPS");
+                                    notification_buttons_gps();
+                                }
+                                else{
+                                    notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                    myNotification = new Notification(R.drawable.droidbeiro_app_icon, "Nova Mensagem", System.currentTimeMillis());
+                                    String notificationTitle = "Nova mensagem";
+                                    String notificationText = response;
+                                    Intent myIntent = new Intent(Intent.ACTION_VIEW);
 
-                                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
-                                myNotification.defaults |= Notification.DEFAULT_SOUND;
-                                myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-                                myNotification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, pendingIntent);
-                                notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
+                                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+                                    myNotification.defaults |= Notification.DEFAULT_SOUND;
+                                    myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+                                    myNotification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, pendingIntent);
+                                    notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
+                                }
                             }
                         }
                     }
@@ -428,6 +464,115 @@ public class Client_Socket extends Service{
         cSocket = null;
     }
 
+    public void notification_buttons(){
+
+        String resp;
+        Intent intent;
+
+        resp="Actualizar linha de fogo";
+        intent = new Intent(this, ChefeLF.class);
+
+        // intent triggered, you can add other intent for other actions
+       PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        //
+        Intent intent_delete = new Intent(this, MyBroadcastReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent_delete, 0);
+
+
+        // this is it, we'll build the notification!
+       // in the addAction method, if you don't want any icon, just set the first param to 0
+       Notification mNotification = new Notification.Builder(this)
+                .setContentTitle("Nova mensagem")
+                .setContentText(resp)
+                .setSmallIcon(R.drawable.droidbeiro_app_icon)
+                .setDefaults(Notification.DEFAULT_SOUND)
+                .setContentIntent(pIntent)
+                .addAction(0, "Aceitar", pIntent)
+               .setDeleteIntent(pendingIntent)
+               .build();
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+       // If you want to hide the notification after it was selected, do the code below
+       myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+       notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
+    }
+
+    public void notification_buttons_gps(){
+
+        String resp;
+        Intent intent;
+
+        resp="Mover para coordenada";
+        intent = new Intent(this, Compass.class);
+
+        // intent triggered, you can add other intent for other actions
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        //
+        Intent intent_delete = new Intent(this, MyBroadcastReceiver_gps.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent_delete, 0);
+
+
+        // this is it, we'll build the notification!
+        // in the addAction method, if you don't want any icon, just set the first param to 0
+        Notification mNotification = new Notification.Builder(this)
+                .setContentTitle("Nova mensagem")
+                .setContentText(resp)
+                .setSmallIcon(R.drawable.droidbeiro_app_icon)
+                .setDefaults(Notification.DEFAULT_SOUND)
+                .setContentIntent(pIntent)
+                .addAction(0, "Aceitar", pIntent)
+                .setDeleteIntent(pendingIntent)
+                .build();
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // If you want to hide the notification after it was selected, do the code below
+        myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+        notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
+    }
+
+    public static class MyBroadcastReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Here", "I am here");
+
+            DenyRequestMessage dr_msg = new DenyRequestMessage(Firefighter_ID);
+            try {
+                dr_msg.build_denyrequest_packet();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                send_packet(dr_msg.getDenyrequest_packet());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public static class MyBroadcastReceiver_gps extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Here", "I am here");
+
+            DenyRequestMessage dr_msg = new DenyRequestMessage(Firefighter_ID);
+            try {
+                dr_msg.build_denyrequest_packet();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                send_packet(dr_msg.getDenyrequest_packet());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
 
     public void playAudioMessages(int messageID) {
 

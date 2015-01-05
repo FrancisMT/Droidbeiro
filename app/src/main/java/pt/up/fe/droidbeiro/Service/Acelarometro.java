@@ -167,20 +167,21 @@ public class Acelarometro extends Service implements SensorEventListener {
 
             if(!data_sent) {
                 Log.e("APS", "Alert");
+                if(CS.isAfter_login()) {
+                    APSAlertMessage aps_msg = new APSAlertMessage(CS.getFirefighter_ID());
+                    try {
+                        aps_msg.build_apsalert_packet();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        CS.send_packet(aps_msg.getApsalert_packet());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-                APSAlertMessage aps_msg = new APSAlertMessage(CS.getFirefighter_ID());
-                try {
-                    aps_msg.build_apsalert_packet();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    data_sent = true;
                 }
-                try {
-                    CS.send_packet(aps_msg.getApsalert_packet());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                data_sent=true;
             }
 
         }

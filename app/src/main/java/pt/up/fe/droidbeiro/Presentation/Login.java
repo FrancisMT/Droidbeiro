@@ -122,6 +122,11 @@ public class Login extends Activity {
 
 
                         while( (!(CS.isIncorrect_login())) && (!(CS.isCorrect_login())) ){}
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         if (CS.isIncorrect_login()){
                             Toast.makeText(getApplicationContext(), "Dados incorrectos", Toast.LENGTH_LONG).show();
                         }

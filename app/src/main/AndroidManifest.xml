@@ -64,6 +64,11 @@
             android:label="Modo de Combate"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name=".Presentation.Compass"
+            android:label="Modo de Combate"
+            android:screenOrientation="portrait" >
+        </activity>
 
         <service
             android:name=".Communication.Client_Socket"
@@ -107,11 +112,18 @@
             android:enabled="true"
             android:exported="true" >
         </service>
-
         <activity
             android:name=".Presentation.ChangeTeam"
             android:label="@string/title_activity_change_team" >
         </activity>
+        <receiver
+            android:name=".Communication.Client_Socket$MyBroadcastReceiver"
+            android:exported="false" >
+        </receiver>
+        <receiver
+            android:name=".Communication.Client_Socket$MyBroadcastReceiver_gps"
+            android:exported="false" >
+        </receiver>
 
     </application>
 
