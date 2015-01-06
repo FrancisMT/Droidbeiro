@@ -34,8 +34,15 @@ import pt.up.fe.droidbeiro.Service.GPS;
  */
 public class Compass extends Activity implements SensorEventListener {
 
+    private static boolean hotfix=false;
     public double longitude=0;
     public double latitude=0;
+    public  BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateUI(intent);
+        }
+    };
     float degree;
     double lat1;
     double long1;
@@ -52,17 +59,7 @@ public class Compass extends Activity implements SensorEventListener {
     ImageView image2;
     TextView text;
     float newnorth;
-    // define the display assembly compass picture
-    private ImageView image;
-    // record the compass picture angle turned
-    private float currentDegree = 0f;
-    // device sensor manager
-    private SensorManager mSensorManager;
-
     Client_Socket CS = null;
-    boolean CSisBound;
-    private static boolean hotfix=false;
-
     private ServiceConnection mConnection = new ServiceConnection() {
         //EDITED PART
         @Override
@@ -77,6 +74,13 @@ public class Compass extends Activity implements SensorEventListener {
             CS = null;
         }
     };
+    boolean CSisBound;
+    // define the display assembly compass picture
+    private ImageView image;
+    // record the compass picture angle turned
+    private float currentDegree = 0f;
+    // device sensor manager
+    private SensorManager mSensorManager;
 
     private void doBindService() {
         bindService(new Intent(Compass.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -93,15 +97,6 @@ public class Compass extends Activity implements SensorEventListener {
             CSisBound = false;
         }
     }
-
-
-    public  BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateUI(intent);
-        }
-    };
-
 
     private void updateUI(Intent intent) {
         latitude = Double.parseDouble(intent.getStringExtra("LAT"));
@@ -244,8 +239,8 @@ public class Compass extends Activity implements SensorEventListener {
 
     public void getDistancia(){
         double dlon, dlat, a, distancia;
-        dlon = lat1 - longitude;
-        dlat = long1 - latitude;
+        dlon = Math.toRadians(long1) - Math.toRadians(longitude);
+        dlat = Math.toRadians(lat1) - Math.toRadians(latitude);
         a = Math.pow(Math.sin(dlat/2),2) + Math.cos(latitude) * Math.cos(lat1) * Math.pow(Math.sin(dlon/2),2);
         distancia = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double distance= 6378140 * distancia; //6378140 is the radius of the Earth in meters
