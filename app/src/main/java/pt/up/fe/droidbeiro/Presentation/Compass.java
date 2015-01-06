@@ -217,23 +217,6 @@ public class Compass extends Activity implements SensorEventListener {
         // Start the animation
         image.startAnimation(ra);
         currentDegree = -degree;
-
-        if(hotfix){
-            hotfix=false;
-
-            AcceptRequestMessage ar_msg = new AcceptRequestMessage(CS.getFirefighter_ID());
-            try {
-                ar_msg.build_acceptrequest_packet();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                CS.send_packet(ar_msg.getAcceptrequest_packet());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Log.e("Request:", "Accepted");
-        }
     }
 
 

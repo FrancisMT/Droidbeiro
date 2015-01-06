@@ -123,7 +123,7 @@ public class Login extends Activity {
 
                         while( (!(CS.isIncorrect_login())) && (!(CS.isCorrect_login())) ){}
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

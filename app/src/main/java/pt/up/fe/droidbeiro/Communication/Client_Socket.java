@@ -12,6 +12,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -29,6 +30,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
 import pt.up.fe.droidbeiro.Messages.DenyIDMessage;
 import pt.up.fe.droidbeiro.Messages.DenyRequestMessage;
 import pt.up.fe.droidbeiro.Presentation.ChefeLF;
@@ -72,6 +74,12 @@ public class Client_Socket extends Service{
 
     public static boolean compass_request=false;
     /***********************************************************/
+    public CountDownTimer countDownTimer_LF;
+    public static CountDownTimer countDownTimer_Compass;
+    public CountDownTimer countDownTimer_pred_msg;
+    public CountDownTimer countDownTimer_pers_msg;
+    public final long startTime = 30 * 1000; //TODO change to (120)
+    public final long interval = 1 * 1000;   //TODO change to (30)
 
 
     private Socket cSocket = null;
@@ -129,6 +137,10 @@ public class Client_Socket extends Service{
     public void onCreate() {
         super.onCreate();
         System.out.println("I am in on create");
+        countDownTimer_LF = new MyCountDownTimer(startTime, interval);
+        countDownTimer_Compass = new MyCountDownTimer(startTime, interval);
+        countDownTimer_pred_msg = new MyCountDownTimer(startTime, interval);
+        countDownTimer_pers_msg = new MyCountDownTimer(startTime, interval);
     }
 
     public void IsBoundable() {
@@ -260,6 +272,18 @@ public class Client_Socket extends Service{
 
     public static boolean isCompass_request() {
         return compass_request;
+    }
+
+    public static void cancel_CountDownTimer_Compass() {
+        countDownTimer_Compass.cancel();
+    }
+
+    public void cancel_CountDownTimer_pers_msg() {
+        this.countDownTimer_pers_msg.cancel();
+    }
+
+    public void cancel_CountDownTimer_pred_msg() {
+        countDownTimer_pred_msg.cancel();
     }
 
     /***********************************************************/
@@ -440,11 +464,21 @@ public class Client_Socket extends Service{
                             if (!In_Combate_Mode) {
                                 // Send Notification
                                 if (MY_NOTIFICATION_ID==4){
+                                    countDownTimer_LF.start();
                                     notification_buttons();
                                 }else
                                 if (MY_NOTIFICATION_ID==6){
-                                    Log.e("Move_to:" , "GPS");
+                                    countDownTimer_Compass.start();
+                                    Log.e("Move_to:", "GPS");
                                     notification_buttons_gps();
+                                }else
+                                if (MY_NOTIFICATION_ID==2){
+                                    notification_pers();
+                                    //countDownTimer_pred_msg.start();
+                                }else
+                                if (MY_NOTIFICATION_ID==3){
+                                    notification_pred();
+                                    //countDownTimer_pred_msg.start();
                                 }
                                 else{
                                     notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -518,7 +552,7 @@ public class Client_Socket extends Service{
         intent = new Intent(this, ChefeLF.class);
 
         // intent triggered, you can add other intent for other actions
-       PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         //
         Intent intent_delete = new Intent(this, MyBroadcastReceiver.class);
@@ -526,21 +560,22 @@ public class Client_Socket extends Service{
 
 
         // this is it, we'll build the notification!
-       // in the addAction method, if you don't want any icon, just set the first param to 0
-       Notification mNotification = new Notification.Builder(this)
+        // in the addAction method, if you don't want any icon, just set the first param to 0
+        Notification mNotification = new Notification.Builder(this)
                 .setContentTitle("Nova mensagem")
                 .setContentText(resp)
                 .setSmallIcon(R.drawable.droidbeiro_app_icon)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setContentIntent(pIntent)
-                //.addAction(0, "Aceitar", pIntent)
-               .setDeleteIntent(pendingIntent)
-               .build();
+                .setAutoCancel(true)
+                        //.addAction(0, "Aceitar", pIntent)
+                .setDeleteIntent(pendingIntent)
+                .build();
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-       // If you want to hide the notification after it was selected, do the code below
-       myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-       notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
+        // If you want to hide the notification after it was selected, do the code below
+        myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+        notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
     }
 
     public void notification_buttons_gps(){
@@ -558,6 +593,10 @@ public class Client_Socket extends Service{
         Intent intent_delete = new Intent(this, MyBroadcastReceiver_gps.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent_delete, 0);
 
+        //
+        Intent intent_ack = new Intent(this, MyBroadcastReceiver_gps_ack.class);
+        PendingIntent pendingIntent_ack = PendingIntent.getBroadcast(this, 0, intent_ack, 0);
+
 
         // this is it, we'll build the notification!
         // in the addAction method, if you don't want any icon, just set the first param to 0
@@ -567,7 +606,8 @@ public class Client_Socket extends Service{
                 .setSmallIcon(R.drawable.droidbeiro_app_icon)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setContentIntent(pIntent)
-                //.addAction(0, "Aceitar", pIntent)
+                .setContentIntent(pendingIntent_ack)
+                .setAutoCancel(true)
                 .setDeleteIntent(pendingIntent)
                 .build();
 
@@ -576,6 +616,55 @@ public class Client_Socket extends Service{
         myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
     }
+
+    public void notification_pers(){
+
+        Intent intent = new Intent(this, MyBroadcastReceiver_normal.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+        // this is it, we'll build the notification!
+        // in the addAction method, if you don't want any icon, just set the first param to 0
+        Notification mNotification = new Notification.Builder(this)
+                .setContentTitle("Nova mensagem")
+                .setContentText(response)
+                .setSmallIcon(R.drawable.droidbeiro_app_icon)
+                .setDefaults(Notification.DEFAULT_SOUND)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                        //.addAction(0, "Aceitar", pendingIntent)
+                        //.setDeleteIntent(pendingIntent)
+                .build();
+        myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // If you want to hide the notification after it was selected, do the code below
+        notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
+    }
+
+    public void notification_pred(){
+
+        Intent intent = new Intent(this, MyBroadcastReceiver_normal_2.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+        // this is it, we'll build the notification!
+        // in the addAction method, if you don't want any icon, just set the first param to 0
+        Notification mNotification = new Notification.Builder(this)
+                .setContentTitle("Nova mensagem")
+                .setContentText(response)
+                .setSmallIcon(R.drawable.droidbeiro_app_icon)
+                .setDefaults(Notification.DEFAULT_SOUND)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                        //.addAction(0, "Aceitar", pendingIntent)
+                        //.setDeleteIntent(pendingIntent)
+                .build();
+        myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // If you want to hide the notification after it was selected, do the code below
+        notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
+    }
+
 
     public static class MyBroadcastReceiver extends BroadcastReceiver{
 
@@ -621,6 +710,82 @@ public class Client_Socket extends Service{
         }
     }
 
+
+    public static class MyBroadcastReceiver_gps_ack extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Here", "I am here");
+
+            AcceptRequestMessage ar_msg = new AcceptRequestMessage(Firefighter_ID);
+            try {
+                ar_msg.build_acceptrequest_packet();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                send_packet(ar_msg.getAcceptrequest_packet());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            cancel_CountDownTimer_Compass();
+            Log.e("Request:", "Accepted");
+
+            Intent intentone = new Intent(context.getApplicationContext(), Compass.class);
+            intentone.addFlags(/*Intent.FLAG_ACTIVITY_CLEAR_TASK | */Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intentone);
+        }
+    }
+
+
+    public class MyBroadcastReceiver_normal extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Here", "I am here");
+
+            AcceptRequestMessage ar_msg = new AcceptRequestMessage(Firefighter_ID);
+            try {
+                ar_msg.build_acceptrequest_packet();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                send_packet(ar_msg.getAcceptrequest_packet());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // cancel_CountDownTimer_pers_msg();
+            Log.e("Request:", "Accepted");
+        }
+    }
+
+    public class MyBroadcastReceiver_normal_2 extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Here", "I am here");
+
+            AcceptRequestMessage ar_msg = new AcceptRequestMessage(Firefighter_ID);
+            try {
+                ar_msg.build_acceptrequest_packet();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                send_packet(ar_msg.getAcceptrequest_packet());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //cancel_CountDownTimer_pred_msg();
+            Log.e("Request:", "Accepted");
+        }
+    }
+
+
     public void playAudioMessages(int messageID) {
 
         /**
@@ -647,7 +812,6 @@ public class Client_Socket extends Service{
         Messages */
 
         //Paths
-
         String m_0 = "m0_help";
         String m_1 = "m1_back_down";
         String m_2 = "m2_firetruck";
@@ -689,8 +853,47 @@ public class Client_Socket extends Service{
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
 
+    public class MyCountDownTimer extends CountDownTimer {
+
+        public boolean finished=false;
+
+        public MyCountDownTimer(long startTime, long interval) {
+            super(startTime, interval);
+        }
+
+        public boolean isFinished() {
+            return finished;
+        }
+
+        @Override
+        public void onFinish() {
+            //text.setText("Time's up!");
+            Log.e("Countdown Timer", "Times up!");
+
+            finished=true;
+
+            DenyRequestMessage dr_msg = new DenyRequestMessage(Firefighter_ID);
+            try {
+                dr_msg.build_denyrequest_packet();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                send_packet(dr_msg.getDenyrequest_packet());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            //text.setText("" + millisUntilFinished / 1000);
+            if (In_Combate_Mode){
+                playAudioMessages(Pred_Msg_Type);
+            }
+        }
+    }
 }

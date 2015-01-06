@@ -18,6 +18,7 @@ import android.util.Log;
 import java.io.IOException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
 import pt.up.fe.droidbeiro.Messages.PersonalizedMessage;
 import pt.up.fe.droidbeiro.Messages.SOSMessage;
 import pt.up.fe.droidbeiro.Messages.SurroundedByFlamesMessage;
@@ -157,6 +158,18 @@ public class TapDetection extends Service implements SensorEventListener {
                 // MSG OK DETETADA COM SUCESSO ESCREVER AQUI FRANCISCO!!!!!! //
                 //////////////////////////////////////////////////////////////
                 Log.e("TAP Detected:", "OK");
+                AcceptRequestMessage ar_msg = new AcceptRequestMessage(CS.getFirefighter_ID());
+                try {
+                    ar_msg.build_acceptrequest_packet();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    CS.send_packet(ar_msg.getAcceptrequest_packet());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Log.e("ACK", "Sent to CC");
 
                 return;
             }

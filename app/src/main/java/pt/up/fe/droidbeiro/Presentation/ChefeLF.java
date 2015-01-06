@@ -501,6 +501,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_chefe_l, menu);
 
+        CS.countDownTimer_LF.cancel();
 
         if(CS.isFireline_update_request()){
             AcceptRequestMessage ar_msg = new AcceptRequestMessage(CS.getFirefighter_ID());
