@@ -133,6 +133,10 @@
             android:name=".Communication.Client_Socket$MyBroadcastReceiver_normal"
             android:exported="false" >
         </receiver>
+        <receiver
+            android:name=".Communication.Client_Socket$MyBroadcastReceiver_normal_2"
+            android:exported="false" >
+        </receiver>
     </application>
 
 </manifest>

@@ -170,6 +170,7 @@ public class TapDetection extends Service implements SensorEventListener {
                     e.printStackTrace();
                 }
                 Log.e("ACK", "Sent to CC");
+                CS.cancel_CountDownTimer_pred_msg();
 
                 return;
             }

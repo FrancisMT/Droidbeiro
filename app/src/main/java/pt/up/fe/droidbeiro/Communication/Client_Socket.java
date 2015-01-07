@@ -74,12 +74,12 @@ public class Client_Socket extends Service{
 
     public static boolean compass_request=false;
     /***********************************************************/
-    public CountDownTimer countDownTimer_LF;
+    public static CountDownTimer countDownTimer_LF;
     public static CountDownTimer countDownTimer_Compass;
-    public CountDownTimer countDownTimer_pred_msg;
-    public CountDownTimer countDownTimer_pers_msg;
-    public final long startTime = 30 * 1000; //TODO change to (120)
-    public final long interval = 1 * 1000;   //TODO change to (30)
+    public static CountDownTimer countDownTimer_pred_msg;
+    public static CountDownTimer countDownTimer_pers_msg;
+    public final long startTime = 120 * 1000; //TODO change to (120)
+    public final long interval = 30 * 1000;   //TODO change to (30)
 
 
     private Socket cSocket = null;
@@ -278,11 +278,11 @@ public class Client_Socket extends Service{
         countDownTimer_Compass.cancel();
     }
 
-    public void cancel_CountDownTimer_pers_msg() {
-        this.countDownTimer_pers_msg.cancel();
+    public static void cancel_CountDownTimer_pers_msg() {
+        countDownTimer_pers_msg.cancel();
     }
 
-    public void cancel_CountDownTimer_pred_msg() {
+    public static void cancel_CountDownTimer_pred_msg() {
         countDownTimer_pred_msg.cancel();
     }
 
@@ -474,11 +474,11 @@ public class Client_Socket extends Service{
                                 }else
                                 if (MY_NOTIFICATION_ID==2){
                                     notification_pers();
-                                    //countDownTimer_pred_msg.start();
+                                    countDownTimer_pred_msg.start();
                                 }else
                                 if (MY_NOTIFICATION_ID==3){
                                     notification_pred();
-                                    //countDownTimer_pred_msg.start();
+                                    countDownTimer_pred_msg.start();
                                 }
                                 else{
                                     notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -619,8 +619,17 @@ public class Client_Socket extends Service{
 
     public void notification_pers(){
 
-        Intent intent = new Intent(this, MyBroadcastReceiver_normal.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        Intent intent;
+
+        intent = new Intent(this, ChefeLF.class);
+
+        // intent triggered, you can add other intent for other actions
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        //
+        Intent intent_delete = new Intent(this, MyBroadcastReceiver_normal.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent_delete, 0);
+
 
         // this is it, we'll build the notification!
         // in the addAction method, if you don't want any icon, just set the first param to 0
@@ -629,22 +638,32 @@ public class Client_Socket extends Service{
                 .setContentText(response)
                 .setSmallIcon(R.drawable.droidbeiro_app_icon)
                 .setDefaults(Notification.DEFAULT_SOUND)
+                        // .setContentIntent(pIntent)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                        //.addAction(0, "Aceitar", pendingIntent)
-                        //.setDeleteIntent(pendingIntent)
+                        //.addAction(0, "Aceitar", pIntent)
+                .setDeleteIntent(pendingIntent)
                 .build();
-        myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // If you want to hide the notification after it was selected, do the code below
+        myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
     }
 
     public void notification_pred(){
 
-        Intent intent = new Intent(this, MyBroadcastReceiver_normal_2.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        Intent intent;
+
+        intent = new Intent(this, ChefeLF.class);
+
+        // intent triggered, you can add other intent for other actions
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        //
+        Intent intent_delete = new Intent(this, MyBroadcastReceiver_normal_2.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent_delete, 0);
+
 
         // this is it, we'll build the notification!
         // in the addAction method, if you don't want any icon, just set the first param to 0
@@ -653,15 +672,16 @@ public class Client_Socket extends Service{
                 .setContentText(response)
                 .setSmallIcon(R.drawable.droidbeiro_app_icon)
                 .setDefaults(Notification.DEFAULT_SOUND)
+               // .setContentIntent(pIntent)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                        //.addAction(0, "Aceitar", pendingIntent)
-                        //.setDeleteIntent(pendingIntent)
+                        //.addAction(0, "Aceitar", pIntent)
+                .setDeleteIntent(pendingIntent)
                 .build();
-        myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // If you want to hide the notification after it was selected, do the code below
+        myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
     }
 
@@ -739,7 +759,7 @@ public class Client_Socket extends Service{
     }
 
 
-    public class MyBroadcastReceiver_normal extends BroadcastReceiver{
+    public static class MyBroadcastReceiver_normal extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -757,12 +777,13 @@ public class Client_Socket extends Service{
                 e.printStackTrace();
             }
 
-            // cancel_CountDownTimer_pers_msg();
+            cancel_CountDownTimer_pers_msg();
             Log.e("Request:", "Accepted");
+
         }
     }
 
-    public class MyBroadcastReceiver_normal_2 extends BroadcastReceiver{
+    public static class MyBroadcastReceiver_normal_2 extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -780,7 +801,8 @@ public class Client_Socket extends Service{
                 e.printStackTrace();
             }
 
-            //cancel_CountDownTimer_pred_msg();
+
+            cancel_CountDownTimer_pred_msg();
             Log.e("Request:", "Accepted");
         }
     }
@@ -894,6 +916,7 @@ public class Client_Socket extends Service{
             if (In_Combate_Mode){
                 playAudioMessages(Pred_Msg_Type);
             }
+            Log.e("In", "onTick");
         }
     }
 }
