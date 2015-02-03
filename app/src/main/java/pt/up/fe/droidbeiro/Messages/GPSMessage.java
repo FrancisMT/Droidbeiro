@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
+import androidBackendAPI.Packet;
 
 /**
  * Created by Francisco on 19/12/2014.
@@ -58,7 +58,7 @@ public class GPSMessage {
 
         //Get Packet
         this.gps_packet = new Packet();
-        this.gps_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
+        //this.gps_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
     }
 
     public Packet getGps_packet() {

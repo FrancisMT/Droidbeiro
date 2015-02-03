@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -25,20 +24,16 @@ import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import androidBackendAPI.Packet;
 import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
-import pt.up.fe.droidbeiro.Messages.DenyIDMessage;
 import pt.up.fe.droidbeiro.Messages.DenyRequestMessage;
 import pt.up.fe.droidbeiro.Presentation.ChefeLF;
-import pt.up.fe.droidbeiro.Presentation.ChefeMain;
 import pt.up.fe.droidbeiro.Presentation.Compass;
-import pt.up.fe.droidbeiro.Presentation.NotificationRequestResponse;
 import pt.up.fe.droidbeiro.R;
-import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
+
 
 public class Client_Socket extends Service{
 
@@ -112,6 +107,7 @@ public class Client_Socket extends Service{
 
     private final IBinder myBinder = new LocalBinder();
 
+
     /**
      * Just for initial tests
      */
@@ -184,8 +180,9 @@ public class Client_Socket extends Service{
 
     public static void send_packet(Packet pck_to_send) throws IOException {
         out.writeObject(pck_to_send);
-        //out.println(message_to_send);
         out.flush();
+
+        Log.e("Sent", "ACK");
     }
 
     public String getMessage(){
@@ -307,10 +304,19 @@ public class Client_Socket extends Service{
                     in = new ObjectInputStream(cSocket.getInputStream());
 
                     while(running){
-                        //response = (String) in.readLine();
-                        /*response = (String) in.readObject();
-                        Log.d("response", response);*/
+                        //Packet pck_received = (Packet) in.readObject(pck_received);
+
+                       // pt.up.fe.droidbeiro.androidBackendAPI.Packet pck_received = (pt.up.fe.droidbeiro.androidBackendAPI.Packet) in.readObject();
                         Packet pck_received = (Packet) in.readObject();
+
+                        Log.e("Packet Content", "Message received");
+
+                        if (pck_received.packetContent[0]==prelogin_msg_type){
+
+                            Log.e("Packet Content", "message type" + "Pre-login");
+
+                        }
+
                         ready_to_read = false;
                         if (pck_received!=null) {
                             ready_to_read = true;
@@ -322,7 +328,24 @@ public class Client_Socket extends Service{
                         response=null;
                         MY_NOTIFICATION_ID=1;
 
-                        switch(pck_received.getMessageType()){
+                        if (pck_received.packetContent[0]==cc_accepts_login_msg_type){
+
+                            incorrect_login=false;
+                            correct_login=true;
+
+                            Log.e("Correct Login", "received: " + Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length));
+
+                            if (Arrays.copyOfRange(pck_received.packetContent, 2, pck_received.packetContent.length)[0]==(byte)0xFF){
+                                Log.e("Team Leader Login", "received");
+                                teamleader_login=true;
+                            }else
+                            if (Arrays.copyOfRange(pck_received.packetContent, 2, pck_received.packetContent.length)[0]==(byte)0x00){
+                                Log.e("Firefighter Login", "received");
+                                firefighter_login=true;
+                            }
+                        }
+
+                        /*switch(pck_received.getMessageType()){
 
                             case prelogin_msg_type:
                                 Firefighter_ID=pck_received.getFirefighterID();
@@ -363,19 +386,6 @@ public class Client_Socket extends Service{
 
                             case cc_predefined_msg_type:
 
-                                /** Message code table
-                                 *
-                                 * "Preciso de ajuda"           <-> 0
-                                 * "Preciso afastar-me"         <-> 1
-                                 * "Camião com problemas"       <-> 2
-                                 * "Preciso de suporte aéreo"   <-> 3
-                                 * "Vai descansar"              <-> 4
-                                 * "Suporte Aéreo a chegar"     <-> 5
-                                 * "Fogo a espalhar-se"         <-> 6
-                                 * "A retirar-me"               <-> 7
-                                 * "Fogo perto de casa"         <-> 8
-                                 * "Casa queimada"              <-> 9
-                                 */
 
                                 MY_NOTIFICATION_ID=3;
                                 Pred_Msg_Type=pck_received.getMessage()[0];
@@ -457,7 +467,7 @@ public class Client_Socket extends Service{
 
                             default:
                                 break;
-                        }
+                        }*/
 
                         if(response!=null) {
                             Log.d("response", response);

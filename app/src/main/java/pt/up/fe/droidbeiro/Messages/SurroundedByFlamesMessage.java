@@ -2,7 +2,7 @@ package pt.up.fe.droidbeiro.Messages;
 
 import java.io.IOException;
 
-import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
+import androidBackendAPI.Packet;
 
 /**
  * Created by Francisco on 19/12/2014.
@@ -21,7 +21,7 @@ public class SurroundedByFlamesMessage {
     public void build_sos_packet() throws IOException {
         //Get Packet
         this.surroundedbyflames_packet = new Packet();
-        this.surroundedbyflames_packet.build_packet(false, this.MessageType, this.FireFighter_ID, null);
+        //this.surroundedbyflames_packet.build_packet(false, this.MessageType, this.FireFighter_ID, null);
     }
 
     public Packet getSurroundedbyflames_packet() {

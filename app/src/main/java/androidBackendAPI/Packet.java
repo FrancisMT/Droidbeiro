@@ -1,4 +1,4 @@
-package pt.up.fe.droidbeiro.androidBackendAPI;
+package androidBackendAPI;
 
 import java.io.Serializable;
 

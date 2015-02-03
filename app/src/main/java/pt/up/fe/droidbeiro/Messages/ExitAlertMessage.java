@@ -2,7 +2,7 @@ package pt.up.fe.droidbeiro.Messages;
 
 import java.io.IOException;
 
-import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
+import androidBackendAPI.Packet;
 
 /**
  * Created by Francisco on 30/12/2014.
@@ -21,7 +21,7 @@ public class ExitAlertMessage {
     public void build_exitalert_packet() throws IOException {
         //Get Packet
         this.exitalert_packet = new Packet();
-        this.exitalert_packet.build_packet(false, this.MessageType, this.FireFighter_ID, null);
+        //this.exitalert_packet.build_packet(false, this.MessageType, this.FireFighter_ID, null);
     }
 
     public Packet getExitalert_packet() {

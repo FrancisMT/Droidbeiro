@@ -36,7 +36,7 @@ public class Login extends Activity {
     private EditText username_field;
     private EditText password_field;
 
-    private static String username;
+    private static int username;
     private static String password;
 
     Client_Socket CS = null;
@@ -96,8 +96,8 @@ public class Login extends Activity {
             public void onClick(View view) {
                 if ((username_field.getText().toString().trim().length() > 0) && (password_field.getText().toString().trim().length() > 0)){
 
-                    if ((username_field.getText().toString().trim().length() <= 3) && (password_field.getText().toString().trim().length() <= 16)) {
-                        username = username_field.getText().toString().trim();
+                    if ((password_field.getText().toString().trim().length() <= 16)) {
+                        username = Integer.parseInt(username_field.getText().toString().trim());
                         password = password_field.getText().toString().trim();
 
                         /****************************************************************/
@@ -118,15 +118,15 @@ public class Login extends Activity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        Log.e("Response from server", CS.getMessage());
+                        //Log.e("Response from server", CS.getMessage());
 
 
-                        while( (!(CS.isIncorrect_login())) && (!(CS.isCorrect_login())) ){}
-                        try {
+                        //while( (!(CS.isIncorrect_login())) && (!(CS.isCorrect_login())) ){}
+                        /*try {
                             Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
-                        }
+                        }*/
                         if (CS.isIncorrect_login()){
                             Toast.makeText(getApplicationContext(), "Dados incorrectos", Toast.LENGTH_LONG).show();
                         }

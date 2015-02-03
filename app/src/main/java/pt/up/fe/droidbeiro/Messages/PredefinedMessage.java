@@ -5,7 +5,7 @@ import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
+import androidBackendAPI.Packet;
 
 /**
  * Created by Francisco on 19/12/2014.
@@ -75,12 +75,12 @@ public class PredefinedMessage {
 
         //Get Packet
         this.predefinedmessage_packet = new Packet();
-        this.predefinedmessage_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
+        //this.predefinedmessage_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
     }
 
-    public byte[] getMessageContent(){
+    /*public byte[] getMessageContent(){
         return predefinedmessage_packet.getMessage();
-    }
+    }*/
 
     public Packet getPredefinedmessage_packet() {
         return predefinedmessage_packet;

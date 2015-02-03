@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
+import androidBackendAPI.Packet;
 
 /**
  * Created by Francisco on 19/12/2014.
@@ -50,7 +50,7 @@ public class FirelineMessage {
 
         //Get Packet
         this.fireline_packet = new Packet();
-        this.fireline_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
+        //this.fireline_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
     }
 
     public Packet getFireline_packet() {
