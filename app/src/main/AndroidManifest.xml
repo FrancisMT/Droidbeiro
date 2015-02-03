@@ -113,10 +113,12 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+
         <activity
             android:name=".Presentation.ChangeTeam"
             android:label="@string/title_activity_change_team" >
         </activity>
+
         <receiver
             android:name=".Communication.Client_Socket$MyBroadcastReceiver"
             android:exported="false" >
@@ -137,6 +139,12 @@
             android:name=".Communication.Client_Socket$MyBroadcastReceiver_normal_2"
             android:exported="false" >
         </receiver>
+
+        <service
+            android:name=".Service.BLE.RadioControlService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>

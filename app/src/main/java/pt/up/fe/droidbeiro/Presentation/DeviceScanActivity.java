@@ -37,6 +37,7 @@ import java.util.ArrayList;
 
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.BLE.DeviceControlService;
+import pt.up.fe.droidbeiro.Service.BLE.RadioControlService;
 import pt.up.fe.droidbeiro.Service.BLE.SerialPortService;
 
 /**
@@ -268,8 +269,7 @@ public class DeviceScanActivity extends ListActivity {
 
         if (device == null) return;
 
-        else if (!device.getName().equals("Update this field with the name of the bluetooth device" +
-                "on the radio module")) { // name of device != name of module radio -> start DeviceControlService
+        else if (device.getName().equals("POLAR H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
             final Intent intentService = new Intent(this, DeviceControlService.class);
 
             intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_NAME, device.getName());
@@ -288,8 +288,8 @@ public class DeviceScanActivity extends ListActivity {
         } else { // name of the device==name of the module radio-> start SerialPortService
 
             final Intent intentServiceSPP = new Intent(this, SerialPortService.class);
-            intentServiceSPP.putExtra(DeviceControlService.EXTRAS_DEVICE_NAME, device.getName());
-            intentServiceSPP.putExtra(DeviceControlService.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+            intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_NAME_RADIO, device.getName());
+            intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_ADDRESS_RADIO, device.getAddress());
 
             if (mScanning) {
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
