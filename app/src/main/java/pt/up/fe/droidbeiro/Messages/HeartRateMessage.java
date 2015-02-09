@@ -32,7 +32,20 @@ public class HeartRateMessage {
         byte[] message_content = packet_content.toByteArray();
 
         //Get Packet
+        ByteArrayOutputStream packet_content_final = new ByteArrayOutputStream();
+        packet_content_final.write(this.MessageType);
+        packet_content_final.write(this.FireFighter_ID);
+        if (message_content!=null) {
+            try {
+                packet_content_final.write(message_content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         this.heartrate_packet = new Packet();
+        this.heartrate_packet.hasProtocolHeader=true;
+        this.heartrate_packet.packetContent=packet_content_final.toByteArray();
         //this.heartrate_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
     }
 

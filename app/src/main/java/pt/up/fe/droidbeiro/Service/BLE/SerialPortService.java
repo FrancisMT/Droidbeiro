@@ -523,7 +523,7 @@ public class SerialPortService extends Service {
                 Calendar cal = Calendar.getInstance();
                 int seconds = cal.get(Calendar.SECOND);
 
-                if ((seconds % 10) == 0) {
+                /*if ((seconds % 10) == 0) {
                     Log.d(TAG, String.format("Received heart rate: %d", heartRate));
 
                     HeartRateMessage hr_msg = new HeartRateMessage(CS.getFirefighter_ID(), heartRate);
@@ -537,7 +537,7 @@ public class SerialPortService extends Service {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
+                }*/
             }
 
             //----- Fim da parte adicionada pelo francisco
@@ -726,12 +726,12 @@ public class SerialPortService extends Service {
 
         // Exemplo notificações Heart Rate - verificar se é necessário ter notificações neste caso.
         // This is specific to Heart Rate Measurement.
-        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+        /*if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                     UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             mBluetoothGatt.writeDescriptor(descriptor);
-        }
+        }*/
     }
 
 

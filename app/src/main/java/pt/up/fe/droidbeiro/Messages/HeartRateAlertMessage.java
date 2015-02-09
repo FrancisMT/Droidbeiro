@@ -10,7 +10,8 @@ import androidBackendAPI.Packet;
  */
 public class HeartRateAlertMessage {
 
-    private byte MessageType = 17;
+    private int msg_type=0;
+    private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 
     private int BPM_data = 0;
@@ -32,7 +33,21 @@ public class HeartRateAlertMessage {
         byte[] message_content = packet_content.toByteArray();
 
         //Get Packet
+        ByteArrayOutputStream packet_content_final = new ByteArrayOutputStream();
+        packet_content_final.write(this.MessageType);
+        packet_content_final.write(this.FireFighter_ID);
+        if (message_content!=null) {
+            try {
+                packet_content_final.write(message_content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         this.heartratealert_packet = new Packet();
+        this.heartratealert_packet.hasProtocolHeader=true;
+        this.heartratealert_packet.packetContent=packet_content_final.toByteArray();
+
         //this.heartratealert_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
     }
 

@@ -10,7 +10,8 @@ import androidBackendAPI.Packet;
  */
 public class UpdateTeamMessage {
 
-    private byte MessageType = 15;
+    private int msg_type=15;
+    private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 
     private int team = 0;
@@ -32,7 +33,20 @@ public class UpdateTeamMessage {
         byte[] message_content = packet_content.toByteArray();
 
         //Get Packet
+        ByteArrayOutputStream packet_content_final = new ByteArrayOutputStream();
+        packet_content_final.write(this.MessageType);
+        packet_content_final.write(this.FireFighter_ID);
+        if (message_content!=null) {
+            try {
+                packet_content_final.write(message_content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         this.updateteam_packet = new Packet();
+        this.updateteam_packet.hasProtocolHeader=true;
+        this.updateteam_packet.packetContent=packet_content_final.toByteArray();
         //this.updateteam_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
     }
 

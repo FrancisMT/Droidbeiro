@@ -24,6 +24,8 @@ import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -37,17 +39,39 @@ import pt.up.fe.droidbeiro.R;
 
 public class Client_Socket extends Service{
 
-    private final static byte prelogin_msg_type = (byte)0x84;
+    /**
+     * Protocol Data
+     */
+    //ObjectInputStream ois = new ObjectInputStream(socketPro.getInputStream());
+    //ObjectOutputStream oos = new ObjectOutputStream(sockePro.getOutputStream());
+
+
+    private static int msg_type;
+    private final static int prelogin_msg_type = 84;
+    private final static int cc_predefined_msg_type = 128;
+    private final static int cc_personalised_msg_type = 129;
+    private final static int cc_requests_fl_update_msg_type = 130;
+    private final static int cc_sends_team_info_msg_type = 131;
+    private final static int cc_sends_ff_id_msg_type = 132;
+    private final static int cc_denies_login_msg_type = 133;
+    private final static int cc_accepts_login_msg_type = 134;
+    private final static int cc_requests_movetogps_msg_type = 135;
+    private final static int cc_automatic_ack_msg_type = 136;
+
+
+/*    private final static byte prelogin_msg_type = (byte)0x84;
     private final static byte cc_predefined_msg_type = (byte)0x128;
     private final static byte cc_personalised_msg_type = (byte)0x129;
     private final static byte cc_requests_fl_update_msg_type = (byte)0x130;
     private final static byte cc_sends_team_info_msg_type = (byte)0x131;
     private final static byte cc_sends_ff_id_msg_type = (byte)0x132;
-    private final static byte cc_denies_login_msg_type = (byte)0x133;
-    private final static byte cc_accepts_login_msg_type = (byte)0x134;
+    //private final static byte cc_denies_login_msg_type = (byte)0x133;
+    private final static byte cc_denies_login_msg_type = (byte)0x85;
+    //private final static byte cc_accepts_login_msg_type = (byte)0x134;
+    private final static byte cc_accepts_login_msg_type = (byte)0x86;
     private final static byte cc_requests_movetogps_msg_type = (byte)0x135;
     private final static byte cc_automatic_ack_msg_type = (byte)0x136;
-
+*/
     /***********************************************************/
     public static boolean ready_to_read = false;
     public static byte Firefighter_ID=0;
@@ -306,14 +330,13 @@ public class Client_Socket extends Service{
                     while(running){
                         //Packet pck_received = (Packet) in.readObject(pck_received);
 
-                       // pt.up.fe.droidbeiro.androidBackendAPI.Packet pck_received = (pt.up.fe.droidbeiro.androidBackendAPI.Packet) in.readObject();
                         Packet pck_received = (Packet) in.readObject();
 
-                        Log.e("Packet Content", "Message received");
+                        Log.e("Packet Content", "Message received" + (pck_received.packetContent[0] & 0xFF));
 
-                        if (pck_received.packetContent[0]==prelogin_msg_type){
+                        if (pck_received.packetContent[0]==cc_denies_login_msg_type){
 
-                            Log.e("Packet Content", "message type" + "Pre-login");
+                            Log.e("Packet Content", "message type" + "Denies Login");
 
                         }
 
@@ -328,27 +351,12 @@ public class Client_Socket extends Service{
                         response=null;
                         MY_NOTIFICATION_ID=1;
 
-                        if (pck_received.packetContent[0]==cc_accepts_login_msg_type){
+                        msg_type=(int)(pck_received.packetContent[0])&(0xFF);
 
-                            incorrect_login=false;
-                            correct_login=true;
-
-                            Log.e("Correct Login", "received: " + Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length));
-
-                            if (Arrays.copyOfRange(pck_received.packetContent, 2, pck_received.packetContent.length)[0]==(byte)0xFF){
-                                Log.e("Team Leader Login", "received");
-                                teamleader_login=true;
-                            }else
-                            if (Arrays.copyOfRange(pck_received.packetContent, 2, pck_received.packetContent.length)[0]==(byte)0x00){
-                                Log.e("Firefighter Login", "received");
-                                firefighter_login=true;
-                            }
-                        }
-
-                        /*switch(pck_received.getMessageType()){
+                        switch(msg_type){
 
                             case prelogin_msg_type:
-                                Firefighter_ID=pck_received.getFirefighterID();
+                                Firefighter_ID=pck_received.packetContent[1];
 
                                 response="Ligado ao Centro de Controlo";
                                 MY_NOTIFICATION_ID=1;
@@ -366,13 +374,13 @@ public class Client_Socket extends Service{
                                 incorrect_login=false;
                                 correct_login=true;
 
-                                Log.e("Correct Login", "received: " + pck_received.getMessage()[0]);
+                                Log.e("Correct Login", "received: " + Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]);
 
-                                if (pck_received.getMessage()[0]==(byte)0xFF){
+                                if (Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]==(byte)0xFF){
                                     Log.e("Team Leader Login", "received");
                                     teamleader_login=true;
                                 }else
-                                if (pck_received.getMessage()[0]==(byte)0x00){
+                                if (Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]==(byte)0x00){
                                     Log.e("Firefighter Login", "received");
                                     firefighter_login=true;
                                 }
@@ -380,7 +388,7 @@ public class Client_Socket extends Service{
                                 break;
 
                             case cc_personalised_msg_type:
-                                response = new String(pck_received.getMessage(), "ISO-8859-1");
+                                response = new String(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), "ISO-8859-1");
                                 MY_NOTIFICATION_ID=2;
                                 break;
 
@@ -388,7 +396,7 @@ public class Client_Socket extends Service{
 
 
                                 MY_NOTIFICATION_ID=3;
-                                Pred_Msg_Type=pck_received.getMessage()[0];
+                                Pred_Msg_Type=Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0];
                                 switch (Pred_Msg_Type){
 
                                     case (byte)0x00:
@@ -452,8 +460,8 @@ public class Client_Socket extends Service{
                                 MY_NOTIFICATION_ID=6;
                                 response="Move to GPS";
 
-                                byte[] latitude =  Arrays.copyOfRange(pck_received.getMessage(), 0, 4);
-                                byte[] longitude =  Arrays.copyOfRange(pck_received.getMessage(), 4, pck_received.getMessage().length);
+                                byte[] latitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 0, 4);
+                                byte[] longitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 4, Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length).length);
 
                                 ByteBuffer lat_bb = ByteBuffer.wrap(latitude);
                                 lat_bb.order(ByteOrder.LITTLE_ENDIAN);
@@ -467,7 +475,7 @@ public class Client_Socket extends Service{
 
                             default:
                                 break;
-                        }*/
+                        }
 
                         if(response!=null) {
                             Log.d("response", response);

@@ -21,7 +21,8 @@ public class GPSMessage {
     //First 4 bytes: Latitude
     //Second 4 bytes: Longitude
 
-    private byte MessageType = 0;
+    private int msg_type=0;
+    private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 
     private String latitude="";
@@ -57,7 +58,20 @@ public class GPSMessage {
         byte[] message_content = packet_content.toByteArray();
 
         //Get Packet
+        ByteArrayOutputStream packet_content_final = new ByteArrayOutputStream();
+        packet_content_final.write(this.MessageType);
+        packet_content_final.write(this.FireFighter_ID);
+        if (message_content!=null) {
+            try {
+                packet_content_final.write(message_content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         this.gps_packet = new Packet();
+        this.gps_packet.hasProtocolHeader=true;
+        this.gps_packet.packetContent=packet_content_final.toByteArray();
         //this.gps_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
     }
 

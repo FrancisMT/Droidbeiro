@@ -24,7 +24,8 @@ public class PredefinedMessage {
      * "Casa queimada"              <-> 9
      */
 
-    private byte MessageType = 10;
+    private int msg_type=10;
+    private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 
     private String predefined_message = "";
@@ -74,7 +75,20 @@ public class PredefinedMessage {
         byte[] message_content = packet_content.toByteArray();
 
         //Get Packet
+        ByteArrayOutputStream packet_content_final = new ByteArrayOutputStream();
+        packet_content_final.write(this.MessageType);
+        packet_content_final.write(this.FireFighter_ID);
+        if (message_content!=null) {
+            try {
+                packet_content_final.write(message_content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         this.predefinedmessage_packet = new Packet();
+        this.predefinedmessage_packet.hasProtocolHeader=true;
+        this.predefinedmessage_packet.packetContent=packet_content_final.toByteArray();
         //this.predefinedmessage_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
     }
 
