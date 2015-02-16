@@ -1,5 +1,6 @@
 package pt.up.fe.droidbeiro.Messages;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import androidBackendAPI.Packet;
@@ -9,7 +10,8 @@ import androidBackendAPI.Packet;
  */
 public class ExitAlertMessage {
 
-    private byte MessageType = 23;
+    private int msg_type=23;
+    private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 
     Packet exitalert_packet;
@@ -20,7 +22,13 @@ public class ExitAlertMessage {
 
     public void build_exitalert_packet() throws IOException {
         //Get Packet
+        ByteArrayOutputStream packet_content_final = new ByteArrayOutputStream();
+        packet_content_final.write(this.MessageType);
+        packet_content_final.write(this.FireFighter_ID);
+
         this.exitalert_packet = new Packet();
+        this.exitalert_packet.hasProtocolHeader=true;
+        this.exitalert_packet.packetContent=packet_content_final.toByteArray();
         //this.exitalert_packet.build_packet(false, this.MessageType, this.FireFighter_ID, null);
     }
 

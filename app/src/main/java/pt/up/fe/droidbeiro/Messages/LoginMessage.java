@@ -19,7 +19,8 @@ public class LoginMessage {
      * 16 bytes -> MD5 Password
      */
 
-    private byte MessageType = 7;
+    private int msg_type=7;
+    private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 
     private int username;
@@ -75,8 +76,6 @@ public class LoginMessage {
                 e.printStackTrace();
             }
         }
-
-
 
         this.login_packet = new Packet();
         this.login_packet.hasProtocolHeader=true;

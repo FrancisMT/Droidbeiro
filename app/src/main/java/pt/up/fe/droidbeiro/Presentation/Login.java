@@ -28,7 +28,7 @@ import pt.up.fe.droidbeiro.Messages.LoginMessage;
 import pt.up.fe.droidbeiro.Messages.MD5;
 import pt.up.fe.droidbeiro.Messages.SOSMessage;
 import pt.up.fe.droidbeiro.R;
-import pt.up.fe.droidbeiro.androidBackendAPI.Packet;
+import androidBackendAPI.Packet;
 
 public class Login extends Activity {
 
@@ -121,12 +121,12 @@ public class Login extends Activity {
                         //Log.e("Response from server", CS.getMessage());
 
 
-                        //while( (!(CS.isIncorrect_login())) && (!(CS.isCorrect_login())) ){}
-                        /*try {
+                        while( (!(CS.isIncorrect_login())) && (!(CS.isCorrect_login())) ){}
+                        try {
                             Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
-                        }*/
+                        }
                         if (CS.isIncorrect_login()){
                             Toast.makeText(getApplicationContext(), "Dados incorrectos", Toast.LENGTH_LONG).show();
                         }

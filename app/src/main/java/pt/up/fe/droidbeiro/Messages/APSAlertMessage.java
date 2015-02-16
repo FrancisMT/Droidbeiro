@@ -1,5 +1,6 @@
 package pt.up.fe.droidbeiro.Messages;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import androidBackendAPI.Packet;
@@ -9,7 +10,8 @@ import androidBackendAPI.Packet;
  */
 public class APSAlertMessage {
 
-    private byte MessageType = 18;
+    private int msg_type=18;
+    private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 
     Packet apsalert_packet;
@@ -20,7 +22,13 @@ public class APSAlertMessage {
 
     public void build_apsalert_packet() throws IOException {
         //Get Packet
+        ByteArrayOutputStream packet_content_final = new ByteArrayOutputStream();
+        packet_content_final.write(this.MessageType);
+        packet_content_final.write(this.FireFighter_ID);
+
         this.apsalert_packet = new Packet();
+        this.apsalert_packet.hasProtocolHeader=true;
+        this.apsalert_packet.packetContent=packet_content_final.toByteArray();
         //this.apsalert_packet.build_packet(false, this.MessageType, this.FireFighter_ID, null);
     }
 

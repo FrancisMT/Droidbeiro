@@ -1,5 +1,8 @@
-package pt.up.fe.droidbeiro.Protocol_API;
+package pt.up.fe.droidbeiro.Service;
 
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -7,6 +10,10 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
+import pt.up.fe.droidbeiro.Protocol_API.rqst;
+import pt.up.fe.droidbeiro.Protocol_API.rspns;
+import pt.up.fe.droidbeiro.Service.BLE.SerialPortService;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -18,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @author Luis Ungaro
  */
 
-public class Protocol {
+public class Protocol_to_adapt extends Service{
 
     private final boolean machine;
     /*Server socket's port in order for the protocol to open SocketPro and
@@ -37,7 +44,7 @@ public class Protocol {
     private ObjectOutputStream ProOut;
 
 
-    public Protocol(boolean machine, int port, byte system_id){
+    public Protocol_to_adapt(boolean machine, int port, byte system_id){
         this.machine = machine;
         this.port = port;
         this.system_id = system_id;
@@ -158,5 +165,10 @@ public class Protocol {
 
     public void Stop(){
         running = false;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 }

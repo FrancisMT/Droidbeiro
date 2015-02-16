@@ -12,7 +12,8 @@ import androidBackendAPI.Packet;
  */
 public class ReplaceFireLineMessage {
 
-    private byte MessageType = 24;
+    private int msg_type=24;
+    private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 
     private String latitude="";
@@ -49,7 +50,14 @@ public class ReplaceFireLineMessage {
         byte[] message_content = packet_content.toByteArray();
 
         //Get Packet
+        ByteArrayOutputStream packet_content_final = new ByteArrayOutputStream();
+        packet_content_final.write(this.MessageType);
+        packet_content_final.write(this.FireFighter_ID);
+
         this.replacefireline_packet = new Packet();
+        this.replacefireline_packet.hasProtocolHeader=true;
+        this.replacefireline_packet.packetContent=packet_content_final.toByteArray();
+
         //this.replacefireline_packet.build_packet(false, this.MessageType, this.FireFighter_ID, message_content);
     }
 
