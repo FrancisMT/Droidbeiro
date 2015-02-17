@@ -76,6 +76,25 @@ import pt.up.fe.droidbeiro.Messages.HeartRateMessage;
 public class SerialPortService extends Service {
 
     // SPP SERVICE - CÓDIGO ANTERIOR - APENAS PARA REFERÊNCIA
+    public final static String ACTION_GATT_CONNECTED_RADIO =
+            "com.example.bluetooth.le.ACTION_GATT_CONNECTED_RADIO";
+    public final static String ACTION_GATT_DISCONNECTED_RADIO =
+            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED_RADIO";
+    public final static String ACTION_GATT_SERVICES_DISCOVERED_RADIO =
+            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED_RADIO";
+    public final static String ACTION_DATA_AVAILABLE_RADIO =
+            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE_RADIO";
+    // ------ RADIO MODULE VARIABLES
+    public final static String EXTRA_DATA_RADIO =
+            "com.example.bluetooth.le.EXTRA_DATA"; // Caracteriticas adicionais
+    public final static String TX_DATA = "com.example.bluetooth.le.TX_DATA"; // caracteristica para tranferência de dados
+    public final static String RX_DATA = "com.example.bluetooth.le.RX_DATA"; // caracteristica para leitura de dados
+    public final static String RADIO_BATTERY_DATA = "com.example.bluetooth.le.RX_DATA"; //caracteristica para leitura do nivel da bateira
+    public final static UUID UUID_SERVICE = UUID.fromString(SampleGattAttributes.RADIO_MODULE_SERVICE);
+    public final static UUID UUID_TX_DATA = UUID.fromString(SampleGattAttributes.TX_DATA_CHAR_UUID);
+    public final static UUID UUID_RX_DATA = UUID.fromString(SampleGattAttributes.RX_DATA_CHAR_UUID);
+    public final static UUID UUID_BATTERY_LEVEL_RADIO = UUID.fromString(SampleGattAttributes.BATT_LEVEL_CHAR_UUID);
+    public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
 /**
     // Well known SPP UUID
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // Define according to the server specification
@@ -345,105 +364,10 @@ public class SerialPortService extends Service {
 
 
     private final static String TAG = SerialPortService.class.getSimpleName();
-
-    private BluetoothManager mBluetoothManager;
-    private BluetoothAdapter mBluetoothAdapter;
-    private String mBluetoothDeviceAddress;
-    private BluetoothGatt mBluetoothGatt;
-    private int mConnectionState = STATE_DISCONNECTED;
-
     private static final int STATE_DISCONNECTED = 0;
+    private int mConnectionState = STATE_DISCONNECTED;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
-
-    public final static String ACTION_GATT_CONNECTED_RADIO =
-            "com.example.bluetooth.le.ACTION_GATT_CONNECTED_RADIO";
-    public final static String ACTION_GATT_DISCONNECTED_RADIO =
-            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED_RADIO";
-    public final static String ACTION_GATT_SERVICES_DISCOVERED_RADIO =
-            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED_RADIO";
-    public final static String ACTION_DATA_AVAILABLE_RADIO =
-            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE_RADIO";
-
-
-    // ------ RADIO MODULE VARIABLES
-    public final static String EXTRA_DATA_RADIO =
-            "com.example.bluetooth.le.EXTRA_DATA"; // Caracteriticas adicionais
-
-    public final static String TX_DATA = "com.example.bluetooth.le.TX_DATA"; // caracteristica para tranferência de dados
-    public final static String RX_DATA = "com.example.bluetooth.le.RX_DATA"; // caracteristica para leitura de dados
-    public final static String RADIO_BATTERY_DATA = "com.example.bluetooth.le.RX_DATA"; //caracteristica para leitura do nivel da bateira
-
-
-    public final static UUID UUID_TX_DATA = UUID.fromString(SampleGattAttributes.TX_DATA_CHAR_UUID);
-    public final static UUID UUID_RX_DATA = UUID.fromString(SampleGattAttributes.RX_DATA_CHAR_UUID);
-    public final static UUID UUID_BATTERY_LEVEL_RADIO = UUID.fromString(SampleGattAttributes.BATT_LEVEL_CHAR_UUID);
-
-
-    public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
-
-    public static String dataToWrite = "emprty data";
-
-    //------------------------
-
-    public Client_Socket CS = null;
-    boolean CSisBound;
-
-
-
-    //-----------------VERIFICAR COM O FRANCISCO COMO SÂO RECEBIDOS OS DADOS DA APP
-
-    /**Broadcast receiver, receives data to be sent to the radio module from the app
-     *
-     * @dataToWrite - String stores the data received from the app, in order to send it to the radio module
-     *                via and writeCharacteristic()
-     *                It may be neceessary to implement onCharacteristiWrite() to check if the data is written
-     */
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        registerReceiver(UpdateReceiver, null);
-    }
-
-    private final BroadcastReceiver UpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
-                dataToWrite = intent.getStringExtra("Update this field with the" +
-                        "string of data from the app to be sent to the radio module");
-            }
-        }
-    };
-
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-        //EDITED PART
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            // TODO Auto-generated method stub
-            CS = ((Client_Socket.LocalBinder) service).getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            // TODO Auto-generated method stub
-            CS = null;
-        }
-    };
-
-    private void doBindService() {
-        bindService(new Intent(SerialPortService.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
-        CSisBound = true;
-        if(CS!=null){
-            CS.IsBoundable();
-        }
-    }
-
-    //---------------------------------------------------------------
-
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -488,19 +412,94 @@ public class SerialPortService extends Service {
             }
         }
 
+        public void onCharacteristicWrite(BluetoothGatt gatt,
+                                          BluetoothGattCharacteristic characteristic, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+
+            }
+        }
+
+
+
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
         }
     };
+    public static String dataToWrite = "emprty data";
+    private final BroadcastReceiver UpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
+                dataToWrite = intent.getStringExtra("Update this field with the" +
+                        "string of data from the app to be sent to the radio module");
+                BluetoothGattService service = mBluetoothGatt.getService(UUID_SERVICE);
+                BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID_TX_DATA);
+
+                writeCharacteristic(characteristic);
+
+            }
+        }
+    };
+    private final IBinder mBinder = new LocalBinder();
+    public int DEFAULT_BYTES_IN_CONTINUE_PACKET=20;
+    public Client_Socket CS = null;
+
+    //------------------------
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+    boolean CSisBound;
+
+
+
+    //-----------------VERIFICAR COM O FRANCISCO COMO SÂO RECEBIDOS OS DADOS DA APP
+    private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter;
+    private String mBluetoothDeviceAddress;
+    private BluetoothGatt mBluetoothGatt;
+
+    //---------------------------------------------------------------
+
+    /**Broadcast receiver, receives data to be sent to the radio module from the app
+     *
+     * @dataToWrite - String stores the data received from the app, in order to send it to the radio module
+     *                via and writeCharacteristic()
+     *                It may be neceessary to implement onCharacteristiWrite() to check if the data is written
+     */
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        registerReceiver(UpdateReceiver, null);
+    }
+
+    private void doBindService() {
+        bindService(new Intent(SerialPortService.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
     }
-
-
 
     private void broadcastUpdate(final String action, // LEITURA DE DADOS
                                  final BluetoothGattCharacteristic characteristic) {
@@ -512,18 +511,34 @@ public class SerialPortService extends Service {
 
             int offset=0;
 
-            final String RxData = characteristic.getStringValue(offset); // 20 bytes. Fazer parse e conversão necessários
+            String RxData = characteristic.getStringValue(offset); // 20 bytes. Fazer parse e conversão necessários
             Log.d(TAG, String.format("Received data: "+RxData));
+
+            byte[] mensagem = RxData.getBytes();
+            int tamanho;
+            int i;
+
+            for(tamanho=0; mensagem[tamanho]!= 0x0A; tamanho++)
+            {
+            }
+            byte[] dados_finais = new byte[tamanho+1];
+
+            for(i=0; i< tamanho+1; tamanho++ )
+            {
+                dados_finais[i] = mensagem[i];
+            }
+
+
 
             //------ Parte adicionada pelo francisco. Passa dados recebidos à aplicação
             // Verificar com ele como passar os dados recebidos.
             // o código abaixo é referente ao heartRate e tem de ser adapatado para O RX_DATA.
-
+/*
             if (CS.isAfter_login()) {
                 Calendar cal = Calendar.getInstance();
                 int seconds = cal.get(Calendar.SECOND);
 
-                /*if ((seconds % 10) == 0) {
+                if ((seconds % 10) == 0) {
                     Log.d(TAG, String.format("Received heart rate: %d", heartRate));
 
                     HeartRateMessage hr_msg = new HeartRateMessage(CS.getFirefighter_ID(), heartRate);
@@ -537,12 +552,12 @@ public class SerialPortService extends Service {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }*/
+                }
             }
 
             //----- Fim da parte adicionada pelo francisco
-
-            intent.putExtra(RX_DATA, String.valueOf(RxData));
+*/
+            intent.putExtra(RX_DATA, String.valueOf(dados_finais));
         }
         else if(UUID_BATTERY_LEVEL_RADIO.equals(characteristic.getUuid())){ //battery levele of Radio module -
                                                                         // não está definida como é feita a leitura do nivel de bateira
@@ -565,12 +580,6 @@ public class SerialPortService extends Service {
         sendBroadcast(intent);
     }
 
-    public class LocalBinder extends Binder {
-        SerialPortService getService() {
-            return SerialPortService.this;
-        }
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -584,8 +593,6 @@ public class SerialPortService extends Service {
         close();
         return super.onUnbind(intent);
     }
-
-    private final IBinder mBinder = new LocalBinder();
 
     /**
      * Initializes a reference to the local Bluetooth adapter.
@@ -704,11 +711,71 @@ public class SerialPortService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        characteristic.setValue(dataToWrite);
+      int tamanho = dataToWrite.length();
+      int i =0;
+      byte[] mensagem = new byte[20];
+      mensagem = dataToWrite.getBytes();
+      mensagem[tamanho] = 0x0A;
+
+      if(tamanho < 20)
+      {
+          for (i=tamanho+1; i < 20; i++ )
+          {
+              mensagem[i] =0x00;
+          }
+      }
+        characteristic.setValue(mensagem);
         mBluetoothGatt.writeCharacteristic(characteristic);
+
+        /*
+        if (Long.valueOf( String.valueOf(dataToWrite.length()))  > DEFAULT_BYTES_IN_CONTINUE_PACKET)
+        {
+            int times = Byte.valueOf(String.valueOf(
+                    dataToWrite.length() / DEFAULT_BYTES_IN_CONTINUE_PACKET));
+            byte[] sending_continue_hex = new byte[DEFAULT_BYTES_IN_CONTINUE_PACKET];
+
+
+
+            for (int time = 0; time <= times; time++) {
+
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (time == times) {
+                    Log.i(TAG, "LAST PACKET ");
+                    int character_length = dataToWrite.length() - DEFAULT_BYTES_IN_CONTINUE_PACKET * times;
+
+                    byte[] sending_last_hex = new byte[character_length];
+
+                    for (int i = 0; i < sending_last_hex.length; i++) {
+                        sending_last_hex[i] =
+                                dataToWrite.getBytes()[sending_continue_hex.length * time + i];
+                    }
+
+                    characteristic.setValue(sending_last_hex);
+                } else {
+                    for (int i = 0; i < sending_continue_hex.length; i++) {
+                        Log.i(TAG, "Send stt : "
+                                + (sending_continue_hex.length * time + i));
+
+                        // Get next bytes
+                        sending_continue_hex[i] =
+                                dataToWrite.getBytes()[sending_continue_hex.length * time + i];
+                    }
+                    characteristic.setValue(sending_continue_hex);
+                }
+                mBluetoothGatt.writeCharacteristic(characteristic);
+            }
+        }
+        else {
+            characteristic.setValue(dataToWrite.getBytes());
+            mBluetoothGatt.writeCharacteristic(characteristic);
+        }
+    */
     }
-
-
 
     /**
      * Enables or disables notification on a give characteristic.
@@ -726,14 +793,15 @@ public class SerialPortService extends Service {
 
         // Exemplo notificações Heart Rate - verificar se é necessário ter notificações neste caso.
         // This is specific to Heart Rate Measurement.
-        /*if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+        /*
+        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                     UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             mBluetoothGatt.writeDescriptor(descriptor);
-        }*/
+        }
+        */
     }
-
 
     /**
      * Retrieves a list of supported GATT services on the connected device. This should be
@@ -746,5 +814,11 @@ public class SerialPortService extends Service {
         if (mBluetoothGatt == null) return null;
 
         return mBluetoothGatt.getService(uuid);
+    }
+
+    public class LocalBinder extends Binder {
+        SerialPortService getService() {
+            return SerialPortService.this;
+        }
     }
 }
