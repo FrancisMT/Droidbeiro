@@ -647,6 +647,7 @@ public class Client_Socket extends Service{
     {
         try
         {
+            //debug
             if (request!=null){
                 Log.e("Request status:" , "not null");
             }
