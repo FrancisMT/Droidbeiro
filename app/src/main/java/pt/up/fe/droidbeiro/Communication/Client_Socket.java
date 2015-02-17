@@ -5,15 +5,19 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.os.StrictMode;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,12 +26,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import androidBackendAPI.Packet;
 import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
@@ -37,15 +44,49 @@ import pt.up.fe.droidbeiro.Presentation.Compass;
 import pt.up.fe.droidbeiro.R;
 
 
+/**
+ * Protocol Imports
+ */
+import protocolapi.*;
+import G5.BusinessLogic.*;
+import G5.Processing.*;
+import G5.Protocol.*;
+import G5.Receiver.*;
+import G5.Routing.*;
+import G5.Sender.*;
+import G5.SharedSingletons.*;
+import G5.Util.*;
+
 public class Client_Socket extends Service{
 
     /**
      * Protocol Data
      */
-    //ObjectInputStream ois = new ObjectInputStream(socketPro.getInputStream());
-    //ObjectOutputStream oos = new ObjectOutputStream(sockePro.getOutputStream());
+    //[APP -> PRO] Responses
+    private ObjectInputStream socketAppResp;
+
+    //[APP -> PRO] Requests
+    private ObjectOutputStream socketAppReq;
+
+    //[PRO -> APP] Responses
+    private ObjectOutputStream socketProResp;
+
+    //[PRO -> APP] Requests
+    private ObjectInputStream socketProReq;
+
+    protected ServerSocket serverSocket;
+    private Socket socketApp;
+    private Socket socketPro;
+    public int portaSocket;
+
+    //Protocol Requests Buffer
+    public ConcurrentLinkedQueue<rqst> request_buffer = new ConcurrentLinkedQueue<>();
 
 
+
+    /**
+     * Backend Message Types
+     */
     private static int msg_type;
     private final static int prelogin_msg_type = 84;
     private final static int cc_predefined_msg_type = 128;
@@ -58,21 +99,10 @@ public class Client_Socket extends Service{
     private final static int cc_requests_movetogps_msg_type = 135;
     private final static int cc_automatic_ack_msg_type = 136;
 
-
-/*    private final static byte prelogin_msg_type = (byte)0x84;
-    private final static byte cc_predefined_msg_type = (byte)0x128;
-    private final static byte cc_personalised_msg_type = (byte)0x129;
-    private final static byte cc_requests_fl_update_msg_type = (byte)0x130;
-    private final static byte cc_sends_team_info_msg_type = (byte)0x131;
-    private final static byte cc_sends_ff_id_msg_type = (byte)0x132;
-    //private final static byte cc_denies_login_msg_type = (byte)0x133;
-    private final static byte cc_denies_login_msg_type = (byte)0x85;
-    //private final static byte cc_accepts_login_msg_type = (byte)0x134;
-    private final static byte cc_accepts_login_msg_type = (byte)0x86;
-    private final static byte cc_requests_movetogps_msg_type = (byte)0x135;
-    private final static byte cc_automatic_ack_msg_type = (byte)0x136;
-*/
     /***********************************************************/
+    /**
+     * Auxiliary Variables
+     */
     public static boolean ready_to_read = false;
     public static byte Firefighter_ID=0;
     public static boolean after_login = false;
@@ -92,7 +122,11 @@ public class Client_Socket extends Service{
     public static double lon=0;
 
     public static boolean compass_request=false;
+
     /***********************************************************/
+    /**
+     * Countdown variables
+     */
     public static CountDownTimer countDownTimer_LF;
     public static CountDownTimer countDownTimer_Compass;
     public static CountDownTimer countDownTimer_pred_msg;
@@ -101,42 +135,35 @@ public class Client_Socket extends Service{
     public final long interval = 30 * 1000;   //TODO change to (30)
 
 
+    /**
+     * Conection to backend
+     */
     private Socket cSocket = null;
-    //private PrintWriter out = null;
-    //private BufferedReader in = null;
     private static ObjectOutputStream out = null;
     private static ObjectInputStream in = null;
-
     private int isSocketAlive = 0;
-
     private static String SERVER_IP;//= "192.168.1.65";
     private static int SERVER_PORT;// = 4200;
-    private static final int SERVER_TIMEOUT = 1000;
-
-    private boolean dataToSend = false;
-    private boolean dataToRead = false;
-    private String dataSend = null;
-    private String dataRead = null;
-
     private InetAddress serverAddr;
     private boolean running = false;
 
-    final static String ACTION = "NotifyServiceAction";
-    final static String STOP_SERVICE = "";
-    final static int RQS_STOP_SERVICE = 1;
-
+    /**
+     * Notifications
+     */
     private static int MY_NOTIFICATION_ID;
     private NotificationManager notificationManager;
     private Notification myNotification;
 
+    /**
+     * Variable for binding to other classes
+     */
     private final IBinder myBinder = new LocalBinder();
-
 
     /**
      * Just for initial tests
      */
-    private String msgToServer = null;
     public String response = "";
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -144,7 +171,6 @@ public class Client_Socket extends Service{
         System.out.println("I am in Ibinder onBind method");
         return myBinder;
     }
-
 
     public class LocalBinder extends Binder {
         public Client_Socket getService() {
@@ -170,42 +196,50 @@ public class Client_Socket extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        Bundle extras = intent.getExtras();
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
-        this.SERVER_IP= (String) extras.get("IP");
-        this.SERVER_PORT= Integer.parseInt((String) extras.get("PORT"));
+        /**
+         * Protocol Communication Thread
+         */
+        try {
+            serverSocket = new ServerSocket(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        portaSocket=serverSocket.getLocalPort();
+        Log.e("ProtocoloCommunication", "PortaSocket="+portaSocket);
+
+        Runnable prot_comm = new ProtocoloCommunication();
+        new Thread(prot_comm).start();
+
+        /**
+         * Backend Thread
+         */
+        Bundle extras = intent.getExtras();
+        this.SERVER_IP= "172.30.26.214";//(String) extras.get("IP");
+        this.SERVER_PORT= 2000;//Integer.parseInt((String) extras.get("PORT"));
 
         super.onStartCommand(intent, flags, startId);
         System.out.println("I am in on start");
-        //  Toast.makeText(this,"Service created ...", Toast.LENGTH_LONG).show();
+
         Runnable connect = new connectSocket();
         new Thread(connect).start();
         return START_STICKY;
     }
 
-    public static void setAfter_login(boolean after_login) {
-        Client_Socket.after_login = after_login;
-    }
+    public void send_packet(Packet pck_to_send) throws IOException {
 
-    public static boolean isAfter_login() {
-        return after_login;
-    }
 
-    /**
-     * Justo to test writeObjet
-     * @param message_to_send
-     * @throws IOException
-     */
-    public void sendMessage(String message_to_send) throws IOException {
-        out.writeObject(message_to_send);
-        //out.println(message_to_send);
-        out.flush();
-    }
+        System.out.println("Packet Content:" + String.valueOf(pck_to_send.packetContent));
 
-    public static void send_packet(Packet pck_to_send) throws IOException {
-        out.writeObject(pck_to_send);
-        out.flush();
+        rqst new_request = new rqst(Firefighter_ID, ProtCommConst.RQST_ACTION_APP_PACK_MSG, pck_to_send.packetContent);
 
+        send_To_Protocol(new_request);
+
+
+        //out.writeObject(pck_to_send);
+        //out.flush();
         Log.e("Sent", "ACK");
     }
 
@@ -215,6 +249,17 @@ public class Client_Socket extends Service{
 
 
     /***********************************************************/
+    /**
+     * Auxiliary Functions
+     */
+    public static void setAfter_login(boolean after_login) {
+        Client_Socket.after_login = after_login;
+    }
+
+    public static boolean isAfter_login() {
+        return after_login;
+    }
+
     public static boolean isReady_to_read() {
         return ready_to_read;
     }
@@ -306,39 +351,53 @@ public class Client_Socket extends Service{
     public static void cancel_CountDownTimer_pred_msg() {
         countDownTimer_pred_msg.cancel();
     }
-
     /***********************************************************/
 
+    /**
+     * Runnable for Connecting with the Backend
+     */
     public class connectSocket implements Runnable {
         @Override
         public void run() {
             try {
                 serverAddr = InetAddress.getByName(SERVER_IP);
                 Log.e("TCP Client", "C: Connecting...");
+
                 //create a socket to make the connection with the server
                 cSocket = new Socket(serverAddr, SERVER_PORT);
                 running = true;
 
+
                 if (cSocket.isConnected()) {
                     Log.e("TCP Client", "C: Connected!");
 
-                    //out = new PrintWriter(cSocket.getOutputStream(), true);
-                    //in = new BufferedReader(new InputStreamReader(cSocket.getInputStream()));
+                    //DEBUG
+                    Firefighter_ID=(byte)0x11;
+
+                    Intent Connection = new Intent(Client_Socket.this, ProtocolG5Service.class);
+                    Connection.putExtra("ID", Firefighter_ID);
+                    Connection.putExtra("PORTSOCKET", portaSocket);
+                    startService(Connection);
+
                     out = new ObjectOutputStream(cSocket.getOutputStream());
                     in = new ObjectInputStream(cSocket.getInputStream());
 
+                    /*************************/
                     while(running){
-                        //Packet pck_received = (Packet) in.readObject(pck_received);
 
                         Packet pck_received = (Packet) in.readObject();
 
-                        Log.e("Packet Content", "Message received" + (pck_received.packetContent[0] & 0xFF));
+                        /**
+                         * Recepção do ID
+                         */
+                        ServerSocket serverSocket;
 
-                        if (pck_received.packetContent[0]==cc_denies_login_msg_type){
 
-                            Log.e("Packet Content", "message type" + "Denies Login");
 
-                        }
+
+
+                        /************************************************/
+
 
                         ready_to_read = false;
                         if (pck_received!=null) {
@@ -355,7 +414,7 @@ public class Client_Socket extends Service{
 
                         switch(msg_type){
 
-                            case prelogin_msg_type:
+                            case cc_sends_ff_id_msg_type:
                                 Firefighter_ID=pck_received.packetContent[1];
 
                                 response="Ligado ao Centro de Controlo";
@@ -532,6 +591,161 @@ public class Client_Socket extends Service{
         }
     }
 
+    /**
+     * Runnable for Communicating with the Protocol
+     */
+    public class ProtocoloCommunication implements Runnable{
+
+        @Override
+        public void run() {
+            Log.e("I'm in:", "protocol communication run");
+
+            //Initialization of communication streams
+            try
+            {
+                socketPro = serverSocket.accept();
+                socketApp = serverSocket.accept();
+                Log.e(" Protocol:", "socket accept");
+
+
+                socketPro.setSoTimeout(500); //In milliseconds
+
+                //Create the streams
+                socketAppReq = new ObjectOutputStream(socketApp.getOutputStream());
+                socketAppResp = new ObjectInputStream(socketApp.getInputStream());
+                socketProResp = new ObjectOutputStream(socketPro.getOutputStream());
+                socketProReq = new ObjectInputStream(socketPro.getInputStream());
+
+                //Flush streams
+                socketAppReq.flush();
+                socketAppReq.reset();
+                socketProResp.flush();
+                socketProResp.reset();
+
+                System.out.println("Connected to Socket " + portaSocket + " successfully");
+            }
+
+            catch (IOException e)
+            {
+                throw new Error("ERROR: Could not open sockets to the Protocol.");
+            }
+
+            //Handler
+            while (true)
+            {
+                //Read Requests
+                get_From_Protocol();
+            }
+        }
+    }
+
+    /**
+     * Send request to the protocol
+     * @param request
+     */
+    public void send_To_Protocol(rqst request)
+    {
+        try
+        {
+            if (request!=null){
+                Log.e("Request status:" , "not null");
+            }
+
+
+            socketAppReq.writeObject(request);
+
+            // Check Protocol's response
+            rspns response = new rspns(socketAppResp.readObject());
+
+            if (response.id != ProtCommConst.RSPN_ACTION_APP_OK){
+
+                System.out.println("\n>> ERROR: Response from the protocol was not OK. Error Code: " + response.id + " " + request.id + " " + request.spec);
+            }
+        }
+
+        catch (SocketTimeoutException e)
+        {
+            throw new Error("ERROR: SocketTimeoutException reading from socketAppResp");
+        }
+
+        catch(IOException | ClassNotFoundException e)
+        {
+            throw new Error("ERROR: Writing request to the protocol instance.");
+        }
+    }
+
+    /**
+     * Method to retrieve requests from the protocol and write them to the request_buffer
+     */
+    public void get_From_Protocol()
+    {
+        rqst request;
+
+        try
+        {
+            request = new rqst(socketProReq.readObject());
+
+            //Write to buffer
+            request_buffer.offer(request);
+
+            //Reply OK to Protocol
+            socketProResp.writeObject(new rspns(ProtCommConst.RSPN_ACTION_APP_OK));
+        }
+
+        catch (SocketTimeoutException e){
+
+        }
+
+        catch (IOException | ClassNotFoundException e)
+        {
+            throw new Error("ERROR: Writing the response to the Protocol:" + e);
+        }
+    }
+
+
+    /**
+     * Warn if GSM is on/off
+     * @param gsmOn
+     */
+    public void setGSM(boolean gsmOn)
+    {
+
+        rqst request;
+
+        if (gsmOn == true)
+        {
+            request = new rqst(ProtCommConst.RQST_ACTION_APP_GSM_CHANGE,
+                    ProtCommConst.RQST_SPEC_ANDR_GSM_GAINED);
+        }
+        else
+        {
+            request = new rqst(ProtCommConst.RQST_ACTION_APP_GSM_CHANGE,
+                    ProtCommConst.RQST_SPEC_ANDR_GSM_LOST);
+        }
+
+
+        // Send request and check response
+        try
+        {
+            socketAppReq.writeObject(request);
+
+            // Check if response is OK
+            rspns response = new rspns(socketAppResp.readObject());
+
+            if (response.id != ProtCommConst.RSPN_ACTION_APP_OK)
+            {
+                System.out.println("\n>> ERROR: (GSM_CHANGED) Response from the protocol was not OK.");
+            }
+        }
+        catch (SocketTimeoutException e)
+        {
+        }
+        catch (IOException | ClassNotFoundException e)
+        {
+            throw new Error("ERROR: Inserting new request (GSM_CHANGE) in the socketAppReq.");
+        }
+    }
+
     public void disconnect() throws IOException {
 
         this.running=false;
@@ -690,7 +904,7 @@ public class Client_Socket extends Service{
                 .setContentText(response)
                 .setSmallIcon(R.drawable.droidbeiro_app_icon)
                 .setDefaults(Notification.DEFAULT_SOUND)
-               // .setContentIntent(pIntent)
+                        // .setContentIntent(pIntent)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                         //.addAction(0, "Aceitar", pIntent)
@@ -703,8 +917,7 @@ public class Client_Socket extends Service{
         notificationManager.notify(MY_NOTIFICATION_ID, mNotification);
     }
 
-
-    public static class MyBroadcastReceiver extends BroadcastReceiver{
+    public class MyBroadcastReceiver extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -726,7 +939,7 @@ public class Client_Socket extends Service{
         }
     }
 
-    public static class MyBroadcastReceiver_gps extends BroadcastReceiver{
+    public class MyBroadcastReceiver_gps extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -748,8 +961,7 @@ public class Client_Socket extends Service{
         }
     }
 
-
-    public static class MyBroadcastReceiver_gps_ack extends BroadcastReceiver{
+    public class MyBroadcastReceiver_gps_ack extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -776,8 +988,7 @@ public class Client_Socket extends Service{
         }
     }
 
-
-    public static class MyBroadcastReceiver_normal extends BroadcastReceiver{
+    public class MyBroadcastReceiver_normal extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -801,7 +1012,7 @@ public class Client_Socket extends Service{
         }
     }
 
-    public static class MyBroadcastReceiver_normal_2 extends BroadcastReceiver{
+    public class MyBroadcastReceiver_normal_2 extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -824,7 +1035,6 @@ public class Client_Socket extends Service{
             Log.e("Request:", "Accepted");
         }
     }
-
 
     public void playAudioMessages(int messageID) {
 
@@ -894,7 +1104,6 @@ public class Client_Socket extends Service{
             e.printStackTrace();
         }
     }
-
 
     public class MyCountDownTimer extends CountDownTimer {
 

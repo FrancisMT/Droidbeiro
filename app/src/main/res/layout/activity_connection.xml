@@ -27,9 +27,9 @@
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="20dp"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/linearLayout">
+        android:id="@+id/linearLayout"
+        android:layout_above="@+id/protocol_G6">
 
         <EditText
             android:id="@+id/ip_address_field"
@@ -66,6 +66,7 @@
             android:paddingRight="25dp"
             android:text="Ligar"
             android:textColor="@color/white" />
+
     </LinearLayout>
 
     <TextView
@@ -78,6 +79,33 @@
         android:layout_gravity="center_horizontal"
         android:layout_above="@+id/linearLayout"
         android:layout_centerHorizontal="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btnok"
+        android:textColor="@color/white"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:text="Protocol G6"
+        android:id="@+id/protocol_G6"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/linearLayout" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btnok"
+        android:textColor="@color/white"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:text="Protocol G5"
+        android:id="@+id/protocol_G5"
+        android:checked="false"
+        android:layout_gravity="right"
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="false" />
 
 
 </RelativeLayout>

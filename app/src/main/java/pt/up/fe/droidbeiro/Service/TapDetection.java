@@ -168,8 +168,7 @@ public class TapDetection extends Service implements SensorEventListener {
                     CS.send_packet(ar_msg.getAcceptrequest_packet());
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
-                Log.e("ACK", "Sent to CC");
+                }                 Log.e("ACK", "Sent to CC");
                 CS.cancel_CountDownTimer_pred_msg();
 
                 return;

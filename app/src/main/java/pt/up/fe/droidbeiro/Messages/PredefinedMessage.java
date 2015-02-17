@@ -14,14 +14,26 @@ public class PredefinedMessage {
 
     /** Message code table
      *
-     * "Preciso de ajuda"           <-> 0
-     * "Preciso afastar-me"         <-> 1
-     * "Camião com problemas"       <-> 2
-     * "Preciso de suporte aéreo"   <-> 3
-     * "Fogo a espalhar-se"         <-> 6
-     * "A retirar-me"               <-> 7
-     * "Fogo perto de casa"         <-> 8
-     * "Casa queimada"              <-> 9
+     * "Afirmativo"             <-> 0
+     * "Aguarde"                <-> 1
+     * "Assim Farei"            <-> 2
+     * "Correto"                <-> 3
+     * "Errado"                 <-> 4
+     * "Informe"                <-> 5
+     * "Negativo"               <-> 6
+     * "A Caminho"              <-> 7
+     * "No local"               <-> 8
+     * "No Hospital"            <-> 9
+     * "Disponível"             <-> 10
+     * "De Regresso"            <-> 11
+     * "INOP"                   <-> 12
+     * "No Quartel"             <-> 13
+     * "Necessito de Reforços"  <-> 14
+     * "Casa em Perigo"         <-> 15
+     * "Preciso de Descansar"   <-> 16
+     * "Carro em Perigo"        <-> 17
+     * "Descanse"               <-> 18
+     * "Fogo a Alastrar"        <-> 19
      */
 
     private int msg_type=10;
@@ -42,29 +54,65 @@ public class PredefinedMessage {
         byte pred_msg_pkt;
 
         //get predefined message code
-        if ((this.predefined_message).equals("Preciso de ajuda")){
+        if ((this.predefined_message).equals("Afirmativo")){
             pred_msg_pkt=(byte)0;
         }else
-        if ((this.predefined_message).equals("Preciso afastar-me")){
+        if ((this.predefined_message).equals("Aguarde")){
             pred_msg_pkt=(byte)1;
         }else
-        if ((this.predefined_message).equals("Camião com problemas")){
+        if ((this.predefined_message).equals("Assim Farei")){
             pred_msg_pkt=(byte)2;
         }else
-        if ((this.predefined_message).equals("Preciso de suporte aéreo")){
+        if ((this.predefined_message).equals("Correto")){
             pred_msg_pkt=(byte)3;
         }else
-        if ((this.predefined_message).equals("Fogo a espalhar-se")){
+        if ((this.predefined_message).equals("Errado")){
+            pred_msg_pkt=(byte)4;
+        }else
+        if ((this.predefined_message).equals("Informe")){
+            pred_msg_pkt=(byte)5;
+        }else
+        if ((this.predefined_message).equals("Negativo")){
             pred_msg_pkt=(byte)6;
         }else
-        if ((this.predefined_message).equals("A retirar-me")){
+        if ((this.predefined_message).equals("A Caminho")){
             pred_msg_pkt=(byte)7;
         }else
-        if ((this.predefined_message).equals("Fogo perto de casa")){
+        if ((this.predefined_message).equals("No local")){
             pred_msg_pkt=(byte)8;
         }else
-        if ((this.predefined_message).equals("Casa queimada")){
+        if ((this.predefined_message).equals("No Hospital")){
             pred_msg_pkt=(byte)9;
+        }else
+        if ((this.predefined_message).equals("Disponível")){
+            pred_msg_pkt=(byte)10;
+        }else
+        if ((this.predefined_message).equals("De Regresso")){
+            pred_msg_pkt=(byte)11;
+        }else
+        if ((this.predefined_message).equals("INOP")){
+            pred_msg_pkt=(byte)12;
+        }else
+        if ((this.predefined_message).equals("No Quartel")){
+            pred_msg_pkt=(byte)13;
+        }else
+        if ((this.predefined_message).equals("Necessito de Reforços")){
+            pred_msg_pkt=(byte)14;
+        }else
+        if ((this.predefined_message).equals("Casa em Perigo")){
+            pred_msg_pkt=(byte)15;
+        }else
+        if ((this.predefined_message).equals("Preciso de Descansar")){
+            pred_msg_pkt=(byte)16;
+        }else
+        if ((this.predefined_message).equals("Carro em Perigo")){
+            pred_msg_pkt=(byte)17;
+        }else
+        if ((this.predefined_message).equals("Descanse")){
+            pred_msg_pkt=(byte)18;
+        }else
+        if ((this.predefined_message).equals("Fogo a Alastrar")){
+            pred_msg_pkt=(byte)19;
         }else{
             pred_msg_pkt=(byte)255;
         }

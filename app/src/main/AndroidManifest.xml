@@ -146,7 +146,17 @@
             android:exported="true" >
         </service>
         <service
-            android:name=".Service.Protocol"
+            android:name=".Communication.ProtocolG5Service"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".Communication.ProtocolG6Service"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".Communication.ProtocoloCommunication"
             android:enabled="true"
             android:exported="true" >
         </service>

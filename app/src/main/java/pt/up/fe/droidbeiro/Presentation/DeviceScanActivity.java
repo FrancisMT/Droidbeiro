@@ -31,6 +31,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.lang.Object;
 import android.content.ContextWrapper;
+
+import pt.up.fe.droidbeiro.Communication.ProtocoloCommunication;
 import pt.up.fe.droidbeiro.R;
 
 import java.util.ArrayList;
@@ -134,8 +136,9 @@ public class DeviceScanActivity extends ListActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //BLE check
 
+
+        //BLE check
         super.onCreate(savedInstanceState);
         getActionBar().setTitle(R.string.title_devices);
         mHandler = new Handler();

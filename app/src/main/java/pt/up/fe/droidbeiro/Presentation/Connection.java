@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -28,9 +29,13 @@ public class Connection extends Activity {
     private Button btn_ligar;
     private EditText ip_address_field;
     private EditText porta_field;
+    private CheckBox protocolG5;
+    private CheckBox protocolG6;
 
     private static String SERVER_PORT;
     private static String SERVER_IP;
+    private static boolean PROTOCOLG5=false;
+    private static boolean PROTOCOLG6=false;
 
     Client_Socket CS = null;
     boolean CSisBound;
@@ -81,6 +86,39 @@ public class Connection extends Activity {
         ip_address_field = (EditText)findViewById(R.id.ip_address_field);
         porta_field = (EditText)findViewById(R.id.porta_field);
 
+        protocolG5 = (CheckBox)findViewById(R.id.protocol_G5);
+        protocolG6 = (CheckBox)findViewById(R.id.protocol_G6);
+
+        protocolG5.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                if(protocolG5.isChecked() && !PROTOCOLG6){
+                    PROTOCOLG5=true;
+                    System.out.println("PG5 Checked");
+                }else{
+                    PROTOCOLG5=false;
+                    System.out.println("PG5 Un-Checked");
+                }
+            }
+        });
+
+        protocolG6.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                if(protocolG6.isChecked() && !PROTOCOLG5){
+                    PROTOCOLG6=true;
+                    System.out.println("PG6 Checked");
+                }else{
+                    PROTOCOLG6=false;
+                    System.out.println("PG6 Un-Checked");
+                }
+            }
+        });
+
         btn_ligar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,6 +130,8 @@ public class Connection extends Activity {
                     Intent Connection = new Intent(Connection.this, Client_Socket.class);
                     Connection.putExtra("IP", SERVER_IP);
                     Connection.putExtra("PORT", SERVER_PORT);
+                    Connection.putExtra("PROTOCOLG5", PROTOCOLG5);
+                    Connection.putExtra("PROTOCOLG6", PROTOCOLG6);
                     startService(Connection);
 
                     Intent intent = new Intent(Connection.this, Login.class);

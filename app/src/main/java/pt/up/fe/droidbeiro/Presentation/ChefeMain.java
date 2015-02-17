@@ -35,14 +35,26 @@ import pt.up.fe.droidbeiro.Service.GPS;
 public class ChefeMain extends Activity {
 
     // Initialize the array
-    String[] messages = {   "Preciso de ajuda",
-                            "Preciso afastar-me",
-                            "Camião com problemas",
-                            "Preciso de suporte aéreo",
-                            "Fogo a espalhar-se",
-                            "A retirar-me",
-                            "Fogo perto de casa",
-                            "Casa queimada",
+    String[] messages = {   "Afirmativo",
+                            "Aguarde",
+                            "Assim Farei",
+                            "Correto",
+                            "Errado",
+                            "Informe",
+                            "Negativo",
+                            "A Caminho",
+                            "No local",
+                            "No Hospital",
+                            "Disponível",
+                            "De Regresso",
+                            "INOP",
+                            "No Quartel",
+                            "Necessito de Reforços",
+                            "Casa em Perigo",
+                            "Preciso de Descansar",
+                            "Carro em Perigo",
+                            "Descanse",
+                            "Fogo a Alastrar",
                         };
 
     // Declare the UI components
@@ -146,8 +158,7 @@ public class ChefeMain extends Activity {
                     alertDialog.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             /****************************************************************/
-                            //envia a mensagem para o centro de controlo
-                            if ((mensagem).equals("Preciso de ajuda")){
+                            /*if ((mensagem).equals("Preciso de ajuda")){
                                 personalization=false;
                             }else
                             if ((mensagem).equals("Preciso afastar-me")){
@@ -169,6 +180,69 @@ public class ChefeMain extends Activity {
                                 personalization=false;
                             }else
                             if ((mensagem).equals("Casa queimada")){
+                                personalization=false;
+                            }else{
+                                personalization=true;
+                            }*/
+
+                            if ((mensagem).equals("Afirmativo")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Aguarde")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Assim Faei")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Correto")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Errado")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Informe")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Negativo")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("A Caminho")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("No local")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("No Hospital")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Disponível")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("De Regresso")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("INOP")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("No Quartel")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Necessito de Reforços")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Casa em Perigo")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Preciso de Descansar")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Carro em Perigo")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Descanse")){
+                                personalization=false;
+                            }else
+                            if ((mensagem).equals("Fogo a Alastrar")){
                                 personalization=false;
                             }else{
                                 personalization=true;
