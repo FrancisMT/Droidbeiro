@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
+import pt.up.fe.droidbeiro.Messages.ExitAlertMessage;
 import pt.up.fe.droidbeiro.Messages.PersonalizedMessage;
 import pt.up.fe.droidbeiro.Messages.SOSMessage;
 import pt.up.fe.droidbeiro.Messages.SurroundedByFlamesMessage;
@@ -152,23 +153,23 @@ public class TapDetection extends Service implements SensorEventListener {
                 //signal.setText("");
             } else if ((state1 == 3) && (seconds < 0.60) && (seconds > 0.30)) {
                 //signal.setText("Message sent: OK");
-                r.play();
+                //r.play();
                 state1 = 0;
                 ///////////////////////////////////////////////////////////////
                 // MSG OK DETETADA COM SUCESSO ESCREVER AQUI FRANCISCO!!!!!! //
                 //////////////////////////////////////////////////////////////
                 Log.e("TAP Detected:", "OK");
-                AcceptRequestMessage ar_msg = new AcceptRequestMessage(CS.getFirefighter_ID());
+                ExitAlertMessage ea_msg = new ExitAlertMessage(CS.getFirefighter_ID());
                 try {
-                    ar_msg.build_acceptrequest_packet();
+                    ea_msg.build_exitalert_packet();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 try {
-                    CS.send_packet(ar_msg.getAcceptrequest_packet());
+                    CS.send_packet(ea_msg.getExitalert_packet());
                 } catch (IOException e) {
                     e.printStackTrace();
-                }                 Log.e("ACK", "Sent to CC");
+                }
                 CS.cancel_CountDownTimer_pred_msg();
 
                 return;
@@ -193,7 +194,7 @@ public class TapDetection extends Service implements SensorEventListener {
                 //signal.setText("");
             } else if ((state2 == 3) && (seconds < 1) && (seconds > 0.60)) {
                 //signal.setText("Message sent: SURROUNDED BY FLAMES");
-                r.play();
+                //r.play();
                 state2 = 0;
 
                 //Envio da mensagem de Surrounded by flames
@@ -228,7 +229,7 @@ public class TapDetection extends Service implements SensorEventListener {
                 //signal.setText("");
             } else if ((state3 == 3) && (seconds < 0.60) && (seconds > 0.30)) {
                 //signal.setText("Message sent: SOS");
-                r.play();
+                //r.play();
                 state3 = 0;
 
                 //Envio da mensagem de SOS

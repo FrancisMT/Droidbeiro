@@ -53,6 +53,13 @@ public class ReplaceFireLineMessage {
         ByteArrayOutputStream packet_content_final = new ByteArrayOutputStream();
         packet_content_final.write(this.MessageType);
         packet_content_final.write(this.FireFighter_ID);
+        if (message_content!=null) {
+            try {
+                packet_content_final.write(message_content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         this.replacefireline_packet = new Packet();
         this.replacefireline_packet.hasProtocolHeader=true;

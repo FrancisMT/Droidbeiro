@@ -235,6 +235,15 @@ public class Compass extends Activity implements SensorEventListener {
         // not in use
     }
 
+
+    @Override
+    protected void onDestroy() {
+        //Intent intent = new Intent(this, NextActivity.class);
+        //startActivity(intent);
+        finish();
+
+        super.onDestroy();
+    }
 }
 
 
