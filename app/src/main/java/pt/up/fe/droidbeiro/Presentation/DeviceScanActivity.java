@@ -272,7 +272,7 @@ public class DeviceScanActivity extends ListActivity {
 
         if (device == null) return;
 
-        else if (device.getName().equals("POLAR H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
+        else if (!device.getName().equals("POLAR H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
             final Intent intentService = new Intent(this, DeviceControlService.class);
 
             intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_NAME, device.getName());
