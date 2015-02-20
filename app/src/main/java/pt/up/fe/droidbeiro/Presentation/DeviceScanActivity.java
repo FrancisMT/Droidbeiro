@@ -256,11 +256,7 @@ public class DeviceScanActivity extends ListActivity {
          * the service responsible for reading the heart rate. Otherwise it starts the service responsible
          * for reading the radio module.
          *
-         * Remember to fill the condition in the code bellow with the name of the bluetooth device
-         * of the radio module:
-         *
-         *          else if (!device.getName().equals("name of radio module");
-         *
+
          * Of course, that both services will be launched, when we leave this activity.
          *
          *------------------------------------------//---------------------------------
@@ -272,7 +268,7 @@ public class DeviceScanActivity extends ListActivity {
 
         if (device == null) return;
 
-        else if (!device.getName().equals("POLAR H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
+        else if (device.getName().equals("Polar H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
             final Intent intentService = new Intent(this, DeviceControlService.class);
 
             intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_NAME, device.getName());
