@@ -105,7 +105,7 @@ public class Compass extends Activity implements SensorEventListener {
         Log.e("Mover de coordenadas: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
         getDistancia();
         //nova_posicao();
-        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +122,9 @@ public class Compass extends Activity implements SensorEventListener {
         // our compass image
         image = (ImageView) findViewById(R.id.compass);
         text = (TextView) findViewById(R.id.distance);
+
+        // Hiding the action bar
+        getActionBar().hide();
 
         //start service on create
         doBindService();
@@ -142,10 +145,10 @@ public class Compass extends Activity implements SensorEventListener {
         mSensorManager.registerListener(this, magnometro, SensorManager.SENSOR_DELAY_UI);
 
         if(longitude!=0 && latitude != 0)
-            {
-                nova_posicao();
-                getDistancia();
-            }
+        {
+            nova_posicao();
+            getDistancia();
+        }
 
     }
 
@@ -171,15 +174,15 @@ public class Compass extends Activity implements SensorEventListener {
         super.onResume();
         registerReceiver(broadcastReceiver, new IntentFilter(GPS.BROADCAST_ACTION));
     }
-/*
-    @Override
-    protected void onPause() {
-        super.onPause();
+    /*
+        @Override
+        protected void onPause() {
+            super.onPause();
 
-        // to stop the listener and save battery
-        mSensorManager.unregisterListener(this);
-    }
-*/
+            // to stop the listener and save battery
+            mSensorManager.unregisterListener(this);
+        }
+    */
     @Override
     public void onSensorChanged(SensorEvent event) {
         float degree=currentDegree;
@@ -235,15 +238,5 @@ public class Compass extends Activity implements SensorEventListener {
         // not in use
     }
 
-
-    @Override
-    protected void onDestroy() {
-        //Intent intent = new Intent(this, NextActivity.class);
-        //startActivity(intent);
-        finish();
-
-        super.onDestroy();
-    }
 }
-
 

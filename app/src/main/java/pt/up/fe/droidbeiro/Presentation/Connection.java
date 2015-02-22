@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Communication.ConnectionData;
 import pt.up.fe.droidbeiro.Logic.User;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.BLE.DeviceControlService;
@@ -32,7 +33,8 @@ public class Connection extends Activity {
     private CheckBox protocolG5;
     private CheckBox protocolG6;
 
-    private static String SERVER_PORT;
+    //private static String SERVER_PORT;
+    private static int SERVER_PORT;
     private static String SERVER_IP;
     private static boolean PROTOCOLG5=false;
     private static boolean PROTOCOLG6=false;
@@ -89,6 +91,9 @@ public class Connection extends Activity {
         protocolG5 = (CheckBox)findViewById(R.id.protocol_G5);
         protocolG6 = (CheckBox)findViewById(R.id.protocol_G6);
 
+        final ConnectionData newCD = new ConnectionData();
+
+
         protocolG5.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -96,9 +101,11 @@ public class Connection extends Activity {
                 // TODO Auto-generated method stub
                 if(protocolG5.isChecked() && !PROTOCOLG6){
                     PROTOCOLG5=true;
+                    newCD.setPROTOCOLG5(true);
                     System.out.println("PG5 Checked");
                 }else{
                     PROTOCOLG5=false;
+                    newCD.setPROTOCOLG5(false);
                     System.out.println("PG5 Un-Checked");
                 }
             }
@@ -111,9 +118,11 @@ public class Connection extends Activity {
                 // TODO Auto-generated method stub
                 if(protocolG6.isChecked() && !PROTOCOLG5){
                     PROTOCOLG6=true;
+                    newCD.setPROTOCOLG6(true);
                     System.out.println("PG6 Checked");
                 }else{
                     PROTOCOLG6=false;
+                    newCD.setPROTOCOLG6(false);
                     System.out.println("PG6 Un-Checked");
                 }
             }
@@ -125,13 +134,17 @@ public class Connection extends Activity {
                 if ((ip_address_field.getText().toString().trim().length() > 0) && (porta_field.getText().toString().trim().length() > 0)) {
 
                     SERVER_IP = ip_address_field.getText().toString().trim();
-                    SERVER_PORT = porta_field.getText().toString();
+                    //SERVER_PORT = porta_field.getText().toString();
+                    SERVER_PORT = Integer.parseInt(porta_field.getText().toString().trim());
+
+                    newCD.setSERVER_IP(SERVER_IP);
+                    newCD.setSERVER_PORT(SERVER_PORT);
 
                     Intent Connection = new Intent(Connection.this, Client_Socket.class);
-                    Connection.putExtra("IP", SERVER_IP);
+                    /*Connection.putExtra("IP", SERVER_IP);
                     Connection.putExtra("PORT", SERVER_PORT);
                     Connection.putExtra("PROTOCOLG5", PROTOCOLG5);
-                    Connection.putExtra("PROTOCOLG6", PROTOCOLG6);
+                    Connection.putExtra("PROTOCOLG6", PROTOCOLG6);*/
                     startService(Connection);
 
                     Intent intent = new Intent(Connection.this, Login.class);

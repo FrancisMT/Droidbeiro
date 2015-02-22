@@ -40,9 +40,9 @@ public class ProtocolG6Service extends Service {
 
         Log.e("I'm in:", "protocol G6 service start");
 
-        Bundle extras = intent.getExtras();
-        this.system_id=(byte)extras.get("ID");
-        this.portaSocket=Integer.parseInt((String) extras.get("PORTSOCKET"));
+        ConnectionData currentCD = ConnectionData.getInstance();
+        this.system_id=currentCD.getSystem_id();
+        this.portaSocket=currentCD.getPortaSocket();
 
         Runnable run_prot = new run_protocol();
         new Thread(run_prot).start();

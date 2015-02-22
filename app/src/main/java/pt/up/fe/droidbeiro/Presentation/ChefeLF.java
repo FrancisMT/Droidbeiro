@@ -341,15 +341,15 @@ public class ChefeLF extends Activity implements SensorEventListener {
                     final double distlat, distlon, finalLat, finalLon;
 
                     dist= Integer.parseInt(distancia);
-                    distlat= dist*Math.cos(currentDegree);
-                    distlon= dist*Math.sin(currentDegree);
+                    distlat= dist*Math.cos((currentDegree*Math.PI)/180);
+                    distlon= dist*Math.sin((-currentDegree*Math.PI)/180);
 
                     finalLat = latitude + 180/Math.PI*(distlat/6378137);
                     finalLon = longitude + 180/Math.PI*(distlon/(638137*Math.cos(Math.PI/180*latitude)));
 
                     // String Longitude = gps. getLongitude();
                     //=Toast.makeText(getApplicationContext(), Double.toString(finalLat), Toast.LENGTH_LONG).show();
-                    Log.e("Fire Line Coordinates", String.valueOf(finalLat) + " > " + String.valueOf(finalLon));
+                    Log.e("Fire Line Coordinates", String.valueOf(finalLat) + " > " + String.valueOf(finalLon) + "::" + currentDegree + "::" + longitude + "::" + distlon + "::dist=" + dist + "::distancia=" + distancia);
 
                     //Setting Positive "Sim" Button
                     alertDialog.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
@@ -413,6 +413,8 @@ public class ChefeLF extends Activity implements SensorEventListener {
                     dist = Integer.parseInt(distancia);
                     distlat = dist * Math.cos(currentDegree);
                     distlon = dist * Math.sin(currentDegree);
+
+                    Log.e("Debug:", "Current degree" + currentDegree);
 
                     finalLat = latitude + 180 / Math.PI * (distlat / 6378137);
                     finalLon = longitude + 180 / Math.PI * (distlon / (638137 * Math.cos(Math.PI / 180 * latitude)));

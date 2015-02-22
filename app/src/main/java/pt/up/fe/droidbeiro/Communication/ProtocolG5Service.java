@@ -40,9 +40,10 @@ public class ProtocolG5Service extends Service {
 
         Log.e("I'm in:", "protocol G5 service start");
 
-        Bundle extras = intent.getExtras();
-        this.system_id=(byte)extras.get("ID");
-        this.portaSocket=(int)extras.get("PORTSOCKET");
+        ConnectionData currentCD = ConnectionData.getInstance();
+        this.system_id=currentCD.getSystem_id();
+        this.portaSocket=currentCD.getPortaSocket();
+
 
         Runnable run_prot = new run_protocol();
         new Thread(run_prot).start();

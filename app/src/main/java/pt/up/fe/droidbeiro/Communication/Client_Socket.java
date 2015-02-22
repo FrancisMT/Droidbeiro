@@ -74,6 +74,7 @@ public class Client_Socket extends Service{
     //[PRO -> APP] Requests
     private ObjectInputStream socketProReq;
 
+    //Socket information
     protected ServerSocket serverSocket;
     private Socket socketApp;
     private Socket socketPro;
@@ -82,6 +83,12 @@ public class Client_Socket extends Service{
     //Protocol Requests Buffer
     public ConcurrentLinkedQueue<rqst> request_buffer = new ConcurrentLinkedQueue<>();
 
+    //Protocol Choise
+    public static boolean PG5;
+    public static boolean PG6;
+
+    //No spec for some rqsts
+    public final static byte no_spec = (byte)0;
 
 
     /**
@@ -199,6 +206,8 @@ public class Client_Socket extends Service{
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        ConnectionData currentCD = ConnectionData.getInstance();
+
         /**
          * Protocol Communication Thread
          */
@@ -208,6 +217,8 @@ public class Client_Socket extends Service{
             e.printStackTrace();
         }
         portaSocket=serverSocket.getLocalPort();
+        currentCD.setPortaSocket(portaSocket);
+
         Log.e("ProtocoloCommunication", "PortaSocket="+portaSocket);
 
         Runnable prot_comm = new ProtocoloCommunication();
@@ -216,9 +227,17 @@ public class Client_Socket extends Service{
         /**
          * Backend Thread
          */
-        Bundle extras = intent.getExtras();
-        this.SERVER_IP= "172.30.26.214";//(String) extras.get("IP");
-        this.SERVER_PORT= 2000;//Integer.parseInt((String) extras.get("PORT"));
+        //Bundle extras = intent.getExtras();
+        //this.SERVER_IP= "172.30.26.214";//(String) extras.get("IP");
+        //this.SERVER_PORT= 2000;//Integer.parseInt((String) extras.get("PORT"));
+
+
+        this.SERVER_IP=currentCD.getSERVER_IP();
+        this.SERVER_PORT=currentCD.getSERVER_PORT();
+        this.PG5=currentCD.isPROTOCOLG5();
+        this.PG6=currentCD.isPROTOCOLG6();
+
+        Log.e("Connection","Data" + SERVER_IP+"::"+SERVER_PORT+"::"+PG5+"::"+PG6);
 
         super.onStartCommand(intent, flags, startId);
         System.out.println("I am in on start");
@@ -233,8 +252,10 @@ public class Client_Socket extends Service{
 
         System.out.println("Packet Content:" + String.valueOf(pck_to_send.packetContent));
 
-        rqst new_request = new rqst(Firefighter_ID, ProtCommConst.RQST_ACTION_APP_PACK_MSG, pck_to_send.packetContent);
-
+        /**
+         * The application asks the protocol to pack a message it wants to send
+         */
+        rqst new_request = new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, no_spec, pck_to_send.packetContent);
         send_To_Protocol(new_request);
 
 
@@ -371,14 +392,6 @@ public class Client_Socket extends Service{
                 if (cSocket.isConnected()) {
                     Log.e("TCP Client", "C: Connected!");
 
-                    //DEBUG
-                    Firefighter_ID=(byte)0x11;
-
-                    Intent Connection = new Intent(Client_Socket.this, ProtocolG5Service.class);
-                    Connection.putExtra("ID", Firefighter_ID);
-                    Connection.putExtra("PORTSOCKET", portaSocket);
-                    startService(Connection);
-
                     out = new ObjectOutputStream(cSocket.getOutputStream());
                     in = new ObjectInputStream(cSocket.getInputStream());
 
@@ -390,15 +403,57 @@ public class Client_Socket extends Service{
                         /**
                          * Recepção do ID
                          */
-                        ServerSocket serverSocket;
+                        msg_type=(int)(pck_received.packetContent[0])&(0xFF);
 
+                        if (msg_type==cc_sends_ff_id_msg_type){
 
+                            Firefighter_ID=pck_received.packetContent[1];
+                            response="Ligado ao Centro de Controlo";
+                            MY_NOTIFICATION_ID=1;
+                            Log.e("DEBUG","Ligado ao Centro de Controlo");
 
+                            /**
+                             * Start Protocol Service
+                             */
+                            ConnectionData CD = ConnectionData.getInstance();
+                            CD.setSystem_id(Firefighter_ID);
+                            if (PG5) {
+                                Intent Connection = new Intent(Client_Socket.this, ProtocolG5Service.class);
+                                startService(Connection);
+                            }
+                            else
+                            if (PG6){
+                                Intent Connection = new Intent(Client_Socket.this, ProtocolG6Service.class);
+                                startService(Connection);
+                            }
 
+                            /**
+                             * Display Notification
+                             */
+                            notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            myNotification = new Notification(R.drawable.droidbeiro_app_icon, "Nova Mensagem", System.currentTimeMillis());
+                            String notificationTitle = "Nova mensagem";
+                            String notificationText = response;
+                            Intent myIntent = new Intent(Intent.ACTION_VIEW);
+
+                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+                            myNotification.defaults |= Notification.DEFAULT_SOUND;
+                            myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+                            myNotification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, pendingIntent);
+                            notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
+                        }else {
+                            /**
+                             * The application receives a message and delivers it to the protocol.
+                             */
+                            rqst new_request = new rqst(ProtCommConst.RQST_ACTION_APP_PACKET_RECEIVED, no_spec, pck_received.packetContent);
+                            send_To_Protocol(new_request);
+                        }
 
                         /************************************************/
-
-
+                        /**
+                         * Passar para thread de processamento
+                         */
+/*
                         ready_to_read = false;
                         if (pck_received!=null) {
                             ready_to_read = true;
@@ -572,6 +627,7 @@ public class Client_Socket extends Service{
                                 }
                             }
                         }
+*/
                     }
                 } else {
 
@@ -660,7 +716,10 @@ public class Client_Socket extends Service{
             if (response.id != ProtCommConst.RSPN_ACTION_APP_OK){
 
                 System.out.println("\n>> ERROR: Response from the protocol was not OK. Error Code: " + response.id + " " + request.id + " " + request.spec);
+            }else{
+                System.out.println("\n>> Response from the protocol was OK: " + response.id + " " + request.id + " " + request.spec);
             }
+
         }
 
         catch (SocketTimeoutException e)
@@ -735,7 +794,10 @@ public class Client_Socket extends Service{
             if (response.id != ProtCommConst.RSPN_ACTION_APP_OK)
             {
                 System.out.println("\n>> ERROR: (GSM_CHANGED) Response from the protocol was not OK.");
+            }else{
+                System.out.println("\n>> Response from the protocol was OK: " + response.id + " " + request.id + " " + request.spec);
             }
+
         }
         catch (SocketTimeoutException e)
         {

@@ -81,7 +81,7 @@ public class SerialPortService extends Service {
     public final static String ACTION_GATT_DISCONNECTED_RADIO =
             "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED_RADIO";
     public final static String ACTION_GATT_SERVICES_DISCOVERED_RADIO =
-            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED_RADIO";
+            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED_RADIOs";
     public final static String ACTION_DATA_AVAILABLE_RADIO =
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE_RADIO";
     // ------ RADIO MODULE VARIABLES
