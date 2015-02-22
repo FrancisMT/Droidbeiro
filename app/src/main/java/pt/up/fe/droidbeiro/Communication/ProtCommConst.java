@@ -15,7 +15,7 @@ public class ProtCommConst {
     //[PRO] Unpacks a message and gives it to the APP
     public static final byte RQST_ACTION_PRO_UNPACK_MSG = (byte) 0x22;
 
-    //[APP] GMS status changed */
+    //[APP] GMS status changed
     public static final byte RQST_ACTION_APP_GSM_CHANGE = (byte) 0x33;
 
     //[APP] Socket connection is lost
