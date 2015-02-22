@@ -265,12 +265,17 @@ public class Client_Socket extends Service{
 
         System.out.println("Packet Content:" + String.valueOf(pck_to_send.packetContent));
 
-        /**
-         * The application asks the protocol to pack a message it wants to send
-         */
-        rqst new_request = new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, no_spec, pck_to_send.packetContent);
-        send_To_Protocol(new_request);
-
+        if (PG5 || PG6) {
+            /**
+             * The application asks the protocol to pack a message it wants to send
+             */
+            rqst new_request = new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, no_spec, pck_to_send.packetContent);
+            send_To_Protocol(new_request);
+        }
+        else{
+            out.writeObject(pck_to_send);
+            out.flush();
+        }
         Log.e("Sent", "ACK");
     }
 
