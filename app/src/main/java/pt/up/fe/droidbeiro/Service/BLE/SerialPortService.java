@@ -81,7 +81,7 @@ public class SerialPortService extends Service {
     public final static String ACTION_GATT_DISCONNECTED_RADIO =
             "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED_RADIO";
     public final static String ACTION_GATT_SERVICES_DISCOVERED_RADIO =
-            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED_RADIOs";
+            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED_RADIO";
     public final static String ACTION_DATA_AVAILABLE_RADIO =
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE_RADIO";
     // ------ RADIO MODULE VARIABLES
@@ -95,7 +95,6 @@ public class SerialPortService extends Service {
     public final static UUID UUID_RX_DATA = UUID.fromString(SampleGattAttributes.RX_DATA_CHAR_UUID);
     public final static UUID UUID_BATTERY_LEVEL_RADIO = UUID.fromString(SampleGattAttributes.BATT_LEVEL_CHAR_UUID);
     public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
-
 /**
     // Well known SPP UUID
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // Define according to the server specification
@@ -369,16 +368,6 @@ public class SerialPortService extends Service {
     private int mConnectionState = STATE_DISCONNECTED;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
-
-    private BluetoothManager mBluetoothManager;
-    private BluetoothAdapter mBluetoothAdapter;
-    private String mBluetoothDeviceAddress;
-    private BluetoothGatt mBluetoothGatt;
-
-    int i = 0;
-    byte[] mensagem = new byte[20];
-
-
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -389,18 +378,18 @@ public class SerialPortService extends Service {
                 intentAction = ACTION_GATT_CONNECTED_RADIO;
                 mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(intentAction);
-                Log.i(TAG, "[Radio] Connected to GATT server (Radio).");
+                Log.i(TAG, "Connected to GATT server.");
 
                 doBindService();
 
                 // Attempts to discover services after successful connection.
-                Log.i(TAG, "[Radio] Attempting to start service discovery:" +
+                Log.i(TAG, "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 intentAction = ACTION_GATT_DISCONNECTED_RADIO;
                 mConnectionState = STATE_DISCONNECTED;
-                Log.i(TAG, "[Radio] Disconnected from GATT server.");
+                Log.i(TAG, "Disconnected from GATT server.");
                 broadcastUpdate(intentAction);
             }
         }
@@ -410,7 +399,7 @@ public class SerialPortService extends Service {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED_RADIO);
             } else {
-                Log.w(TAG, "[Radio] onServicesDiscovered received: " + status);
+                Log.w(TAG, "onServicesDiscovered received: " + status);
             }
         }
 
@@ -426,9 +415,10 @@ public class SerialPortService extends Service {
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.v(TAG,"[Radio] Data Available to be written");
+
             }
         }
+
 
 
         @Override
@@ -474,6 +464,15 @@ public class SerialPortService extends Service {
     };
     boolean CSisBound;
 
+
+
+    //-----------------VERIFICAR COM O FRANCISCO COMO SÂO RECEBIDOS OS DADOS DA APP
+    private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter;
+    private String mBluetoothDeviceAddress;
+    private BluetoothGatt mBluetoothGatt;
+
+    //---------------------------------------------------------------
 
     /**Broadcast receiver, receives data to be sent to the radio module from the app
      *
@@ -528,6 +527,8 @@ public class SerialPortService extends Service {
             {
                 dados_finais[i] = mensagem[i];
             }
+
+
 
             //------ Parte adicionada pelo francisco. Passa dados recebidos à aplicação
             // Verificar com ele como passar os dados recebidos.
@@ -711,7 +712,8 @@ public class SerialPortService extends Service {
             return;
         }
       int tamanho = dataToWrite.length();
-
+      int i =0;
+      byte[] mensagem = new byte[20];
       mensagem = dataToWrite.getBytes();
       mensagem[tamanho] = 0x0A;
 
@@ -722,10 +724,8 @@ public class SerialPortService extends Service {
               mensagem[i] =0x00;
           }
       }
-
         characteristic.setValue(mensagem);
         mBluetoothGatt.writeCharacteristic(characteristic);
-            Log.v(TAG,"[Radio] Data to write: "+ mensagem.toString());
 
         /*
         if (Long.valueOf( String.valueOf(dataToWrite.length()))  > DEFAULT_BYTES_IN_CONTINUE_PACKET)

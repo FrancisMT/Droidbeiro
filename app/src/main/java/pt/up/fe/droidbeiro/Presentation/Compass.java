@@ -36,6 +36,7 @@ import pt.up.fe.droidbeiro.Service.GPS;
 public class Compass extends Activity implements SensorEventListener {
 
     private static boolean hotfix=false;
+    final ConnectionData newCD = new ConnectionData();
     public double longitude=0;
     public double latitude=0;
     public  BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -75,9 +76,6 @@ public class Compass extends Activity implements SensorEventListener {
             CS = null;
         }
     };
-
-    final ConnectionData newCD = new ConnectionData();
-
     boolean CSisBound;
     // define the display assembly compass picture
     private ImageView image;
@@ -165,14 +163,16 @@ public class Compass extends Activity implements SensorEventListener {
         double lt = (lat1-latitude);
 
 
-        angle = (float)Math.atan(lt/-lg);
+        angle = (float)Math.atan(lt/lg);
         angle = (float)(angle / pi)*180;
 
-        Log.e("DEBUG","COMPASS" + ":::" + "angle="+lt + "antigo="+lg);
-        Log.e("DEBUG","COMPASS" + ":::" + "angle="+angle + "antigo="+antigo);
+        Log.e("DEBUG","COMPASS2323232" + ":::" + "deltalt="+lt + "deltalg="+lg);
+
 
         if((lg<=0 && lt <0) || (lg <0 && lt >0) || angle ==-0)
             angle = angle +180;
+
+        Log.e("DEBUG","COMPASS" + ":::" + "angle="+angle + "antigo="+antigo);
 
         RotateAnimation ra = new RotateAnimation(antigo,-angle, Animation.RELATIVE_TO_SELF, 0.5f,Animation.RELATIVE_TO_SELF,0.5f);
 
@@ -218,7 +218,7 @@ public class Compass extends Activity implements SensorEventListener {
                 SensorManager.getOrientation(R, orientation);
                 degree = orientation[0]; // orientation contains: azimut, pitch and roll
                 degree = degree * (float) 57.3248408;
-                degree = degree -angle+90;
+                degree = degree +angle-90;
             }
         }
 
