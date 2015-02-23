@@ -21,6 +21,13 @@ public class ConnectionData {
     public static byte system_id;
     public static int portaSocket;
 
+    /**
+     * GPS Data
+     */
+    public static float new_LAT;
+    public static float new_LON;
+
+
 
     public ConnectionData(){
 
@@ -50,6 +57,14 @@ public class ConnectionData {
         ConnectionData.portaSocket = portaSocket;
     }
 
+    public static void setNew_LAT(float new_LAT) {
+        ConnectionData.new_LAT = new_LAT;
+    }
+
+    public static void setNew_LON(float new_LON) {
+        ConnectionData.new_LON = new_LON;
+    }
+
     public static int getSERVER_PORT() {
         return SERVER_PORT;
     }
@@ -74,12 +89,21 @@ public class ConnectionData {
         return portaSocket;
     }
 
+    public static float getNew_LAT() {
+        return new_LAT;
+    }
+
+    public static float getNew_LON() {
+        return new_LON;
+    }
+
     public static ConnectionData getInstance() {
         if(instance == null) {
             instance = new ConnectionData();
         }
         return instance;
     }
+
 
 
 }

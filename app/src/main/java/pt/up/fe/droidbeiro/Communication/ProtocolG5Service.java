@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import G5.Protocol.Protocol_G5;
-import pt.up.fe.droidbeiro.Logic.User;
 
 
 public class ProtocolG5Service extends Service {

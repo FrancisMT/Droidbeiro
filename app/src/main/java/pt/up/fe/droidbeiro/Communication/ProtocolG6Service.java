@@ -11,7 +11,8 @@ import android.util.Log;
 
 import java.io.IOException;
 
-import protocolapi.*;
+import protocol_g6_package.Protocol_G6;
+
 
 public class ProtocolG6Service extends Service {
 

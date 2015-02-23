@@ -1,18 +1,20 @@
 
 
-package protocolapi;
+package protocol_g6_package;
 
 
 public class rotas {
-        
+
+    // id central
+    volatile public static int ENDEREÇO_NULO=0;
         // id central
-    public static final int CENTRAL=0;
+    volatile public static int CENTRAL=1;
         // id broadcast
-    public static final int BROADCAST=255;
+    volatile public static int BROADCAST=255;
         // Número máximo de nós
-    public static final int MAXNODES=256;
+    volatile public static int MAXNODES=256;
         // Número de minutos durante os quais uma nova rota é válida
-    public static final int minutosValidade=5; 
+    volatile public static int minutosValidade=5; 
     
     
         // Especifica o destino da rota

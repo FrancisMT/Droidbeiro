@@ -14,7 +14,7 @@ public class DenyIDMessage {
     private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 
-    private int newID;
+    private byte newID;
 
     Packet denyid_packet;
 

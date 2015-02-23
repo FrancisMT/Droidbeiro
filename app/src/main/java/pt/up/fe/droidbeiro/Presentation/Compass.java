@@ -25,6 +25,7 @@ import android.widget.TextView;
 import java.io.IOException;
 
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Communication.ConnectionData;
 import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.GPS;
@@ -44,8 +45,8 @@ public class Compass extends Activity implements SensorEventListener {
         }
     };
     float degree;
-    double lat1;
-    double long1;
+    float lat1;
+    float long1;
     float gravity0;
     float gravity1;
     float gravity2;
@@ -54,7 +55,7 @@ public class Compass extends Activity implements SensorEventListener {
     TextView tvHeading;
     double distancia;
     float angle;
-    float antigo;
+    float antigo=0;
     double pi = 3.14159265359;
     ImageView image2;
     TextView text;
@@ -74,6 +75,9 @@ public class Compass extends Activity implements SensorEventListener {
             CS = null;
         }
     };
+
+    final ConnectionData newCD = new ConnectionData();
+
     boolean CSisBound;
     // define the display assembly compass picture
     private ImageView image;
@@ -102,9 +106,9 @@ public class Compass extends Activity implements SensorEventListener {
         latitude = Double.parseDouble(intent.getStringExtra("LAT"));
         longitude = Double.parseDouble(intent.getStringExtra("LONG"));
 
-        Log.e("Mover de coordenadas: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
+        Log.e("Mover para: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
         getDistancia();
-        //nova_posicao();
+        nova_posicao();
     }
 
     @Override
@@ -131,11 +135,15 @@ public class Compass extends Activity implements SensorEventListener {
 
         CS.setIn_Compass(true);
 
-        lat1=CS.getLat();
-        long1=CS.getLon();
+        //lat1=CS.getLat();
+        //long1=CS.getLon();
+
+        lat1=newCD.getNew_LAT();
+        long1=newCD.getNew_LON();
+
 
         Log.e("Mover de coordenadas: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
-        Log.e("Mover para coordenadas: ", String.valueOf(lat1) + " || " + String.valueOf(long1));
+        Log.e("Mover para: ", String.valueOf(lat1) + " || " + String.valueOf(long1));
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) this.getSystemService(this.SENSOR_SERVICE);
@@ -156,16 +164,26 @@ public class Compass extends Activity implements SensorEventListener {
         double lg = (long1- longitude);
         double lt = (lat1-latitude);
 
-        angle = (float)Math.atan(lt/lg);
+
+        angle = (float)Math.atan(lt/-lg);
         angle = (float)(angle / pi)*180;
+
+        Log.e("DEBUG","COMPASS" + ":::" + "angle="+lt + "antigo="+lg);
+        Log.e("DEBUG","COMPASS" + ":::" + "angle="+angle + "antigo="+antigo);
+
         if((lg<=0 && lt <0) || (lg <0 && lt >0) || angle ==-0)
             angle = angle +180;
+
         RotateAnimation ra = new RotateAnimation(antigo,-angle, Animation.RELATIVE_TO_SELF, 0.5f,Animation.RELATIVE_TO_SELF,0.5f);
+
+        if (ra==null)
+            Log.e("DEBUG::","COMPASS");
+
         ra.setDuration(210);
         // set the animation after the end of the reservation status
         ra.setFillAfter(true);
         // Start the animation
-        image2.startAnimation(ra);
+        //image2.startAnimation(ra);
         antigo = -angle;
     }
 
@@ -174,7 +192,7 @@ public class Compass extends Activity implements SensorEventListener {
         super.onResume();
         registerReceiver(broadcastReceiver, new IntentFilter(GPS.BROADCAST_ACTION));
     }
-    /*
+
         @Override
         protected void onPause() {
             super.onPause();
@@ -182,7 +200,7 @@ public class Compass extends Activity implements SensorEventListener {
             // to stop the listener and save battery
             mSensorManager.unregisterListener(this);
         }
-    */
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         float degree=currentDegree;

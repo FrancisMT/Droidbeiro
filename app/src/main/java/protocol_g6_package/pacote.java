@@ -1,10 +1,12 @@
 
-package protocolapi;
 
-import static protocolapi.rotas.MAXNODES;
-import static protocolapi.rotas.BROADCAST;
-import static protocolapi.rotas.CENTRAL;
-import static protocolapi.Protocol_G6.VERSAO_PROTOCOLO;
+package protocol_g6_package;
+
+
+import static protocol_g6_package.rotas.MAXNODES;
+import static protocol_g6_package.rotas.BROADCAST;
+import static protocol_g6_package.rotas.CENTRAL;
+import static protocol_g6_package.Protocol_G6.VERSAO_PROTOCOLO;
 
 
 public class pacote {
@@ -17,12 +19,18 @@ public class pacote {
     public static final int nBitsAddresses=8;
     public static final int nBitsCRCHeader=8;
     public static final int nBitsCRCData=16;
+    public static final int nBitsFragmentFlag=1;
+    public static final int nBitsFragmentID=3;
+    public static final int nBitsTotalFragments=3;
     ///////////////////////////////////////////
     
     public static final int version=VERSAO_PROTOCOLO;
     public static final int infoPacketType=0;
     public static final int rReqPacketType=1;
     public static final int rReplyPacketType=2;
+    public static final int ackPacketType=3;
+    public static final int rErrorPacketType=4;
+        
         // ID dos pacotes
     public static int id=0; 
     
@@ -131,7 +139,47 @@ public class pacote {
     
     ///////////////////////////////////////////////// Cálculo CRC ////////////////////////////////////////////////////
     
+public static byte[] binaryString2byteArray(String pacote){
+        
+        int value,k,startFrom;
+        if (pacote.length()%8!=0){
+            System.out.println("String binária tem que ter um tamanho múltiplo de 8");
+            return null;
+        }
+        
+        byte[] bytePacket=new byte[(pacote.length()/8)];
+
+        k=0;
+        for (int i=1;i<=(pacote.length()/8);i++){
+            value=0;
+            
+            startFrom=(k*8);
+            
+            for (int j=7;j>=0;j--){
+                if (pacote.charAt(startFrom)=='1'){
+                    value=value+ ((int) Math.pow(2,j));
+                }
+                startFrom++;
+            }
+            bytePacket[i-1]=(byte) value;
+            k++;
+        }
+        
+        return bytePacket;
+    }
     
+    public static String byteArray2binaryString(byte[] pacote){
+        
+        int i=0,aux;
+        String binString="",s1;
+        
+        for (i=0;i<pacote.length;i++){
+            s1 = String.format("%8s", Integer.toBinaryString(pacote[i] & 0xFF)).replace(' ', '0');
+            binString=binString+s1;
+        }
+        
+        return binString;
+    }
     
     // Adiciona zeros a uma string até a string ter o tamanho bitsLength. Útil para representar um certo número inteiro com uma
     // determinada quantidade de bits 
@@ -193,10 +241,13 @@ public class pacote {
         aux = sumBinary8bit(aux, getHeaderDestinoPacote(pacote));
         aux = sumBinary8bit(aux, getHeaderNextHopPacote(pacote));
         aux = sumBinary8bit(aux, getHeaderSourcePacote(pacote));
-        
+        aux = sumBinary8bit(aux, getHeaderFragmentFlagPacote(pacote));
+        aux = sumBinary8bit(aux, getHeaderFragmentIDPacote(pacote));
+        aux = sumBinary8bit(aux, getHeaderTotalFragmentsPacote(pacote));
         // Complemento para 1 
         complement = complement("", aux.length());
         crcHeader = xor(aux,complement);
+        
         return crcHeader;
     }
     
@@ -217,23 +268,52 @@ public class pacote {
     }
     
     // Encapsula um determinado conjunto de dados num pacote de informação
-    public static String encapsula(int destino,int nextHop,String dados,int TTL, int nodeIdentification){
+    // A string dadosBin é a string que se quer enviar convertida para string binária
+    public static String encapsula(int destino,int nextHop,String dadosBin,int TTL, int nodeIdentification, int FragmentFlag, int FragmentID, int TotalFragments){
         
         String packet;
-        
         String pVersion=addNBits(Integer.toBinaryString(version),nBitsVersion);
         String pType=addNBits(Integer.toBinaryString(infoPacketType),nBitsPacketType);
         String pID=addNBits(Integer.toBinaryString(id),nBitsPacketID);
-        String pTTL=addNBits(Integer.toBinaryString(MAXNODES-1),nBitsTTL);
+        String pTTL=addNBits(Integer.toBinaryString(TTL),nBitsTTL);
         String pOrigSource=addNBits(Integer.toBinaryString(nodeIdentification),nBitsAddresses);
         String pDest= addNBits(Integer.toBinaryString(destino),nBitsAddresses);
         String pNextHop=addNBits(Integer.toBinaryString(nextHop),nBitsAddresses);
         String pSource=addNBits(Integer.toBinaryString(nodeIdentification),nBitsAddresses);
-        String pDados=stringToBin(dados);
-               
+        String pDados = "";
+        // Fragmentação
+        String pFragmentFlag="";
+        String pFragmentID="";
+        String pTotalFragments="";
         
-        //FALTA CALCULAR CRC HEADER E CRC DATA
-        // Cálculo dos CRCs
+        if(FragmentFlag==0){
+            pFragmentFlag = "0";
+            pFragmentID = "000";
+            pTotalFragments = "000";
+            pDados=dadosBin;
+        }
+        if(FragmentFlag==1){
+            pFragmentFlag = addNBits(Integer.toBinaryString(FragmentFlag),nBitsFragmentFlag);
+            pFragmentID = addNBits(Integer.toBinaryString(FragmentID),nBitsFragmentID);
+            pTotalFragments = addNBits(Integer.toBinaryString(TotalFragments),nBitsTotalFragments);
+            
+            // 16 bytes(dados) * 8 = 128 bits
+            if(TotalFragments==FragmentID)
+            {
+                 for(int i=(FragmentID*128); i < dadosBin.length(); i++)
+                {        
+                         pDados = pDados + dadosBin.charAt(i) + ""; 
+                }
+            }    
+            else{
+                for(int i=(FragmentID*128); i < ((FragmentID*128)+128); i++)
+                {        
+                         pDados = pDados + dadosBin.charAt(i) + ""; 
+                }
+            }        
+        }
+   
+ 
         String crcHeader;
         String crcData;       
         String aux;
@@ -248,7 +328,9 @@ public class pacote {
         aux = sumBinary8bit(aux, pDest);
         aux = sumBinary8bit(aux, pNextHop);
         aux = sumBinary8bit(aux, pSource);
-        
+        aux = sumBinary8bit(aux, pFragmentFlag);
+        aux = sumBinary8bit(aux, pFragmentID);
+        aux = sumBinary8bit(aux, pTotalFragments);
         // Complemento para 1 
         complement = complement("", aux.length());
         crcHeader = xor(aux,complement);
@@ -262,8 +344,8 @@ public class pacote {
         System.out.println("CRC Data(encapsulado): " + crcData);
         System.out.println("Msg (encapsulada):     " + pDados); */
         
-        packet=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+crcHeader+pDados+crcData;
-    
+        packet=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader+pDados+crcData;
+
         id++;
         if (id==32) id=0;
         
@@ -284,15 +366,20 @@ public class pacote {
     // Cria o pacote de Route Request
     public static String criaRReq(int destino, int nodeIdentification){
         String rReqPacket;
+        int OrigSource=nodeIdentification;
         
-        String pVersion=addNBits(Integer.toBinaryString(infoPacketType),nBitsVersion);
+        String pVersion=addNBits(Integer.toBinaryString(version),nBitsVersion);
         String pType=addNBits(Integer.toBinaryString(rReqPacketType),nBitsPacketType);
         String pID=addNBits(Integer.toBinaryString(id),nBitsPacketID);
-        String pTTL=addNBits(Integer.toBinaryString(BROADCAST),nBitsTTL);
-        String pOrigSource=addNBits(Integer.toBinaryString(nodeIdentification),nBitsAddresses);
+        String pTTL=addNBits(Integer.toBinaryString(MAXNODES-1),nBitsTTL);
+        String pOrigSource=addNBits(Integer.toBinaryString(OrigSource),nBitsAddresses);
         String pDest= addNBits(Integer.toBinaryString(destino),nBitsAddresses);
         String pNextHop=addNBits(Integer.toBinaryString(BROADCAST),nBitsAddresses);
         String pSource=addNBits(Integer.toBinaryString(nodeIdentification),nBitsAddresses);
+        
+        String pFragmentFlag="0";
+        String pFragmentID="000";
+        String pTotalFragments="000";
         
                 //Cálculo Crc Header
         String crcHeader;       
@@ -307,38 +394,49 @@ public class pacote {
         aux = sumBinary8bit(aux, pDest);
         aux = sumBinary8bit(aux, pNextHop);
         aux = sumBinary8bit(aux, pSource);
+        aux = sumBinary8bit(aux, pFragmentFlag);
+        aux = sumBinary8bit(aux, pFragmentID);
+        aux = sumBinary8bit(aux, pTotalFragments);
         
         // Complemento para 1 
         complement = complement("", aux.length());
         crcHeader = addNBits(xor(aux,complement), nBitsCRCHeader);
         
-        rReqPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+crcHeader;
-        
+        rReqPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader;
+        id++;
+        if (id==32) id=0;
         return rReqPacket;
     }
     
     // Cria o pacote de Route Reply
-    public static String criaRReply(int dest, no node){
+    public static String criaRReply(String pacote, no node){
         String rReplyPacket;
+        int dest;
+        dest = getSourcePacote(pacote);
         
         int nHop=rotas.getEntradaTabela(node.tabRota, dest);
         
         if (nHop==-1)
             return null;
         
-        String pVersion=addNBits(Integer.toBinaryString(infoPacketType),nBitsVersion);
+        String pVersion=addNBits(Integer.toBinaryString(version),nBitsVersion);
         String pType=addNBits(Integer.toBinaryString(rReplyPacketType),nBitsPacketType);
         String pID=addNBits(Integer.toBinaryString(id),nBitsPacketID);
-        String pTTL=addNBits(Integer.toBinaryString(BROADCAST),nBitsTTL);
+        String pTTL=addNBits(Integer.toBinaryString(MAXNODES-1),nBitsTTL);
         String pOrigSource=addNBits(Integer.toBinaryString(node.nodeIdentification),nBitsAddresses);
         String pDest= addNBits(Integer.toBinaryString(dest),nBitsAddresses);
         String pNextHop=addNBits(Integer.toBinaryString(nHop),nBitsAddresses);
         String pSource=addNBits(Integer.toBinaryString(node.nodeIdentification),nBitsAddresses);
         
         //Cálculo Crc Header, falta crcData
-        String crcHeader ;     
+        String crcHeader;     
         String aux;
         String complement;
+        
+        
+        String pFragmentFlag="0";
+        String pFragmentID="000";
+        String pTotalFragments="000";
         
         // Soma em Binário e guarda o resultado como String
         aux = sumBinary8bit(pVersion,pType);
@@ -348,14 +446,18 @@ public class pacote {
         aux = sumBinary8bit(aux, pDest);
         aux = sumBinary8bit(aux, pNextHop);
         aux = sumBinary8bit(aux, pSource);
+        aux = sumBinary8bit(aux, pFragmentFlag);
+        aux = sumBinary8bit(aux, pFragmentID);
+        aux = sumBinary8bit(aux, pTotalFragments);
         
         // Complemento para 1 
         complement = complement("", aux.length());
         crcHeader = xor(aux,complement);
         
         
-        rReplyPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+crcHeader;
-        
+        rReplyPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader;
+        id++;
+        if (id==32) id=0;
         return rReplyPacket;
     }
     
@@ -403,6 +505,12 @@ public class pacote {
         }
         if(num == rReplyPacketType){
             return rReplyPacketType;
+        }
+        if(num == ackPacketType){
+            return ackPacketType;
+        }
+        if(num == rErrorPacketType){
+            return rErrorPacketType;
         }
         // em caso de não conseguir identificar o tipo retorna -1
         return -1;
@@ -556,10 +664,74 @@ public class pacote {
             return str;
     }
     
+    public static int getFragmentFlagPacote(String pacote){              
+            String str ="";
+            // obtem o tipo em  string binária 
+            for ( int i=49; i< (nBitsFragmentFlag + 49) ; i++ ){
+
+                     str = str + pacote.charAt(i) + ""; 
+                  }
+            int Source = binaryToInteger(str);
+            return Source;
+    }
+    
+    public static String getHeaderFragmentFlagPacote(String pacote){              
+            String str ="";
+            // obtem o tipo em  string binária 
+            for ( int i=49; i< (nBitsFragmentFlag + 49) ; i++ ){
+
+                     str = str + pacote.charAt(i) + ""; 
+                  }
+            return str;
+    }
+    
+    public static int getFragmentIDPacote(String pacote){              
+            String str ="";
+            // obtem o tipo em  string binária 
+            for ( int i=50; i< (nBitsFragmentID + 50) ; i++ ){
+
+                     str = str + pacote.charAt(i) + ""; 
+                  }
+            int Source = binaryToInteger(str);
+            return Source;
+    }
+    
+    public static String getHeaderFragmentIDPacote(String pacote){              
+            String str ="";
+            // obtem o tipo em  string binária 
+            for ( int i=50; i< (nBitsFragmentID + 50) ; i++ ){
+
+                     str = str + pacote.charAt(i) + ""; 
+                  }
+            return str;
+    }
+    
+    public static int getTotalFragmentsPacote(String pacote){              
+            String str ="";
+            // obtem o tipo em  string binária 
+            for ( int i=53; i< (nBitsTotalFragments + 53) ; i++ ){
+
+                     str = str + pacote.charAt(i) + ""; 
+                  }
+            int Source = binaryToInteger(str);
+            return Source;
+    }
+    
+    public static String getHeaderTotalFragmentsPacote(String pacote){              
+            String str ="";
+            // obtem o tipo em  string binária 
+            for ( int i=53; i< (nBitsTotalFragments + 53) ; i++ ){
+
+                     str = str + pacote.charAt(i) + ""; 
+                  }
+            return str;
+    }
+    
+    
     public static String getCRCHeaderPacote(String pacote){              
             String crcHeader ="";
             // obtem o tipo em  string binária 
-            for ( int i=49; i< (nBitsCRCHeader + 49) ; i++ ){
+            for ( int i=56; i< (nBitsCRCHeader + 56) ; i++ ){
 
                      crcHeader = crcHeader + pacote.charAt(i) + ""; 
                   }
@@ -569,7 +741,7 @@ public class pacote {
     public static String getDadosPacote(String pacote){              
             String dados ="";
             int length = pacote.length()-1;
-            int lengthHeader = nBitsVersion + nBitsPacketType + nBitsPacketID + nBitsTTL + (4*nBitsAddresses) + nBitsCRCHeader;
+            int lengthHeader = nBitsVersion + nBitsPacketType + nBitsPacketID + nBitsTTL + (4*nBitsAddresses) + nBitsCRCHeader + nBitsFragmentFlag + nBitsFragmentID + nBitsTotalFragments;
  
             // obtem o tipo em  string binária 
             for ( int i = lengthHeader; i < length-nBitsCRCData+1 ; i++ ){
@@ -620,25 +792,197 @@ public class pacote {
         int tipoPacote = getTypePacote(pacote);
         if (versaoPacote != version)
             return -1;
-        
+
         String crcHeader = getCRCHeaderPacote(pacote);
         String crcHeaderCalculado = calcularCRCHeader(pacote);
         
         // Se o crcHeader estiver errado, retorna -1 (existem erros)
         if(!crcHeaderCalculado.equals(crcHeader))
             return -1;
+
+        if(tipoPacote==0)
+        {
+            String crcData = getCRCDataPacote(pacote);
+            String crcDataCalculado = calcularCRCData(getDadosPacote(pacote));
         
-        String crcData = getCRCDataPacote(pacote);
-        String crcDataCalculado = calcularCRCData(pacote);
-        
-        // Se o crcHeader estiver errado, retorna -1 (existem erros)
-        if (!crcDataCalculado.equals(crcData))
+            // Se o crcHeader estiver errado, retorna -1 (existem erros)
+            if (!crcDataCalculado.equals(crcData))
             return -1;
-        
+
+        }
+                
         return 0;
     }
   
+    // Aqui o 'node' é o identificador do nó!
+    public static String criaAck(String pacote,no node){
+        int ackDest;
+        String ackPacket;
+        ackDest=getSourcePacote(pacote);
+        
+        
+        int nHop=rotas.getEntradaTabela(node.tabRota, ackDest);
+       
+        
+        if (nHop==-1)
+            return null;
+        
+        String pVersion=addNBits(Integer.toBinaryString(version),nBitsVersion);
+        String pType=addNBits(Integer.toBinaryString(ackPacketType),nBitsPacketType);
+        String pID=addNBits(Integer.toBinaryString(getIDPacote(pacote)),nBitsPacketID);
+        String pTTL=addNBits(Integer.toBinaryString(MAXNODES-1),nBitsTTL);
+        String pOrigSource=addNBits(Integer.toBinaryString(node.nodeIdentification),nBitsAddresses);
+        String pDest= addNBits(Integer.toBinaryString(ackDest),nBitsAddresses);
+        String pNextHop=addNBits(Integer.toBinaryString(nHop),nBitsAddresses);
+        String pSource=addNBits(Integer.toBinaryString(node.nodeIdentification),nBitsAddresses);
+        
+        //Cálculo Crc Header, falta crcData
+        String crcHeader ;     
+        String aux;
+        String complement;
+        
+        String pFragmentFlag = getHeaderFragmentFlagPacote(pacote);
+        String pFragmentID = getHeaderFragmentIDPacote(pacote);
+        String pTotalFragments = getHeaderTotalFragmentsPacote(pacote);
+        
+        // Soma em Binário e guarda o resultado como String
+        aux = sumBinary8bit(pVersion,pType);
+        aux = sumBinary8bit(aux, pID); 
+        aux = sumBinary8bit(aux, pTTL);
+        aux = sumBinary8bit(aux, pOrigSource);
+        aux = sumBinary8bit(aux, pDest);
+        aux = sumBinary8bit(aux, pNextHop);
+        aux = sumBinary8bit(aux, pSource);
+        aux = sumBinary8bit(aux, pFragmentFlag);
+        aux = sumBinary8bit(aux, pFragmentID);
+        aux = sumBinary8bit(aux, pTotalFragments);
+        
+        // Complemento para 1 
+        complement = complement("", aux.length());
+        crcHeader = xor(aux,complement);
+        
+        
+        ackPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader;
+
+        return ackPacket;       
+    }
     
+    public static String criaRouteError(){
+        
+        return null;
+    }
+    
+    public static String setNewHeadersPacote(String pacote,  int TTL, int OrigSource, int NextHop){
+    
+        String newPacket = "";
+        String crcHeader=""; 
+        int tipoPacote = getTypePacote(pacote);
+        
+        String pVersion = getHeaderVersionPacote(pacote);
+        String pType = getHeaderTypePacote(pacote);
+        String pID = getHeaderIDPacote(pacote); //addNBits(Integer.toBinaryString(id),nBitsPacketID);
+        String pOrigSource=addNBits(Integer.toBinaryString(OrigSource),nBitsAddresses);
+        String pTTL=addNBits(Integer.toBinaryString(TTL),nBitsTTL);
+        String pNextHop=addNBits(Integer.toBinaryString(NextHop),nBitsAddresses);
+        String pDest = getHeaderDestinoPacote(pacote);
+        String pSource = getHeaderSourcePacote(pacote);
+        String pCRCHeader = getCRCHeaderPacote(pacote);
+        String pFragmentFlag = getHeaderFragmentFlagPacote(pacote);
+        String pFragmentID = getHeaderFragmentIDPacote(pacote);
+        String pTotalFragments = getHeaderTotalFragmentsPacote(pacote);
+        
+        if(tipoPacote==0)
+        {
+            String pDados = getDadosPacote(pacote);
+            String crcData = getCRCDataPacote(pacote);
+            newPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+pCRCHeader+pDados+crcData;
+            crcHeader = calcularCRCHeader(newPacket);
+            newPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader+pDados+crcData;
+            
+        
+            return newPacket;
+        }
+        else
+            newPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+pCRCHeader;
+        
+        crcHeader = calcularCRCHeader(newPacket);
+        
+               
+        newPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader;
+        
+        
+        return newPacket;
+    }  
+    
+    public static String setNewPacketID(String pacote){
+    
+        String newPacket = "";
+        String crcHeader=""; 
+        int tipoPacote = getTypePacote(pacote);
+        
+        String pVersion = getHeaderVersionPacote(pacote);
+        String pType = getHeaderTypePacote(pacote);
+        String pID=addNBits(Integer.toBinaryString(id),nBitsPacketID);
+        String pOrigSource=getHeaderOrigSourcePacote(pacote);
+        String pTTL=getHeaderTTLPacote(pacote);
+        String pNextHop=getHeaderNextHopPacote(pacote);
+        String pDest = getHeaderDestinoPacote(pacote);
+        String pSource = getHeaderSourcePacote(pacote);
+        String pCRCHeader = getCRCHeaderPacote(pacote);
+        String pFragmentFlag = getHeaderFragmentFlagPacote(pacote);
+        String pFragmentID = getHeaderFragmentIDPacote(pacote);
+        String pTotalFragments = getHeaderTotalFragmentsPacote(pacote);
+        
+        if(tipoPacote==0)
+        {
+            String pDados = getDadosPacote(pacote);
+            String crcData = getCRCDataPacote(pacote);
+            newPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+pCRCHeader+pDados+crcData;
+            crcHeader = calcularCRCHeader(newPacket);
+            newPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader+pDados+crcData;
+            
+            id++;
+            if (id==32) id=0;
+
+            return newPacket;
+        }
+        else
+            newPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+pCRCHeader;
+        
+        crcHeader = calcularCRCHeader(newPacket);
+        
+        
+        newPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader;
+        
+        id++;
+        if (id==32) id=0;
+        
+        return newPacket;
+    }
+    
+    public static void imprimePacote(String newPacket){
+    
+        System.out.println("Versao do pacote: " + getVersionPacote(newPacket));
+        System.out.println("Tipo do pacote: " + getTypePacote(newPacket));
+        System.out.println("ID do pacote: " + getIDPacote(newPacket));
+        System.out.println("TTL do pacote: " + getTTLPacote(newPacket));
+        System.out.println("OrigSource do pacote: " + getOrigSourcePacote(newPacket));
+        System.out.println("Destino do pacote: " + getDestinoPacote(newPacket));
+        System.out.println("NextHop do pacote: " + getNextHopPacote(newPacket));
+        System.out.println("Source do pacote: " + getSourcePacote(newPacket));
+        System.out.println("CRC Header(binario): " + getCRCHeaderPacote(newPacket));
+        System.out.println("FragmentFlag: " + getFragmentFlagPacote(newPacket));
+        System.out.println("Fragment ID: " + getFragmentIDPacote(newPacket)); 
+        System.out.println("Total Fragments: " + getTotalFragmentsPacote(newPacket));
+        
+        if(getTypePacote(newPacket)==0)
+        {
+        System.out.println("CRC Data(binario): " + pacote.getCRCDataPacote(newPacket));
+        System.out.println("Msg:" + desencapsula(newPacket));
+        }
+        else
+           System.out.println("O pacote é do tipo " + getTypePacote(newPacket) + " logo não transporta dados. "); 
+    }  
 
     
 }
