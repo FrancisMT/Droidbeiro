@@ -100,6 +100,11 @@ public class Client_Socket extends Service{
     final ConnectionData newCD = new ConnectionData();
 
     /**
+     * Bluetooth Communication
+     */
+    public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
+
+    /**
      * Backend Message Types
      */
     private static int msg_type;
@@ -954,7 +959,7 @@ public class Client_Socket extends Service{
                 Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message");
 
                 //Send to Backend through GSM
-               //if (response.spec == ProtCommConst.RQST_SPEC_ANDR_GSM){
+               if (response.spec == ProtCommConst.RQST_SPEC_ANDR_GSM){
 
                     Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through GSM");
 
@@ -973,17 +978,23 @@ public class Client_Socket extends Service{
                         e.printStackTrace();
                     }
 
-               // }
+               }
 
                 //Send to Backend through RADIO
-                /*else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
-                    //Creat request to Foward to BLUETOOTH
-                    Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through the RADIO");
-                }
+                else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
+                   //Creat request to Foward to BLUETOOTH
+
+                   Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through the RADIO");
+
+                   String data_to_bt = new String(response.packet);
+
+                   broadcastUpdate(BROADCAST_ACTION_WRITE, data_to_bt);
+
+               }
 
                 else{
                     Log.e("Error:","request.spec is invalid");
-                }*/
+                }
             }
 
             //The protocol unpacks a message and gives it to the application
@@ -1419,6 +1430,12 @@ public class Client_Socket extends Service{
         myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
         myNotification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, pendingIntent);
         notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
+    }
+
+    private void broadcastUpdate(final String action, final String data) {
+        final Intent intent = new Intent(action);
+        intent.putExtra("DATA_TO_BT", data);
+        sendBroadcast(intent);
     }
 
     public class MyBroadcastReceiver extends BroadcastReceiver{

@@ -28,7 +28,9 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
+import protocolapi.rqst;
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Communication.ProtCommConst;
 import pt.up.fe.droidbeiro.Messages.ExitAlertMessage;
 import pt.up.fe.droidbeiro.Messages.HeartRateAlertMessage;
 import pt.up.fe.droidbeiro.Messages.HeartRateMessage;
@@ -427,14 +429,13 @@ public class SerialPortService extends Service {
             broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
         }
     };
-    public static String dataToWrite = "emprty data";
+    public static String dataToWrite = "empty data";
     private final BroadcastReceiver UpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
-                dataToWrite = intent.getStringExtra("Update this field with the" +
-                        "string of data from the app to be sent to the radio module");
+                dataToWrite = intent.getStringExtra("DATA_TO_BT");
                 BluetoothGattService service = mBluetoothGatt.getService(UUID_SERVICE);
                 BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID_TX_DATA);
 
@@ -529,19 +530,19 @@ public class SerialPortService extends Service {
             }
 
 
-
+/*
             //------ Parte adicionada pelo francisco. Passa dados recebidos à aplicação
             // Verificar com ele como passar os dados recebidos.
             // o código abaixo é referente ao heartRate e tem de ser adapatado para O RX_DATA.
-/*
+
             if (CS.isAfter_login()) {
                 Calendar cal = Calendar.getInstance();
                 int seconds = cal.get(Calendar.SECOND);
 
                 if ((seconds % 10) == 0) {
-                    Log.d(TAG, String.format("Received heart rate: %d", heartRate));
+                    Log.d(TAG, String.format("Received heart rate: %d", Integer.parseInt(RxData)));
 
-                    HeartRateMessage hr_msg = new HeartRateMessage(CS.getFirefighter_ID(), heartRate);
+                    HeartRateMessage hr_msg = new HeartRateMessage(CS.getFirefighter_ID(), Integer.parseInt(RxData));
                     try {
                         hr_msg.build_heartrate_packet();
                     } catch (IOException e) {
@@ -553,11 +554,16 @@ public class SerialPortService extends Service {
                         e.printStackTrace();
                     }
                 }
-            }
+            }*/
 
             //----- Fim da parte adicionada pelo francisco
-*/
-            intent.putExtra(RX_DATA, String.valueOf(dados_finais));
+
+
+            CS.send_To_Protocol(new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, (byte)0, dados_finais));
+
+//            intent.putExtra(RX_DATA, String.valueOf(dados_finais));
+
+
         }
         else if(UUID_BATTERY_LEVEL_RADIO.equals(characteristic.getUuid())){ //battery levele of Radio module -
                                                                         // não está definida como é feita a leitura do nivel de bateira

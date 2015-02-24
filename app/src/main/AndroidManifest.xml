@@ -147,6 +147,10 @@
                     <action android:name="android.net.wifi.WIFI_STATE_CHANGED">
                     </action></action></intent-filter>
         </receiver>
+        <receiver
+            android:name=".Communication.Client_Socket$"
+            android:exported="false" >
+        </receiver>
 
         <service
             android:name=".Service.BLE.RadioControlService"
