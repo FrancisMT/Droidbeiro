@@ -17,18 +17,12 @@ import java.util.UUID;
 public class RadioControlService extends Service {
     public static final String BROADCAST_ACTION_RADIO = "com.example.bluetooth.le.RADIO_CONTROL_SERVICE_CONNECTED";
     public static final String RX_DATA = "com.example.bluetooth.le.RX_DATA";
-
-    private final static String TAG = DeviceControlService.class.getSimpleName();
-
     public static final String EXTRAS_DEVICE_NAME_RADIO = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS_RADIO = "DEVICE_ADDRESS";
-
+    private final static String TAG = DeviceControlService.class.getSimpleName();
     private String mDeviceName;
     private String mDeviceAddress;
     private SerialPortService mBluetoothLeService;
-    private boolean mConnected = false;
-    private BluetoothGattCharacteristic mNotifyCharacteristic;
-
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -47,14 +41,7 @@ public class RadioControlService extends Service {
             mBluetoothLeService = null;
         }
     };
-
-    // Handles various events fired by the Service.
-    // ACTION_GATT_CONNECTED_RADIO: connected to a GATT server.
-    // ACTION_GATT_DISCONNECTED_RADIO: disconnected from a GATT server.
-    // ACTION_GATT_SERVICES_DISCOVERED_RADIO: discovered GATT services.
-    // ACTION_DATA_AVAILABLE_RADIO: received data from the device.  This can be a result of read
-    //                        or notification operations.
-
+    private boolean mConnected = false;
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -71,13 +58,30 @@ public class RadioControlService extends Service {
                 //Call the supported services and characteristics on the user interface.
                 getFeatures();
             } else if (SerialPortService.ACTION_DATA_AVAILABLE_RADIO.equals(action)) {
-                //displayData(intent.getStringExtra(SerialPortService.EXTRA_DATA));
-                //displayDataBat(intent.getStringExtra(BluetoothLeService.EXTRA_DATABAT));
+               // displayData(intent.getStringExtra(SerialPortService.EXTRA_DATA));
+               // displayDataBat(intent.getStringExtra(BluetoothLeService.EXTRA_DATABAT));
             }
         }
     };
 
+    // Handles various events fired by the Service.
+    // ACTION_GATT_CONNECTED_RADIO: connected to a GATT server.
+    // ACTION_GATT_DISCONNECTED_RADIO: disconnected from a GATT server.
+    // ACTION_GATT_SERVICES_DISCOVERED_RADIO: discovered GATT services.
+    // ACTION_DATA_AVAILABLE_RADIO: received data from the device.  This can be a result of read
+    //                        or notification operations.
+    private BluetoothGattCharacteristic mNotifyCharacteristic;
+
     //More info @ http://d.android.com/reference/android/bluetooth/BluetoothGatt.html for the complete
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(SerialPortService.ACTION_GATT_CONNECTED_RADIO);
+        intentFilter.addAction(SerialPortService.ACTION_GATT_DISCONNECTED_RADIO);
+        intentFilter.addAction(SerialPortService.ACTION_GATT_SERVICES_DISCOVERED_RADIO);
+        intentFilter.addAction(SerialPortService.ACTION_DATA_AVAILABLE_RADIO);
+        return intentFilter;
+    }
 
     private void getFeatures() {
 
@@ -154,7 +158,6 @@ public class RadioControlService extends Service {
         return 1;
     }
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -169,29 +172,20 @@ public class RadioControlService extends Service {
         }
     }
 
+    /*private void displayDataBat(String data) {
+        if (data != null) {
+            mDataBattery.setText(data);}
+    }*/
+
     private void broadcastUpdate(final String action, final String data) {
         final Intent intent = new Intent(action);
         intent.putExtra(RX_DATA, data);
         sendBroadcast(intent);
     }
 
-    /*private void displayDataBat(String data) {
-        if (data != null) {
-            mDataBattery.setText(data);}
-    }*/
-
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(SerialPortService.ACTION_GATT_CONNECTED_RADIO);
-        intentFilter.addAction(SerialPortService.ACTION_GATT_DISCONNECTED_RADIO);
-        intentFilter.addAction(SerialPortService.ACTION_GATT_SERVICES_DISCOVERED_RADIO);
-        intentFilter.addAction(SerialPortService.ACTION_DATA_AVAILABLE_RADIO);
-        return intentFilter;
     }
 }

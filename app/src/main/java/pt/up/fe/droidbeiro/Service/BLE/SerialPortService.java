@@ -406,10 +406,19 @@ public class SerialPortService extends Service {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED_RADIO);
-                Log.w(TAG, "no if: " + status);
 
+
+
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.w(TAG, "nooooo if: " + status);
+                try {
+                    Thread.sleep(55000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+               Log.w(TAG, "XANXAISJXASJXKA");
+                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED_RADIO);
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
 
@@ -487,6 +496,15 @@ public class SerialPortService extends Service {
     private BluetoothGatt mBluetoothGatt;
 
     //---------------------------------------------------------------
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
+    }
 
     /**Broadcast receiver, receives data to be sent to the radio module from the app
      *
@@ -684,7 +702,7 @@ public class SerialPortService extends Service {
         }
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
-        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
+        mBluetoothGatt = device.connectGatt(this, true, mGattCallback);
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
@@ -850,15 +868,6 @@ public class SerialPortService extends Service {
         SerialPortService getService() {
             return SerialPortService.this;
         }
-    }
-
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
-        return intentFilter;
     }
 
 }

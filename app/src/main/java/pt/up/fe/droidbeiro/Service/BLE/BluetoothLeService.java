@@ -40,18 +40,6 @@ import pt.up.fe.droidbeiro.Messages.LoginMessage;
  */
 public class BluetoothLeService extends Service {
 
-    private final static String TAG = BluetoothLeService.class.getSimpleName();
-
-    private BluetoothManager mBluetoothManager;
-    private BluetoothAdapter mBluetoothAdapter;
-    private String mBluetoothDeviceAddress;
-    private BluetoothGatt mBluetoothGatt;
-    private int mConnectionState = STATE_DISCONNECTED;
-
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
-
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
@@ -64,43 +52,14 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.EXTRA_DATA";
     public final static String EXTRA_DATABAT =
             "com.example.bluetooth.le.EXTRA_DATABAT";
-
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
-
     public final static UUID UUID_BATTERY_LEVEL = UUID.fromString(SampleGattAttributes.BATTERY_LEVEL);
-
-
-    public Client_Socket CS = null;
-    boolean CSisBound;
-
-    private boolean data_sent = false;
-    private boolean recovery = true;
-
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-        //EDITED PART
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            // TODO Auto-generated method stub
-            CS = ((Client_Socket.LocalBinder) service).getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            // TODO Auto-generated method stub
-            CS = null;
-        }
-    };
-
-    private void doBindService() {
-        bindService(new Intent(BluetoothLeService.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
-        CSisBound = true;
-        if(CS!=null){
-            CS.IsBoundable();
-        }
-    }
-
+    private final static String TAG = BluetoothLeService.class.getSimpleName();
+    private static final int STATE_DISCONNECTED = 0;
+    private int mConnectionState = STATE_DISCONNECTED;
+    private static final int STATE_CONNECTING = 1;
+    private static final int STATE_CONNECTED = 2;
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -151,6 +110,37 @@ public class BluetoothLeService extends Service {
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
     };
+    private final IBinder mBinder = new LocalBinder();
+    public Client_Socket CS = null;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+    boolean CSisBound;
+    private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter;
+    private String mBluetoothDeviceAddress;
+    private BluetoothGatt mBluetoothGatt;
+    private boolean data_sent = false;
+    private boolean recovery = true;
+
+    private void doBindService() {
+        bindService(new Intent(BluetoothLeService.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
@@ -257,12 +247,6 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
-    public class LocalBinder extends Binder {
-        BluetoothLeService getService() {
-            return BluetoothLeService.this;
-        }
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -276,8 +260,6 @@ public class BluetoothLeService extends Service {
         close();
         return super.onUnbind(intent);
     }
-
-    private final IBinder mBinder = new LocalBinder();
 
     /**
      * Initializes a reference to the local Bluetooth adapter.
@@ -345,6 +327,7 @@ public class BluetoothLeService extends Service {
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
+
         return true;
     }
 
@@ -428,6 +411,12 @@ public class BluetoothLeService extends Service {
         if (mBluetoothGatt == null) return null;
 
         return mBluetoothGatt.getService(uuid);
+    }
+
+    public class LocalBinder extends Binder {
+        BluetoothLeService getService() {
+            return BluetoothLeService.this;
+        }
     }
 
 }
