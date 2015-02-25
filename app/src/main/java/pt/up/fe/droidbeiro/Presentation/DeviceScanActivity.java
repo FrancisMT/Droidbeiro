@@ -266,10 +266,22 @@ public class DeviceScanActivity extends ListActivity {
 
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
 
-        if (device == null) return;
+        if (device.getName().equals("Polar H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
 
-        else if (device.getName().equals("Polar H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
-            final Intent intentService = new Intent(this, DeviceControlService.class);
+
+            final Intent intentServiceSPP = new Intent(this, SerialPortService.class);
+            intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_NAME_RADIO, device.getName());
+            intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_ADDRESS_RADIO, device.getAddress());
+
+            if (mScanning) {
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                mScanning = false;
+            }
+            startService(intentServiceSPP);
+
+
+
+/*            final Intent intentService = new Intent(this, DeviceControlService.class);
 
             intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_NAME, device.getName());
             intentService.putExtra(DeviceControlService.EXTRAS_DEVICE_ADDRESS, device.getAddress());
@@ -281,13 +293,11 @@ public class DeviceScanActivity extends ListActivity {
 
             startService(intentService);
 
-            Intent intent = new Intent(DeviceScanActivity.this, Connection.class);
-            startActivity(intent);
-
-        } else { // name of the device==name of the module radio-> start SerialPortService
+*/
+        } /*else  { // name of the device==name of the module radio-> start SerialPortService
 
             final Intent intentServiceSPP = new Intent(this, SerialPortService.class);
-            intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_NAME_RADIO, device.getName());
+            //intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_NAME_RADIO, device.getName());
             intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_ADDRESS_RADIO, device.getAddress());
 
             if (mScanning) {
@@ -295,7 +305,10 @@ public class DeviceScanActivity extends ListActivity {
                 mScanning = false;
             }
             startService(intentServiceSPP);
-        }
+        }*/
+        Intent intent = new Intent(DeviceScanActivity.this, Connection.class);
+        startActivity(intent);
+
     }
 
     private void scanLeDevice(final boolean enable) {

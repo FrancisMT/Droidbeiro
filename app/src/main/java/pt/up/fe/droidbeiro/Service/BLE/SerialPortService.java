@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
@@ -106,7 +107,8 @@ public class SerialPortService extends Service {
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothSocket mBluetoothSocket;
-    private OutputStream outStream = null;
+
+ private OutputStream outStream = null;
     private InputStream inStream = null;
 
     private final static String TAG = SerialPortService.class.getSimpleName();
@@ -162,8 +164,7 @@ public class SerialPortService extends Service {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
                 if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
-                String dataToWrite = intent.getStringExtra("Update this field with the" +
-                        "string of data from the app to be sent to the radio module");
+                String dataToWrite = intent.getStringExtra("DATA_TO_BT");
                     writeServer(dataToWrite);     //write server
                 }
         }
@@ -207,6 +208,7 @@ public class SerialPortService extends Service {
         }
         return true;
     }
+
 
     public void startServerConnection(BluetoothDevice device) {
 
@@ -380,18 +382,18 @@ public class SerialPortService extends Service {
                 intentAction = ACTION_GATT_CONNECTED_RADIO;
                 mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(intentAction);
-                Log.i(TAG, "Connected to GATT server.");
+                Log.e("RADIO_BT", "Connected to GATT server.");
 
                 doBindService();
 
                 // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" +
+                Log.e("RADIO_BT", "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 intentAction = ACTION_GATT_DISCONNECTED_RADIO;
                 mConnectionState = STATE_DISCONNECTED;
-                Log.i(TAG, "Disconnected from GATT server.");
+                Log.e("RADIO_BT", "Disconnected from GATT server.");
                 broadcastUpdate(intentAction);
             }
         }
@@ -486,7 +488,14 @@ public class SerialPortService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        registerReceiver(UpdateReceiver, null);
+        //registerReceiver(UpdateReceiver, null);
+
+        registerReceiver(UpdateReceiver, makeGattUpdateIntentFilter());
+        /*if (mBluetoothLeService != null) {
+            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            Log.d(TAG, "Connect request result=" + result);
+        }*/
+
     }
 
     private void doBindService() {
@@ -827,4 +836,14 @@ public class SerialPortService extends Service {
             return SerialPortService.this;
         }
     }
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
+    }
+
 }

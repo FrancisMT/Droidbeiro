@@ -959,7 +959,7 @@ public class Client_Socket extends Service{
                 Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message");
 
                 //Send to Backend through GSM
-               if (response.spec == ProtCommConst.RQST_SPEC_ANDR_GSM){
+              // if (response.spec == ProtCommConst.RQST_SPEC_ANDR_GSM){
 
                     Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through GSM");
 
@@ -978,10 +978,10 @@ public class Client_Socket extends Service{
                         e.printStackTrace();
                     }
 
-               }
+//               }
 
                 //Send to Backend through RADIO
-                else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
+               /* else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
                    //Creat request to Foward to BLUETOOTH
 
                    Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through the RADIO");
@@ -994,7 +994,7 @@ public class Client_Socket extends Service{
 
                 else{
                     Log.e("Error:","request.spec is invalid");
-                }
+                }*/
             }
 
             //The protocol unpacks a message and gives it to the application

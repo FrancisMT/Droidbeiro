@@ -10,7 +10,7 @@ import androidBackendAPI.Packet;
  */
 public class HeartRateAlertMessage {
 
-    private int msg_type=0;
+    private int msg_type=17;
     private byte MessageType = (byte)msg_type;
     private byte FireFighter_ID;
 

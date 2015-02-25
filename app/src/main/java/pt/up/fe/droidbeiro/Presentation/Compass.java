@@ -104,7 +104,7 @@ public class Compass extends Activity implements SensorEventListener {
         latitude = Double.parseDouble(intent.getStringExtra("LAT"));
         longitude = Double.parseDouble(intent.getStringExtra("LONG"));
 
-        Log.e("Mover para: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
+        Log.e("Mover de: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
         getDistancia();
         nova_posicao();
     }
@@ -138,10 +138,6 @@ public class Compass extends Activity implements SensorEventListener {
 
         lat1=newCD.getNew_LAT();
         long1=newCD.getNew_LON();
-
-
-        Log.e("Mover de coordenadas: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
-        Log.e("Mover para: ", String.valueOf(lat1) + " || " + String.valueOf(long1));
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) this.getSystemService(this.SENSOR_SERVICE);
@@ -222,6 +218,9 @@ public class Compass extends Activity implements SensorEventListener {
             }
         }
 
+
+        Log.e("Mover de coordenadas: ", String.valueOf(latitude) + " || " + String.valueOf(longitude));
+        Log.e("Mover para: ", String.valueOf(lat1) + " || " + String.valueOf(long1));
 
 
         // create a rotation animation (reverse turn degree degrees)
