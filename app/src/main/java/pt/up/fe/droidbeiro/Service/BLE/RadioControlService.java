@@ -61,7 +61,7 @@ public class RadioControlService extends Service {
             final String action = intent.getAction();
             if (SerialPortService.ACTION_GATT_CONNECTED_RADIO.equals(action)) {
                 mConnected = true;
-                Log.v(TAG,"Connected");
+                Log.v("RadioControlService","Connected");
 
             } else if (SerialPortService.ACTION_GATT_DISCONNECTED_RADIO.equals(action)) {
                 mConnected = false;
@@ -69,7 +69,7 @@ public class RadioControlService extends Service {
 
             } else if (SerialPortService.ACTION_GATT_SERVICES_DISCOVERED_RADIO.equals(action)) {
                 //Call the supported services and characteristics on the user interface.
-                //getFeatures();
+                getFeatures();
             } else if (SerialPortService.ACTION_DATA_AVAILABLE_RADIO.equals(action)) {
                 //displayData(intent.getStringExtra(SerialPortService.EXTRA_DATA));
                 //displayDataBat(intent.getStringExtra(BluetoothLeService.EXTRA_DATABAT));
@@ -86,20 +86,20 @@ public class RadioControlService extends Service {
                 getGattServices(UUID.fromString(SampleGattAttributes.RADIO_MODULE_SERVICE));
 
         final BluetoothGattCharacteristic RxData = RadioService.
-                getCharacteristic(UUID.fromString(SampleGattAttributes.RX_DATA_CHAR));
+                getCharacteristic(UUID.fromString(SampleGattAttributes.RX_DATA_CHAR_UUID));
 
         final BluetoothGattCharacteristic TxData = RadioService.
-                getCharacteristic(UUID.fromString(SampleGattAttributes.TX_DATA_CHAR));
+                getCharacteristic(UUID.fromString(SampleGattAttributes.TX_DATA_CHAR_UUID));
 
         final BluetoothGattCharacteristic RadioBatData = RadioService.
-                getCharacteristic(UUID.fromString(SampleGattAttributes.BATT_LEVEL_CHAR));
+                getCharacteristic(UUID.fromString(SampleGattAttributes.BATT_LEVEL_CHAR_UUID));
 
         final int charaPropRX = RxData.getProperties();
         final int charaPropTX = TxData.getProperties();
         final int charaPropBat = RadioBatData.getProperties();
 
         readGATTCharacteristic(charaPropRX, RxData);
-        //readGATTCharacteristic(charaPropBat, RadioBatData);
+        readGATTCharacteristic(charaPropBat, RadioBatData);
 
         //imcomplete - everything is done in the SerialPortService Class.
 
@@ -148,7 +148,7 @@ public class RadioControlService extends Service {
 
         // Sets up Log messages.
 
-        Log.v(TAG, "Device Name: "+mDeviceName);
+       Log.v(TAG, "Device Name: "+mDeviceName);
         Log.v(TAG, "Device Address: "+mDeviceAddress);
 
         return 1;

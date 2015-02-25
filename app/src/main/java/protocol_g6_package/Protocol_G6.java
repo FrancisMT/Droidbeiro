@@ -20,11 +20,14 @@ import static protocol_g6_package.rotas.MAXNODES;
 import protocolapi.rqst;
 import protocolapi.rspns;
 
-public class Protocol_G6 {
+//import static protocol_g6_package.simuladorv2.DEBUG;
+//import static protocol_g6_package.simuladorv2.DEBUG_DETAILED;
 
-    public static final boolean DEBUG = false;
-    public static final boolean DEBUG_DETAILED = false;
-    public static final boolean DEBUG_FINAL = false;
+public class Protocol_G6 {
+    
+    public final static boolean DEBUG_FINAL = false;
+    public final static boolean DEBUG = false;
+    public final static boolean DEBUG_DETAILED = false;
 
     public static final int NO_SOCKET = -300;
 
@@ -680,11 +683,11 @@ public class Protocol_G6 {
                 } //caso Backend
                 else if (threadProtocol.application) {
                     
-                    try {
+                    /*try {
                      Thread.sleep(250);
                      } catch (InterruptedException ex) {
                      Logger.getLogger(Protocol_G6.class.getName()).log(Level.SEVERE, null, ex);
-                     }
+                     }*/
 
                     //synchronized (threadProtocol.node.fila_espera_ACK_RRply) {
                     //this.threadProtocol.espera();

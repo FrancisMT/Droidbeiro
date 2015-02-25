@@ -393,12 +393,19 @@ public class ChefeMain extends Activity {
                     e.printStackTrace();
                 }
                 CS.setAfter_login(false);
-                doUnbindService();
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 try {
                     CS.disconnect();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                doUnbindService();
                 /****************************************************************/
 
                 Intent connection_Intent = new Intent(ChefeMain.this, Connection.class);

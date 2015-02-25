@@ -386,6 +386,12 @@ public class SerialPortService extends Service {
 
                 doBindService();
 
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 // Attempts to discover services after successful connection.
                 Log.e("RADIO_BT", "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
@@ -402,8 +408,11 @@ public class SerialPortService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED_RADIO);
+                Log.w(TAG, "no if: " + status);
+
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
+
             }
         }
 
@@ -413,6 +422,8 @@ public class SerialPortService extends Service {
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
+
+                Log.e(":::::DEBUG::","ON__onCharacteristicRead");
             }
         }
 
@@ -516,6 +527,8 @@ public class SerialPortService extends Service {
         final Intent intent = new Intent(action);
 
         // This is special handling for the RX data read  & Battery Level profile.
+
+        Log.e("I'm in::","broadcastUpdate_SERIALPORTSERVICE");
 
         if (UUID_RX_DATA.equals(characteristic.getUuid())) { //Rx Data = 20 bytes e não string. Necessário corrigir (assim como TX).
 
@@ -715,6 +728,8 @@ public class SerialPortService extends Service {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
+        }else{
+            Log.e("DEBUG::","ON__readCharacteristic");
         }
         mBluetoothGatt.readCharacteristic(characteristic);
     }

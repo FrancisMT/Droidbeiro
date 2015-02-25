@@ -13,15 +13,15 @@ public class pacote {
 
     // Número de bits de cada campo do cabeçalho
     public static final int nBitsVersion=1;
-    public static final int nBitsPacketType=3;
+    public static final int nBitsPacketType=2;
     public static final int nBitsPacketID=5;
-    public static final int nBitsTTL=8;
+    public static final int nBitsTTL=7;
     public static final int nBitsAddresses=8;
     public static final int nBitsCRCHeader=8;
     public static final int nBitsCRCData=16;
     public static final int nBitsFragmentFlag=1;
-    public static final int nBitsFragmentID=3;
-    public static final int nBitsTotalFragments=3;
+    public static final int nBitsFragmentID=4;
+    public static final int nBitsTotalFragments=4;
     ///////////////////////////////////////////
     
     public static final int version=VERSAO_PROTOCOLO;
@@ -29,7 +29,7 @@ public class pacote {
     public static final int rReqPacketType=1;
     public static final int rReplyPacketType=2;
     public static final int ackPacketType=3;
-    public static final int rErrorPacketType=4;
+    
         
         // ID dos pacotes
     public static int id=0; 
@@ -288,8 +288,8 @@ public static byte[] binaryString2byteArray(String pacote){
         
         if(FragmentFlag==0){
             pFragmentFlag = "0";
-            pFragmentID = "000";
-            pTotalFragments = "000";
+            pFragmentID = "0000";
+            pTotalFragments = "0000";
             pDados=dadosBin;
         }
         if(FragmentFlag==1){
@@ -297,16 +297,16 @@ public static byte[] binaryString2byteArray(String pacote){
             pFragmentID = addNBits(Integer.toBinaryString(FragmentID),nBitsFragmentID);
             pTotalFragments = addNBits(Integer.toBinaryString(TotalFragments),nBitsTotalFragments);
             
-            // 16 bytes(dados) * 8 = 128 bits
+            // 10 bytes(dados) * 8 = 80 bits
             if(TotalFragments==FragmentID)
             {
-                 for(int i=(FragmentID*128); i < dadosBin.length(); i++)
+                 for(int i=(FragmentID*80); i < dadosBin.length(); i++)
                 {        
                          pDados = pDados + dadosBin.charAt(i) + ""; 
                 }
             }    
             else{
-                for(int i=(FragmentID*128); i < ((FragmentID*128)+128); i++)
+                for(int i=(FragmentID*80); i < ((FragmentID*80)+80); i++)
                 {        
                          pDados = pDados + dadosBin.charAt(i) + ""; 
                 }
@@ -371,15 +371,15 @@ public static byte[] binaryString2byteArray(String pacote){
         String pVersion=addNBits(Integer.toBinaryString(version),nBitsVersion);
         String pType=addNBits(Integer.toBinaryString(rReqPacketType),nBitsPacketType);
         String pID=addNBits(Integer.toBinaryString(id),nBitsPacketID);
-        String pTTL=addNBits(Integer.toBinaryString(MAXNODES-1),nBitsTTL);
+        String pTTL=addNBits(Integer.toBinaryString(127),nBitsTTL);
         String pOrigSource=addNBits(Integer.toBinaryString(OrigSource),nBitsAddresses);
         String pDest= addNBits(Integer.toBinaryString(destino),nBitsAddresses);
         String pNextHop=addNBits(Integer.toBinaryString(BROADCAST),nBitsAddresses);
         String pSource=addNBits(Integer.toBinaryString(nodeIdentification),nBitsAddresses);
         
         String pFragmentFlag="0";
-        String pFragmentID="000";
-        String pTotalFragments="000";
+        String pFragmentID="0000";
+        String pTotalFragments="0000";
         
                 //Cálculo Crc Header
         String crcHeader;       
@@ -422,7 +422,7 @@ public static byte[] binaryString2byteArray(String pacote){
         String pVersion=addNBits(Integer.toBinaryString(version),nBitsVersion);
         String pType=addNBits(Integer.toBinaryString(rReplyPacketType),nBitsPacketType);
         String pID=addNBits(Integer.toBinaryString(id),nBitsPacketID);
-        String pTTL=addNBits(Integer.toBinaryString(MAXNODES-1),nBitsTTL);
+        String pTTL=addNBits(Integer.toBinaryString(127),nBitsTTL);
         String pOrigSource=addNBits(Integer.toBinaryString(node.nodeIdentification),nBitsAddresses);
         String pDest= addNBits(Integer.toBinaryString(dest),nBitsAddresses);
         String pNextHop=addNBits(Integer.toBinaryString(nHop),nBitsAddresses);
@@ -435,8 +435,8 @@ public static byte[] binaryString2byteArray(String pacote){
         
         
         String pFragmentFlag="0";
-        String pFragmentID="000";
-        String pTotalFragments="000";
+        String pFragmentID="0000";
+        String pTotalFragments="0000";
         
         // Soma em Binário e guarda o resultado como String
         aux = sumBinary8bit(pVersion,pType);
@@ -509,9 +509,7 @@ public static byte[] binaryString2byteArray(String pacote){
         if(num == ackPacketType){
             return ackPacketType;
         }
-        if(num == rErrorPacketType){
-            return rErrorPacketType;
-        }
+
         // em caso de não conseguir identificar o tipo retorna -1
         return -1;
     }
@@ -529,7 +527,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static int getIDPacote(String pacote){              
             String str="";
             // obtem o tipo em  string binária 
-            for ( int i=4; i< (nBitsPacketID + 4) ; i++ ){
+            for ( int i=3; i< (nBitsPacketID + 3) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -542,7 +540,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static String getHeaderIDPacote(String pacote){              
             String str="";
             // obtem o tipo em  string binária 
-            for ( int i=4; i< (nBitsPacketID + 4) ; i++ ){
+            for ( int i=3; i< (nBitsPacketID + 3) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -554,7 +552,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static int getTTLPacote(String pacote){              
             String str="";
             // obtem o tipo em  string binária 
-            for ( int i=9; i< (nBitsTTL + 9) ; i++ ){
+            for ( int i=8; i< (nBitsTTL + 8) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -567,7 +565,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static String getHeaderTTLPacote(String pacote){              
             String str="";
             // obtem o tipo em  string binária 
-            for ( int i=9; i< (nBitsTTL + 9) ; i++ ){
+            for ( int i=8; i< (nBitsTTL + 8) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -577,7 +575,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static int getOrigSourcePacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=17; i< (nBitsAddresses + 17) ; i++ ){
+            for ( int i=15; i< (nBitsAddresses + 15) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -590,7 +588,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static String getHeaderOrigSourcePacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=17; i< (nBitsAddresses + 17) ; i++ ){
+            for ( int i=15; i< (nBitsAddresses + 15) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -601,7 +599,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static int getDestinoPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=25; i< (nBitsAddresses + 25) ; i++ ){
+            for ( int i=23; i< (nBitsAddresses + 23) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -614,7 +612,7 @@ public static byte[] binaryString2byteArray(String pacote){
       public static String getHeaderDestinoPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=25; i< (nBitsAddresses + 25) ; i++ ){
+            for ( int i=23; i< (nBitsAddresses + 23) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -625,7 +623,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static int getNextHopPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=33; i< (nBitsAddresses + 33) ; i++ ){
+            for ( int i=31; i< (nBitsAddresses + 31) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -636,7 +634,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static String getHeaderNextHopPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=33; i< (nBitsAddresses + 33) ; i++ ){
+            for ( int i=31; i< (nBitsAddresses + 31) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -646,7 +644,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static int getSourcePacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=41; i< (nBitsAddresses + 41) ; i++ ){
+            for ( int i=39; i< (nBitsAddresses + 39) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -657,7 +655,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static String getHeaderSourcePacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=41; i< (nBitsAddresses + 41) ; i++ ){
+            for ( int i=39; i< (nBitsAddresses + 39) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -667,7 +665,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static int getFragmentFlagPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=49; i< (nBitsFragmentFlag + 49) ; i++ ){
+            for ( int i=47; i< (nBitsFragmentFlag + 47) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -678,7 +676,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static String getHeaderFragmentFlagPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=49; i< (nBitsFragmentFlag + 49) ; i++ ){
+            for ( int i=47; i< (nBitsFragmentFlag + 47) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -688,7 +686,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static int getFragmentIDPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=50; i< (nBitsFragmentID + 50) ; i++ ){
+            for ( int i=48; i< (nBitsFragmentID + 48) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -699,7 +697,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static String getHeaderFragmentIDPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=50; i< (nBitsFragmentID + 50) ; i++ ){
+            for ( int i=48; i< (nBitsFragmentID + 48) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -709,7 +707,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static int getTotalFragmentsPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=53; i< (nBitsTotalFragments + 53) ; i++ ){
+            for ( int i=52; i< (nBitsTotalFragments + 52) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -720,7 +718,7 @@ public static byte[] binaryString2byteArray(String pacote){
     public static String getHeaderTotalFragmentsPacote(String pacote){              
             String str ="";
             // obtem o tipo em  string binária 
-            for ( int i=53; i< (nBitsTotalFragments + 53) ; i++ ){
+            for ( int i=52; i< (nBitsTotalFragments + 52) ; i++ ){
 
                      str = str + pacote.charAt(i) + ""; 
                   }
@@ -830,7 +828,7 @@ public static byte[] binaryString2byteArray(String pacote){
         String pVersion=addNBits(Integer.toBinaryString(version),nBitsVersion);
         String pType=addNBits(Integer.toBinaryString(ackPacketType),nBitsPacketType);
         String pID=addNBits(Integer.toBinaryString(getIDPacote(pacote)),nBitsPacketID);
-        String pTTL=addNBits(Integer.toBinaryString(MAXNODES-1),nBitsTTL);
+        String pTTL=addNBits(Integer.toBinaryString(127),nBitsTTL);
         String pOrigSource=addNBits(Integer.toBinaryString(node.nodeIdentification),nBitsAddresses);
         String pDest= addNBits(Integer.toBinaryString(ackDest),nBitsAddresses);
         String pNextHop=addNBits(Integer.toBinaryString(nHop),nBitsAddresses);
@@ -863,7 +861,9 @@ public static byte[] binaryString2byteArray(String pacote){
         
         
         ackPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader;
+        
 
+        
         return ackPacket;       
     }
     

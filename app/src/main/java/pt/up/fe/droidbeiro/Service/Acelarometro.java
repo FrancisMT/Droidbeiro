@@ -163,11 +163,12 @@ public class Acelarometro extends Service implements SensorEventListener {
 
         @Override
         public void onFinish() {
-            r.play();
 
             if(!data_sent) {
-                Log.e("APS", "Alert");
-                if(CS.isAfter_login()) {
+                if(CS.isAfter_login() && CS.isIn_Combate_Mode()) {
+                    Log.e("APS", "Alert");
+                    r.play();
+
                     APSAlertMessage aps_msg = new APSAlertMessage(CS.getFirefighter_ID());
                     try {
                         aps_msg.build_apsalert_packet();

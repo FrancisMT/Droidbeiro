@@ -13,6 +13,9 @@ import static protocol_g6_package.rotas.ENDEREÇO_NULO;
 import static protocol_g6_package.rotas.CENTRAL;
 import static protocol_g6_package.rotas.BROADCAST;
 import static protocol_g6_package.rotas.MAXNODES;
+//import static protocol_g6_package.simuladorv2.DEBUG;
+//import static protocol_g6_package.simuladorv2.DEBUG_DETAILED;
+//import static protocol_g6_package.simuladorv2.DEBUG_FINAL;
 import static protocol_g6_package.Protocol_G6.DEBUG;
 import static protocol_g6_package.Protocol_G6.DEBUG_DETAILED;
 import static protocol_g6_package.Protocol_G6.DEBUG_FINAL;
@@ -518,7 +521,7 @@ public class no {
                     if (filaEspera.verElementoCabeçaFila(this.fila_dados_in) != null) {
                         //dest e sempre central
                         int dest = CENTRAL;
-                        int ttl = 255;
+                        int ttl = 127;
                         String dados = filaEspera.getDados(this.fila_dados_in);
 
                         //rotas.adicionaEntradaTabela(this.tabRota, CENTRAL, 2, 0);
@@ -658,7 +661,7 @@ public class no {
 
                         int dest = filaEspera.getDest(this.fila_dados_in);
                         //dest e sempre central
-                        int ttl = 255;
+                        int ttl = 127;
                         String dados = filaEspera.getDados(this.fila_dados_in);
 
                         // MODIFICAÇÃO: Para a central põe-se directamente na filaout a central não tem tabela de rotas
@@ -737,7 +740,7 @@ public class no {
     public int calculaNumFragmentos(String dados) {
 
         int numFragmentos;
-        double tamanhoTotalDadosPacote = 16;
+        double tamanhoTotalDadosPacote = 10;
         String dados2 = pacote.binaryStringToText(dados);
 
         if (dados2.length() <= tamanhoTotalDadosPacote) {

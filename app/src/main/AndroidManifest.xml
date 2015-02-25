@@ -90,6 +90,7 @@
             android:exported="true"
             android:screenOrientation="portrait" >
         </service>
+
         <service
             android:name=".Service.BLE.SerialPortService"
             android:enabled="true"
@@ -102,6 +103,11 @@
         </service>
         <service
             android:name=".Service.BLE.BluetoothLeService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".Service.BLE.RadioControlService"
             android:enabled="true"
             android:exported="true" >
         </service>
@@ -147,10 +153,7 @@
                     <action android:name="android.net.wifi.WIFI_STATE_CHANGED">
                     </action></action></intent-filter>
         </receiver>
-        <receiver
-            android:name=".Communication.Client_Socket$"
-            android:exported="false" >
-        </receiver>
+
 
         <service
             android:name=".Service.BLE.RadioControlService"

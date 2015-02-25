@@ -576,12 +576,19 @@ public class ChefeLF extends Activity implements SensorEventListener {
                 }
                 CS.setAfter_login(false);
                 CS.setIn_Fire_Line_Update(false);
-                doUnbindService();
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 try {
                     CS.disconnect();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                doUnbindService();
                 /****************************************************************/
 
                 Intent connection_Intent = new Intent(ChefeLF.this, Connection.class);
