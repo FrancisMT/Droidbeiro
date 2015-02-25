@@ -87,12 +87,15 @@ public class SerialPortService extends Service {
             "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED_RADIO";
     public final static String ACTION_DATA_AVAILABLE_RADIO =
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE_RADIO";
+    public final static String ACTION_DATA_WRITTEN_RADIO =
+            "com.example.bluetooth.le.ACTION_DATA_WRITTEN_RADIO";
+
     // ------ RADIO MODULE VARIABLES
     public final static String EXTRA_DATA_RADIO =
             "com.example.bluetooth.le.EXTRA_DATA"; // Caracteriticas adicionais
     public final static String TX_DATA = "com.example.bluetooth.le.TX_DATA"; // caracteristica para tranferência de dados
     public final static String RX_DATA = "com.example.bluetooth.le.RX_DATA"; // caracteristica para leitura de dados
-    public final static String RADIO_BATTERY_DATA = "com.example.bluetooth.le.RX_DATA"; //caracteristica para leitura do nivel da bateira
+    public final static String RADIO_BATTERY_DATA = "com.example.bluetooth.le.BAT_DATA"; //caracteristica para leitura do nivel da bateira
     public final static UUID UUID_SERVICE = UUID.fromString(SampleGattAttributes.RADIO_MODULE_SERVICE);
     public final static UUID UUID_TX_DATA = UUID.fromString(SampleGattAttributes.TX_DATA_CHAR_UUID);
     public final static UUID UUID_RX_DATA = UUID.fromString(SampleGattAttributes.RX_DATA_CHAR_UUID);
@@ -374,6 +377,7 @@ public class SerialPortService extends Service {
     private static final int STATE_CONNECTED = 2;
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
+
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -439,7 +443,7 @@ public class SerialPortService extends Service {
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-
+                broadcastUpdate(ACTION_DATA_WRITTEN_RADIO, characteristic);
             }
         }
 
@@ -497,15 +501,6 @@ public class SerialPortService extends Service {
 
     //---------------------------------------------------------------
 
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
-        return intentFilter;
-    }
-
     /**Broadcast receiver, receives data to be sent to the radio module from the app
      *
      * @dataToWrite - String stores the data received from the app, in order to send it to the radio module
@@ -517,13 +512,7 @@ public class SerialPortService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        //registerReceiver(UpdateReceiver, null);
-
-        registerReceiver(UpdateReceiver, makeGattUpdateIntentFilter());
-        /*if (mBluetoothLeService != null) {
-            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
-        }*/
+        registerReceiver(UpdateReceiver, null);
 
     }
 
@@ -601,7 +590,7 @@ public class SerialPortService extends Service {
 
             CS.send_To_Protocol(new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, (byte)0, dados_finais));
 
-//            intent.putExtra(RX_DATA, String.valueOf(dados_finais));
+            intent.putExtra(RX_DATA, String.valueOf(dados_finais));
 
 
         }
@@ -837,7 +826,7 @@ public class SerialPortService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+       // mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
         // Exemplo notificações Heart Rate - verificar se é necessário ter notificações neste caso.
         // This is specific to Heart Rate Measurement.

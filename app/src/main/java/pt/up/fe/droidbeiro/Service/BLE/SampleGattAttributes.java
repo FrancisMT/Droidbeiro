@@ -43,8 +43,6 @@ public class SampleGattAttributes {
         attributes.put(TX_DATA_CHAR_UUID, "TX Data");
         attributes.put(RX_DATA_CHAR_UUID,"RX Data");
         attributes.put(BATT_LEVEL_CHAR_UUID,"Radio Battery Level");
-
-
     }
 
     public static String lookup(String uuid, String defaultName) {
