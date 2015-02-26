@@ -1,11 +1,10 @@
 package pt.up.fe.droidbeiro.Service.BLE;
 
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
@@ -17,13 +16,25 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
+
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 import protocolapi.rqst;
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Communication.ProtCommConst;
+import pt.up.fe.droidbeiro.Messages.ExitAlertMessage;
+import pt.up.fe.droidbeiro.Messages.HeartRateAlertMessage;
+import pt.up.fe.droidbeiro.Messages.HeartRateMessage;
 
 
 /**
@@ -63,7 +74,7 @@ import pt.up.fe.droidbeiro.Communication.ProtCommConst;
  *  http://developer.android.com/reference/android/bluetooth/BluetoothSocket.html
  *  https://developer.bluetooth.org/TechnologyOverview/Pages/SPP.aspx
  *
-*/
+ */
 
 public class SerialPortService extends Service {
 
@@ -76,278 +87,275 @@ public class SerialPortService extends Service {
             "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED_RADIO";
     public final static String ACTION_DATA_AVAILABLE_RADIO =
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE_RADIO";
-    public final static String ACTION_DATA_WRITTEN_RADIO =
-            "com.example.bluetooth.le.ACTION_DATA_WRITTEN_RADIO";
-
     // ------ RADIO MODULE VARIABLES
     public final static String EXTRA_DATA_RADIO =
             "com.example.bluetooth.le.EXTRA_DATA"; // Caracteriticas adicionais
     public final static String TX_DATA = "com.example.bluetooth.le.TX_DATA"; // caracteristica para tranferência de dados
     public final static String RX_DATA = "com.example.bluetooth.le.RX_DATA"; // caracteristica para leitura de dados
-    public final static String RADIO_BATTERY_DATA = "com.example.bluetooth.le.BAT_DATA"; //caracteristica para leitura do nivel da bateira
+    public final static String RADIO_BATTERY_DATA = "com.example.bluetooth.le.RX_DATA"; //caracteristica para leitura do nivel da bateira
     public final static UUID UUID_SERVICE = UUID.fromString(SampleGattAttributes.RADIO_MODULE_SERVICE);
     public final static UUID UUID_TX_DATA = UUID.fromString(SampleGattAttributes.TX_DATA_CHAR_UUID);
     public final static UUID UUID_RX_DATA = UUID.fromString(SampleGattAttributes.RX_DATA_CHAR_UUID);
     public final static UUID UUID_BATTERY_LEVEL_RADIO = UUID.fromString(SampleGattAttributes.BATT_LEVEL_CHAR_UUID);
     public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
-/**
-    // Well known SPP UUID
-    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // Define according to the server specification
-    // Insert your server's MAC address
-    private static String address = "00:00:00:00:00:00"; // Define according to the server specification
+    /**
+     // Well known SPP UUID
+     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // Define according to the server specification
+     // Insert your server's MAC address
+     private static String address = "00:00:00:00:00:00"; // Define according to the server specification
 
-    private BluetoothManager mBluetoothManager;
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothSocket mBluetoothSocket;
+     private BluetoothManager mBluetoothManager;
+     private BluetoothAdapter mBluetoothAdapter;
+     private BluetoothSocket mBluetoothSocket;
 
- private OutputStream outStream = null;
-    private InputStream inStream = null;
+     private OutputStream outStream = null;
+     private InputStream inStream = null;
 
-    private final static String TAG = SerialPortService.class.getSimpleName();
+     private final static String TAG = SerialPortService.class.getSimpleName();
 
-    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
-    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-
-
-    //Broadcast variables
-
-    public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
-    public static final String BROADCAST_ACTION_READ = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
-
-    private String mDeviceName;
-    private String mDeviceAddress;
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // The service is starting, due to a call to startService()
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-
-        // Sets up Log messages.
-        Log.v(TAG, "Device Name: " + mDeviceName);
-        Log.v(TAG, "Device Address: "+mDeviceAddress);
-
-        return 1;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        Log.e("On Service", "Serial Port Service");
-
-        registerReceiver(UpdateReceiver, null);
-        if (mDeviceAddress != null) {
-
-            // Connect to the SPP server
-            initialize(); // Get bluetooth Adapter
-            boolean result = connect(mDeviceAddress); // Connect and establish communication with the server
-            if (result)
-                Log.d(TAG, "Connect request result=" + result);
-            else
-                Log.e(TAG,"Connect request failed");
-        }
-
-    }
-
-    //Broadcast receiver
-    private final BroadcastReceiver UpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-                if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
-                String dataToWrite = intent.getStringExtra("DATA_TO_BT");
-                    writeServer(dataToWrite);     //write server
-                }
-        }
-    };
+     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
 
-    public boolean initialize() {
-        // For API level 18 and above, get a reference to BluetoothAdapter through
-        // BluetoothManager.
-        if (mBluetoothManager == null) {
-            mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-            if (mBluetoothManager == null) {
-                Log.e(TAG, "SPP: Unable to initialize BluetoothManager.");
-                return false;
-            }
-        }
+     //Broadcast variables
 
-        mBluetoothAdapter = mBluetoothManager.getAdapter();
-        if (mBluetoothAdapter == null) {
-            Log.e(TAG, "SPP: Unable to obtain a BluetoothAdapter.");
-            return false;
-        }
+     public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
+     public static final String BROADCAST_ACTION_READ = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
 
-        return true;
-    }
+     private String mDeviceName;
+     private String mDeviceAddress;
 
-    public boolean connect(final String address) {
+     @Override
+     public int onStartCommand(Intent intent, int flags, int startId) {
+     // The service is starting, due to a call to startService()
+     mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+     mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
 
-        if (mBluetoothAdapter == null || address == null) {
-            Log.w(TAG, "SPP: BluetoothAdapter not initialized or unspecified address.");
-            return false;
-        }
+     // Sets up Log messages.
+     Log.v(TAG, "Device Name: " + mDeviceName);
+     Log.v(TAG, "Device Address: "+mDeviceAddress);
 
-        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+     return 1;
+     }
 
-        startServerConnection(device); // start connection
+     @Override
+     public void onCreate() {
+     super.onCreate();
 
-        if (device == null) {
-            Log.w(TAG, "SPP: Device not found.  Unable to connect.");
-            return false;
-        }
-        return true;
-    }
+     Log.e("On Service", "Serial Port Service");
+
+     registerReceiver(UpdateReceiver, null);
+     if (mDeviceAddress != null) {
+
+     // Connect to the SPP server
+     initialize(); // Get bluetooth Adapter
+     boolean result = connect(mDeviceAddress); // Connect and establish communication with the server
+     if (result)
+     Log.d(TAG, "Connect request result=" + result);
+     else
+     Log.e(TAG,"Connect request failed");
+     }
+
+     }
+
+     //Broadcast receiver
+     private final BroadcastReceiver UpdateReceiver = new BroadcastReceiver() {
+     @Override
+     public void onReceive(Context context, Intent intent) {
+     final String action = intent.getAction();
+     if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
+     String dataToWrite = intent.getStringExtra("DATA_TO_BT");
+     writeServer(dataToWrite);     //write server
+     }
+     }
+     };
 
 
-    public void startServerConnection(BluetoothDevice device) {
+     public boolean initialize() {
+     // For API level 18 and above, get a reference to BluetoothAdapter through
+     // BluetoothManager.
+     if (mBluetoothManager == null) {
+     mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+     if (mBluetoothManager == null) {
+     Log.e(TAG, "SPP: Unable to initialize BluetoothManager.");
+     return false;
+     }
+     }
 
-        // Two things are needed to make a connection:
-        //   A MAC address, which we got above.
-        //   A Service ID or UUID.  In this case we are using the
-        //     UUID for SPP.
-        try {
-            mBluetoothSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
-        } catch (IOException e) {
-            Log.e(TAG,"Socket create failed: " + e.getMessage() + ".");
-        }
+     mBluetoothAdapter = mBluetoothManager.getAdapter();
+     if (mBluetoothAdapter == null) {
+     Log.e(TAG, "SPP: Unable to obtain a BluetoothAdapter.");
+     return false;
+     }
 
-        // Discovery is resource intensive.  Make sure it isn't going on
-        // when you attempt to connect and pass your message.
-        mBluetoothAdapter.cancelDiscovery();
+     return true;
+     }
 
-        // Establish the connection.  This will block until it connects.
-        try {
-            mBluetoothSocket.connect();
-            Log.v(TAG,"SSP: Connection established and data link opened");
-        } catch (IOException e) {
-            try {
-               mBluetoothSocket.close();
-            } catch (IOException e2) {
-                Log.e(TAG, "SSP: unable to close socket during connection failure" + e2.getMessage() + ".");
-            }
-        }
+     public boolean connect(final String address) {
 
-        // Create a data stream so we can talk to server.
-        try {
-            outStream =  mBluetoothSocket.getOutputStream();
-        } catch (IOException e) {
-            Log.e(TAG, "SSP: output stream creation failed:" + e.getMessage() + ".");
-        }
+     if (mBluetoothAdapter == null || address == null) {
+     Log.w(TAG, "SPP: BluetoothAdapter not initialized or unspecified address.");
+     return false;
+     }
 
-        // Create an input Stream
-        try {
-            inStream =  mBluetoothSocket.getInputStream();
-        } catch (IOException e) {
-            Log.e(TAG, "SSP: inpuy stream creation failed:" + e.getMessage() + ".");
-        }
+     final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 
-        // Initiate readServer Thread
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                readServer();
-            }
-        }).start();
+     startServerConnection(device); // start connection
 
-    }
+     if (device == null) {
+     Log.w(TAG, "SPP: Device not found.  Unable to connect.");
+     return false;
+     }
+     return true;
+     }
 
-    private void readServer (){
 
-        String receivedMessage = null;
-        byte[] msgReadBuffer = null;
+     public void startServerConnection(BluetoothDevice device) {
 
-        try {
-            inStream.read(msgReadBuffer);
-            receivedMessage=msgReadBuffer.toString();
-        } catch (IOException e) {
-            String msg = "Exception occurred during write: " + e.getMessage();
-            if (address.equals("00:00:00:00:00:00"))
-                msg = msg + ".\n\nUpdate your server address from 00:00:00:00:00:00 to the correct address";
-            msg = msg +  ".\n\nCheck that the SPP UUID: " + MY_UUID.toString() + " exists on server.\n\n";
+     // Two things are needed to make a connection:
+     //   A MAC address, which we got above.
+     //   A Service ID or UUID.  In this case we are using the
+     //     UUID for SPP.
+     try {
+     mBluetoothSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+     } catch (IOException e) {
+     Log.e(TAG,"Socket create failed: " + e.getMessage() + ".");
+     }
 
-            Log.e(TAG,msg);
-        }
-        broadcastUpdate(BROADCAST_ACTION_READ, receivedMessage);
+     // Discovery is resource intensive.  Make sure it isn't going on
+     // when you attempt to connect and pass your message.
+     mBluetoothAdapter.cancelDiscovery();
 
-    }
+     // Establish the connection.  This will block until it connects.
+     try {
+     mBluetoothSocket.connect();
+     Log.v(TAG,"SSP: Connection established and data link opened");
+     } catch (IOException e) {
+     try {
+     mBluetoothSocket.close();
+     } catch (IOException e2) {
+     Log.e(TAG, "SSP: unable to close socket during connection failure" + e2.getMessage() + ".");
+     }
+     }
 
-    private void writeServer(String message){
-        //example
-        byte[] msgWriteBuffer = message.getBytes();
+     // Create a data stream so we can talk to server.
+     try {
+     outStream =  mBluetoothSocket.getOutputStream();
+     } catch (IOException e) {
+     Log.e(TAG, "SSP: output stream creation failed:" + e.getMessage() + ".");
+     }
 
-        try {
-            outStream.write(msgWriteBuffer);
-        } catch (IOException e) {
-            String msg = "Exception occurred during write: " + e.getMessage();
-            if (address.equals("00:00:00:00:00:00"))
-                msg = msg + ".\n\nUpdate your server address from 00:00:00:00:00:00 to the correct address";
-            msg = msg +  ".\n\nCheck that the SPP UUID: " + MY_UUID.toString() + " exists on server.\n\n";
+     // Create an input Stream
+     try {
+     inStream =  mBluetoothSocket.getInputStream();
+     } catch (IOException e) {
+     Log.e(TAG, "SSP: inpuy stream creation failed:" + e.getMessage() + ".");
+     }
 
-            Log.e(TAG,msg);
-        }
-    }
+     // Initiate readServer Thread
+     new Thread(new Runnable() {
+     @Override
+     public void run() {
+     readServer();
+     }
+     }).start();
 
-    private void broadcastUpdate(final String action, final String data) {
-        final Intent intent = new Intent(action);
-        intent.putExtra(BROADCAST_ACTION_READ, data);
-        sendBroadcast(intent);
-    }
+     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
+     private void readServer (){
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
-    } **/
+     String receivedMessage = null;
+     byte[] msgReadBuffer = null;
+
+     try {
+     inStream.read(msgReadBuffer);
+     receivedMessage=msgReadBuffer.toString();
+     } catch (IOException e) {
+     String msg = "Exception occurred during write: " + e.getMessage();
+     if (address.equals("00:00:00:00:00:00"))
+     msg = msg + ".\n\nUpdate your server address from 00:00:00:00:00:00 to the correct address";
+     msg = msg +  ".\n\nCheck that the SPP UUID: " + MY_UUID.toString() + " exists on server.\n\n";
+
+     Log.e(TAG,msg);
+     }
+     broadcastUpdate(BROADCAST_ACTION_READ, receivedMessage);
+
+     }
+
+     private void writeServer(String message){
+     //example
+     byte[] msgWriteBuffer = message.getBytes();
+
+     try {
+     outStream.write(msgWriteBuffer);
+     } catch (IOException e) {
+     String msg = "Exception occurred during write: " + e.getMessage();
+     if (address.equals("00:00:00:00:00:00"))
+     msg = msg + ".\n\nUpdate your server address from 00:00:00:00:00:00 to the correct address";
+     msg = msg +  ".\n\nCheck that the SPP UUID: " + MY_UUID.toString() + " exists on server.\n\n";
+
+     Log.e(TAG,msg);
+     }
+     }
+
+     private void broadcastUpdate(final String action, final String data) {
+     final Intent intent = new Intent(action);
+     intent.putExtra(BROADCAST_ACTION_READ, data);
+     sendBroadcast(intent);
+     }
+
+     @Override
+     public void onDestroy() {
+     super.onDestroy();
+     }
+
+     @Override
+     public IBinder onBind(Intent intent) {
+     // TODO: Return the communication channel to the service.
+     throw new UnsupportedOperationException("Not yet implemented");
+     } **/
 
     //----------------------------------------------------------------------
 
     //Custom GATT profile - CÓDIGO ATUAL
     // Coisas a saber:
-        // O BLE 4.0 é constituido por perfis GATT (neste caso é o peril por nós criado: GATT custom)
-        // Cada perfil tem um cinjunto de SERVICES, no caso do sensor tinhamos um serviço para a leitura do HR,
-        // outro para leitura da bateria, etc. Neste caso temos apenas um serviço para tudo (RADIO_MODULE_SERVICE),
-        // as funcionalidades disponiveis por esses serviços chama-se CHARACTERISTIC e é isto que nos interessa.
-        // Cada serviço e caracteritica tem um código UUID a si associado, este código tem de ser o mesmo no android e no
-        // modulo de radio e é ele que permite identificar que serviços e caracteristicas estamos a usar no momento. Os UUIDs
-        // encontram-se definidos na classe SampleGattAttributes.
-        // As caracteriticas do RADIO_MODULE_SERVICE que nos interessam são a TX_DATA (para envio), a RX_DATA(para recepção)
-        // e a BATT_LEVEL (para leitura de bateria)[não necessário implementar]. O grupo de HW definiu mais que podem ser consultadas
-        // no documento que te vou enviar, mas não devemos precisar delas. (Ver SampleGattAttributes com os UUIDS das caracteristicas)
-        // Finalmente cada caracteristica é constituida por VALUES(informação sobre caracteristica - readable/writable/suporte para notificações -
-        // ou seja: dados recebidos ou a enviar e notificações) e por DESCRIPTORS ( que permitem a configuração de valores especificos e a indicação
-        // do tipo de valores).
-        //
-        // Tens isto melhor explicado neste link: http://possiblemobile.com/2013/12/bluetooth-smart-for-android/
-        //
-        // Falta apenas dizer que o android está a funcionar em modulo CENTRAL, o que siginifica que é um cliente que se conecta a um PERIPHERAL
-        // (modulo de rádio) para leitura e escrita de dados, numa lógica de cliente-servidor.
-        //
-        // Para esta implementação, os dados são enviados em pacotes de 20bytes. Não te intressa o que vai lá dentro, pois essa intepretação é feita noutros sitios,
-        // Sempre que exista algo para enviar, colocam-se os dados num pacotes de 20 bytes e envia-se, na recepção, vamos receber pacotes de 20 bytes e passá-los à aplicação.
-        // Qualquer alteração no tamanho dos pacotes tem de ser discutida com o grupo de gestão e HW.
-        // No entanto, convém verificares com o francisco se a aplicação está preparada para receber estes pacotes de 20bytes, caso não esteja, fazes o parse necessário.
-        //
-        // Em principio não precisas de te preocupar com mais nenhuma parte do código, pois todas as alterações necessárias serão feitas nesta classe.
-        // O teu trabalho é basicamente acabar de implementar a leitura e escrita de caracteristicas.
-        //
-        // Ver link: http://stackoverflow.com/questions/24008249/android-ble-read-and-write-characteristics
-        //
-        // Qualquer problema relacioando com estrutra do perfil GATT custom, terá de ser discutido com o grupo de gestão e de HW. Tem atenção que os UUIDS, podem ser
-        // alterados, entre outras coisas. A lógica no entanto, deverá ser sempre a mesma.
-        //
-        // Finalmente, vai ser praticamente impossível testar isto, mas se o conseguires fazer, óptimo.
-        //
-        // Vê com atenção o código até ao fim e todos os comentários que fiz, a inicio é chato, mas depois de perceberes torna-se simples.
+    // O BLE 4.0 é constituido por perfis GATT (neste caso é o peril por nós criado: GATT custom)
+    // Cada perfil tem um cinjunto de SERVICES, no caso do sensor tinhamos um serviço para a leitura do HR,
+    // outro para leitura da bateria, etc. Neste caso temos apenas um serviço para tudo (RADIO_MODULE_SERVICE),
+    // as funcionalidades disponiveis por esses serviços chama-se CHARACTERISTIC e é isto que nos interessa.
+    // Cada serviço e caracteritica tem um código UUID a si associado, este código tem de ser o mesmo no android e no
+    // modulo de radio e é ele que permite identificar que serviços e caracteristicas estamos a usar no momento. Os UUIDs
+    // encontram-se definidos na classe SampleGattAttributes.
+    // As caracteriticas do RADIO_MODULE_SERVICE que nos interessam são a TX_DATA (para envio), a RX_DATA(para recepção)
+    // e a BATT_LEVEL (para leitura de bateria)[não necessário implementar]. O grupo de HW definiu mais que podem ser consultadas
+    // no documento que te vou enviar, mas não devemos precisar delas. (Ver SampleGattAttributes com os UUIDS das caracteristicas)
+    // Finalmente cada caracteristica é constituida por VALUES(informação sobre caracteristica - readable/writable/suporte para notificações -
+    // ou seja: dados recebidos ou a enviar e notificações) e por DESCRIPTORS ( que permitem a configuração de valores especificos e a indicação
+    // do tipo de valores).
+    //
+    // Tens isto melhor explicado neste link: http://possiblemobile.com/2013/12/bluetooth-smart-for-android/
+    //
+    // Falta apenas dizer que o android está a funcionar em modulo CENTRAL, o que siginifica que é um cliente que se conecta a um PERIPHERAL
+    // (modulo de rádio) para leitura e escrita de dados, numa lógica de cliente-servidor.
+    //
+    // Para esta implementação, os dados são enviados em pacotes de 20bytes. Não te intressa o que vai lá dentro, pois essa intepretação é feita noutros sitios,
+    // Sempre que exista algo para enviar, colocam-se os dados num pacotes de 20 bytes e envia-se, na recepção, vamos receber pacotes de 20 bytes e passá-los à aplicação.
+    // Qualquer alteração no tamanho dos pacotes tem de ser discutida com o grupo de gestão e HW.
+    // No entanto, convém verificares com o francisco se a aplicação está preparada para receber estes pacotes de 20bytes, caso não esteja, fazes o parse necessário.
+    //
+    // Em principio não precisas de te preocupar com mais nenhuma parte do código, pois todas as alterações necessárias serão feitas nesta classe.
+    // O teu trabalho é basicamente acabar de implementar a leitura e escrita de caracteristicas.
+    //
+    // Ver link: http://stackoverflow.com/questions/24008249/android-ble-read-and-write-characteristics
+    //
+    // Qualquer problema relacioando com estrutra do perfil GATT custom, terá de ser discutido com o grupo de gestão e de HW. Tem atenção que os UUIDS, podem ser
+    // alterados, entre outras coisas. A lógica no entanto, deverá ser sempre a mesma.
+    //
+    // Finalmente, vai ser praticamente impossível testar isto, mas se o conseguires fazer, óptimo.
+    //
+    // Vê com atenção o código até ao fim e todos os comentários que fiz, a inicio é chato, mas depois de perceberes torna-se simples.
 
-        // No final lê as coisas a fazer, em baixo, e bom trabalho. :)
+    // No final lê as coisas a fazer, em baixo, e bom trabalho. :)
 
 
 
@@ -366,7 +374,6 @@ public class SerialPortService extends Service {
     private static final int STATE_CONNECTED = 2;
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
-
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -400,14 +407,10 @@ public class SerialPortService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
 
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                BluetoothGattService rblService = mBluetoothGatt.getService(UUID.fromString(SampleGattAttributes.RADIO_MODULE_SERVICE));
-                if (rblService == null) {
-                    Log.e(TAG, "RBL service not found!");
-                    return;
-                }
-                Log.w(TAG, "TEMOS SERVICO " + status);
 
+
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.w(TAG, "nooooo if: " + status);
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED_RADIO);
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
@@ -420,15 +423,21 @@ public class SerialPortService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.e(":::::DEBUG::","ON__onCharacteristicRead");
                 broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
+
+                Log.e(":::::DEBUG::","ON__onCharacteristicRead");
+            }
+            else
+            {
+                Log.e("::::EDGAR", "OI");
             }
         }
 
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_DATA_WRITTEN_RADIO, characteristic);
+
+
             }
         }
 
@@ -486,6 +495,15 @@ public class SerialPortService extends Service {
 
     //---------------------------------------------------------------
 
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
+    }
+
     /**Broadcast receiver, receives data to be sent to the radio module from the app
      *
      * @dataToWrite - String stores the data received from the app, in order to send it to the radio module
@@ -497,8 +515,13 @@ public class SerialPortService extends Service {
     public void onCreate() {
         super.onCreate();
 
-//        registerReceiver(UpdateReceiver, null);
+        //registerReceiver(UpdateReceiver, null);
+
         registerReceiver(UpdateReceiver, makeGattUpdateIntentFilter());
+        /*if (mBluetoothLeService != null) {
+            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            Log.d(TAG, "Connect request result=" + result);
+        }*/
 
     }
 
@@ -576,14 +599,14 @@ public class SerialPortService extends Service {
 
             CS.send_To_Protocol(new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, (byte)0, dados_finais));
 
-            intent.putExtra(RX_DATA, String.valueOf(dados_finais));
+//            intent.putExtra(RX_DATA, String.valueOf(dados_finais));
 
 
         }
         else if(UUID_BATTERY_LEVEL_RADIO.equals(characteristic.getUuid())){ //battery levele of Radio module -
-                                                                        // não está definida como é feita a leitura do nivel de bateira
-                                                                        // assumi que é igual ao sensor HR -  podes IGNORAR a leitura da bateria
-                                                                        // porque não está implementado nenhum alerta na nossa APP
+            // não está definida como é feita a leitura do nivel de bateira
+            // assumi que é igual ao sensor HR -  podes IGNORAR a leitura da bateria
+            // porque não está implementado nenhum alerta na nossa APP
             Log.v(TAG, "characteristic.getStingValue(0) = "+ characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
             final int battery = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
             intent.putExtra(RADIO_BATTERY_DATA, String.valueOf(battery));
@@ -734,19 +757,19 @@ public class SerialPortService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-      int tamanho = dataToWrite.length();
-      int i =0;
-      byte[] mensagem = new byte[20];
-      mensagem = dataToWrite.getBytes();
-      mensagem[tamanho] = 0x0A;
+        int tamanho = dataToWrite.length();
+        int i =0;
+        byte[] mensagem = new byte[20];
+        mensagem = dataToWrite.getBytes();
+        mensagem[tamanho] = 0x0A;
 
-      if(tamanho < 20)
-      {
-          for (i=tamanho+1; i < 20; i++ )
-          {
-              mensagem[i] =0x00;
-          }
-      }
+        if(tamanho < 20)
+        {
+            for (i=tamanho+1; i < 20; i++ )
+            {
+                mensagem[i] =0x00;
+            }
+        }
         characteristic.setValue(mensagem);
         mBluetoothGatt.writeCharacteristic(characteristic);
 
@@ -812,7 +835,7 @@ public class SerialPortService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-       // mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
         // Exemplo notificações Heart Rate - verificar se é necessário ter notificações neste caso.
         // This is specific to Heart Rate Measurement.
@@ -845,12 +868,4 @@ public class SerialPortService extends Service {
         }
     }
 
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
-        return intentFilter;
-    }
 }

@@ -12,7 +12,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+
+    <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
 
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -90,7 +91,6 @@
             android:exported="true"
             android:screenOrientation="portrait" >
         </service>
-
         <service
             android:name=".Service.BLE.SerialPortService"
             android:enabled="true"
@@ -147,13 +147,16 @@
             android:name=".Communication.Client_Socket$MyBroadcastReceiver_normal_2"
             android:exported="false" >
         </receiver>
-        <receiver android:name=".Communication.NetworkChangeReceiver" android:label="NetworkChangeReceiver">
+        <receiver
+            android:name=".Communication.NetworkChangeReceiver"
+            android:label="NetworkChangeReceiver" >
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE">
-                    <action android:name="android.net.wifi.WIFI_STATE_CHANGED">
-                    </action></action></intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" >
+                    <action android:name="android.net.wifi.WIFI_STATE_CHANGED" >
+                    </action>
+                </action>
+            </intent-filter>
         </receiver>
-
 
         <service
             android:name=".Service.BLE.RadioControlService"
@@ -172,6 +175,11 @@
         </service>
         <service
             android:name=".Communication.ProtocoloCommunication"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+        <service
+            android:name=".Service.BLE.BLESimulatorConnection"
             android:enabled="true"
             android:exported="true" >
         </service>
