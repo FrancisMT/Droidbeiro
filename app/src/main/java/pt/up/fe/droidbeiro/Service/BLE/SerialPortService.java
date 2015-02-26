@@ -1,10 +1,11 @@
 package pt.up.fe.droidbeiro.Service.BLE;
 
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
@@ -16,25 +17,13 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Calendar;
-import java.util.List;
-import java.util.UUID;
-
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.util.Log;
+
+import java.util.UUID;
 
 import protocolapi.rqst;
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Communication.ProtCommConst;
-import pt.up.fe.droidbeiro.Messages.ExitAlertMessage;
-import pt.up.fe.droidbeiro.Messages.HeartRateAlertMessage;
-import pt.up.fe.droidbeiro.Messages.HeartRateMessage;
 
 
 /**
@@ -411,17 +400,14 @@ public class SerialPortService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
 
-
-
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.w(TAG, "nooooo if: " + status);
-                try {
-                    Thread.sleep(55000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                BluetoothGattService rblService = mBluetoothGatt.getService(UUID.fromString(SampleGattAttributes.RADIO_MODULE_SERVICE));
+                if (rblService == null) {
+                    Log.e(TAG, "RBL service not found!");
+                    return;
                 }
+                Log.w(TAG, "TEMOS SERVICO " + status);
 
-               Log.w(TAG, "XANXAISJXASJXKA");
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED_RADIO);
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
@@ -512,7 +498,8 @@ public class SerialPortService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        registerReceiver(UpdateReceiver, null);
+//        registerReceiver(UpdateReceiver, null);
+        registerReceiver(UpdateReceiver, makeGattUpdateIntentFilter());
 
     }
 
@@ -859,4 +846,12 @@ public class SerialPortService extends Service {
         }
     }
 
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
+    }
 }
