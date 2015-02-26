@@ -60,6 +60,7 @@ import G5.Sender.*;
 import G5.SharedSingletons.*;
 import G5.Util.*;
 import pt.up.fe.droidbeiro.Service.BLE.BLESimulatorConnection;
+import pt.up.fe.droidbeiro.Service.BLE.SerialPortService;
 
 public class Client_Socket extends Service{
 
@@ -104,7 +105,7 @@ public class Client_Socket extends Service{
     /**
      * Bluetooth Communication
      */
-    public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
+    public static final String message_to_send=null;
 
     /**
      * Backend Message Types
@@ -955,6 +956,13 @@ public class Client_Socket extends Service{
         }
     }
 
+    private void broadcastUpdate(final String action, final String data) {
+        final Intent intent = new Intent(action);
+        intent.putExtra("DATA_TO_BT", data);
+        sendBroadcast(intent);
+    }
+
+
     /**
      * Method to process medium buffer and distribute requests.
      */
@@ -997,9 +1005,10 @@ public class Client_Socket extends Service{
                else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
                    //Creat request to Foward to BLUETOOTH
 
+
+                  /*
                   Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through the RADIO");
                   BLESimulatorConnection BLESC = BLESimulatorConnection.getInstance();
-
 
                   //Write to HW Socket
                   try {
@@ -1007,6 +1016,9 @@ public class Client_Socket extends Service{
                   } catch (IOException e) {
                       e.printStackTrace();
                   }
+                  */
+
+                  broadcastUpdate(SerialPortService.BROADCAST_ACTION_WRITE, new String(response.packet));
 
 
               }
@@ -1451,11 +1463,6 @@ public class Client_Socket extends Service{
         notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
     }
 
-    private void broadcastUpdate(final String action, final String data) {
-        final Intent intent = new Intent(action);
-        intent.putExtra("DATA_TO_BT", data);
-        sendBroadcast(intent);
-    }
 
     public class MyBroadcastReceiver extends BroadcastReceiver{
 

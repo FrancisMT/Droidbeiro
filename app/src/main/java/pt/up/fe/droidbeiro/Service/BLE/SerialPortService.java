@@ -497,7 +497,9 @@ public class SerialPortService extends Service {
             Log.e("DADADADA", "DUDUDUDUDU");
         }
     };
+
     public static String dataToWrite = "empty data";
+
     private final BroadcastReceiver UpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -622,8 +624,9 @@ public class SerialPortService extends Service {
 
             //----- Fim da parte adicionada pelo francisco
 
-
-            CS.send_To_Protocol(new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, (byte)0, dados_finais));
+            if (CS.running) {
+                CS.send_To_Protocol(new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, (byte) 0, dados_finais));
+            }
 
 //            intent.putExtra(RX_DATA, String.valueOf(dados_finais));
 
