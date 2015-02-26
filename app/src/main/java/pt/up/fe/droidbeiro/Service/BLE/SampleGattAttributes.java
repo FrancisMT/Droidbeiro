@@ -25,8 +25,8 @@ public class SampleGattAttributes {
     //public static String RADIO_MODULE_SERVICE ="0x713d-0000-503e4c75ba943148f18d941e";
     //public static String RADIO_MODULE_SERVICE ="0x1E,0x94,0x8D,0xF1,0x48,0x31,0x94,0xBA,0x75,0x4C,0x3E,0x50,0x00,0x00,0x3D,0x71";
     public static String RADIO_MODULE_SERVICE ="713D0000-503E-4C75-BA94-3148F18D941E";
-    public static String TX_DATA_CHAR_UUID = "713D0001-503E-4C75-BA94-3148F18D941E";
-    public static String RX_DATA_CHAR_UUID = "713D0002-503E-4C75-BA94-3148F18D941E";
+    public static String RX_DATA_CHAR_UUID = "713D0001-503E-4C75-BA94-3148F18D941E";
+    public static String TX_DATA_CHAR_UUID = "713D0002-503E-4C75-BA94-3148F18D941E";
     public static String BATT_LEVEL_CHAR_UUID = "713D0005-503E-4C75-BA94-3148F18D941E";
     static {
         // Sample Services.

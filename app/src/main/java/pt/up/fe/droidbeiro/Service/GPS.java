@@ -125,11 +125,11 @@ public class GPS extends Service {
 
     private void broadcastUpdate(final String action){
         final Intent intent = new Intent(action);
-        //Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         /**
          * For Debuging
          */
-        Location location = lManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        //Location location = lManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
         if(location != null) {
             longitude = location.getLongitude();

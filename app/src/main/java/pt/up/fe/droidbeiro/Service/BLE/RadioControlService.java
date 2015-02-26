@@ -9,10 +9,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
 import java.util.UUID;
+
+
 
 public class RadioControlService extends Service {
     public static final String BROADCAST_ACTION_RADIO = "com.example.bluetooth.le.RADIO_CONTROL_SERVICE_CONNECTED";
@@ -23,6 +26,8 @@ public class RadioControlService extends Service {
     private String mDeviceName;
     private String mDeviceAddress;
     private SerialPortService mBluetoothLeService;
+    public int charaPropRX;
+    public BluetoothGattCharacteristic RxData;
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -89,7 +94,7 @@ public class RadioControlService extends Service {
         final BluetoothGattService RadioService = mBluetoothLeService.
                 getGattServices(UUID.fromString(SampleGattAttributes.RADIO_MODULE_SERVICE));
 
-        final BluetoothGattCharacteristic RxData = RadioService.
+        RxData = RadioService.
                 getCharacteristic(UUID.fromString(SampleGattAttributes.RX_DATA_CHAR_UUID));
 
         final BluetoothGattCharacteristic TxData = RadioService.
@@ -98,12 +103,17 @@ public class RadioControlService extends Service {
         final BluetoothGattCharacteristic RadioBatData = RadioService.
                 getCharacteristic(UUID.fromString(SampleGattAttributes.BATT_LEVEL_CHAR_UUID));
 
-        final int charaPropRX = RxData.getProperties();
+        charaPropRX = RxData.getProperties();
         final int charaPropTX = TxData.getProperties();
-        final int charaPropBat = RadioBatData.getProperties();
+        final int charaPropRx = RxData.getProperties();
+        //final int charaPropBat = RadioBatData.getProperties();
 
-        readGATTCharacteristic(charaPropRX, RxData);
-        readGATTCharacteristic(charaPropBat, RadioBatData);
+        Log.e("DEBUG", "on getFeatures");
+        writeGATTCharacteristic(charaPropTX, TxData);
+
+        readGATTCharacteristic(charaPropRx, RxData);
+
+        // readGATTCharacteristic(charaPropBat, RadioBatData);
 
         //imcomplete - everything is done in the SerialPortService Class.
 
@@ -119,8 +129,29 @@ public class RadioControlService extends Service {
                         mNotifyCharacteristic, false);
                 mNotifyCharacteristic = null;
             }
+            Log.e("1","1");
             mBluetoothLeService.readCharacteristic(characteristic);
         }
+
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+            mNotifyCharacteristic = characteristic;
+            mBluetoothLeService.setCharacteristicNotification(
+                    characteristic, true);
+        }
+    }
+
+    private void writeGATTCharacteristic(int charaProp, BluetoothGattCharacteristic characteristic){
+
+        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+            if (mNotifyCharacteristic != null) {
+                mBluetoothLeService.setCharacteristicNotification(
+                        mNotifyCharacteristic, false);
+                mNotifyCharacteristic = null;
+            }
+            Log.e("2","2");
+            mBluetoothLeService.writeCharacteristic(characteristic);
+        }
+
         if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
             mNotifyCharacteristic = characteristic;
             mBluetoothLeService.setCharacteristicNotification(
@@ -188,4 +219,6 @@ public class RadioControlService extends Service {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
+
 }

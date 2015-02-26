@@ -41,6 +41,7 @@ import androidBackendAPI.Packet;
 import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
 import pt.up.fe.droidbeiro.Messages.DenyIDMessage;
 import pt.up.fe.droidbeiro.Messages.DenyRequestMessage;
+import pt.up.fe.droidbeiro.Presentation.BombeiroMain;
 import pt.up.fe.droidbeiro.Presentation.ChefeLF;
 import pt.up.fe.droidbeiro.Presentation.Compass;
 import pt.up.fe.droidbeiro.R;
@@ -222,13 +223,6 @@ public class Client_Socket extends Service{
         StrictMode.setThreadPolicy(policy);
 
         ConnectionData currentCD = ConnectionData.getInstance();
-
-        /**
-         * BLE Simulator Service
-         */
-        Intent HW_Connection = new Intent(Client_Socket.this, BLESimulatorConnection.class);
-        startService(HW_Connection);
-
 
         /**
          * Backend Thread
@@ -444,6 +438,8 @@ public class Client_Socket extends Service{
                         out = new ObjectOutputStream(cSocket.getOutputStream());
                         in = new ObjectInputStream(cSocket.getInputStream());
 
+
+
                         /*************************/
                         while (running) {
 
@@ -492,6 +488,10 @@ public class Client_Socket extends Service{
                                 myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
                                 myNotification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, pendingIntent);
                                 notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
+
+
+
+
                             }
                             //Application already has a Firefighter_ID
                             else if (msg_type == cc_sends_ff_id_msg_type && Firefighter_ID != (byte) 0) {

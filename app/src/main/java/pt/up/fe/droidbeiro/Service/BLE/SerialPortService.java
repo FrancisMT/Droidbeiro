@@ -98,7 +98,12 @@ public class SerialPortService extends Service {
     public final static UUID UUID_RX_DATA = UUID.fromString(SampleGattAttributes.RX_DATA_CHAR_UUID);
     public final static UUID UUID_BATTERY_LEVEL_RADIO = UUID.fromString(SampleGattAttributes.BATT_LEVEL_CHAR_UUID);
     public static final String BROADCAST_ACTION_WRITE = "com.example.bluetooth.le.SERIAL_PORT_WRITE";
+    public final static String ACTION_DATA_WRITTEN_RADIO =
+            "com.example.bluetooth.le.ACTION_DATA_WRITTEN_RADIO";
+    //protected static final UUID CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
     /**
+     *
      // Well known SPP UUID
      private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // Define according to the server specification
      // Insert your server's MAC address
@@ -385,12 +390,13 @@ public class SerialPortService extends Service {
                 Log.e("RADIO_BT", "Connected to GATT server.");
 
                 doBindService();
-
+/*
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                */
 
                 // Attempts to discover services after successful connection.
                 Log.e("RADIO_BT", "Attempting to start service discovery:" +
@@ -403,7 +409,7 @@ public class SerialPortService extends Service {
                 broadcastUpdate(intentAction);
             }
         }
-
+/*
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
 
@@ -417,15 +423,56 @@ public class SerialPortService extends Service {
 
             }
         }
+*/
+
+        @Override
+        public void onServicesDiscovered(final BluetoothGatt gatt, final int status) {
+            // this will get called after the client initiates a BluetoothGatt.discoverServices() call
+            BluetoothGattService service = gatt.getService(UUID_SERVICE);
+            if (service != null) {
+                BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID_RX_DATA);
+                if (characteristic != null) {
+                    if (gatt.setCharacteristicNotification(characteristic, true) == true) {
+                        Log.d("gatt", "SUCCESS!");
+                    } else {
+                        Log.d("gatt", "FAILURE!");
+                    }
+                    BluetoothGattDescriptor descriptor = characteristic.getDescriptors().get(0);
+                    if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE)) {
+                        // It's an indicate characteristic
+                        Log.d("onServicesDiscovered", "Characteristic (" + characteristic.getUuid() + ") is INDICATE");
+                        if (descriptor != null) {
+                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+                            gatt.writeDescriptor(descriptor);
+                        }
+                    } else {
+                        // It's a notify characteristic
+                        Log.d("onServicesDiscovered", "Characteristic (" + characteristic.getUuid() + ") is NOTIFY");
+                        if (descriptor != null) {
+                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                            gatt.writeDescriptor(descriptor);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status)
+        {
+            Log.e("onDescriptorRead","Read method gets called.");
+        }
+
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
 
-                Log.e(":::::DEBUG::","ON__onCharacteristicRead");
+                int mensagem;
+                //mensagem = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
+                Log.e(":::::DEBUG::","ON__onCharacteristicRead" );
+                broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
             }
             else
             {
@@ -447,6 +494,7 @@ public class SerialPortService extends Service {
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
+            Log.e("DADADADA", "DUDUDUDUDU");
         }
     };
     public static String dataToWrite = "empty data";
@@ -534,12 +582,14 @@ public class SerialPortService extends Service {
     }
 
     private void broadcastUpdate(final String action) {
+
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
     }
 
     private void broadcastUpdate(final String action, // LEITURA DE DADOS
                                  final BluetoothGattCharacteristic characteristic) {
+        Log.e("Entrei antes intent::","broadcastUpdate_SERIALPORTSERVICE");
         final Intent intent = new Intent(action);
 
         // This is special handling for the RX data read  & Battery Level profile.
@@ -557,42 +607,18 @@ public class SerialPortService extends Service {
             int tamanho;
             int i;
 
-            for(tamanho=0; mensagem[tamanho]!= 0x0A; tamanho++)
+            for(tamanho=0; tamanho<20 && mensagem[tamanho]!= 0x0A; tamanho++)
             {
+                Log.e("DEBUG::","Tamnho=" + tamanho);
             }
-            byte[] dados_finais = new byte[tamanho+1];
 
-            for(i=0; i< tamanho+1; tamanho++ )
+
+            byte[] dados_finais = new byte[tamanho];
+
+            for(i=0; i< tamanho; tamanho++ )
             {
                 dados_finais[i] = mensagem[i];
             }
-
-
-/*
-            //------ Parte adicionada pelo francisco. Passa dados recebidos à aplicação
-            // Verificar com ele como passar os dados recebidos.
-            // o código abaixo é referente ao heartRate e tem de ser adapatado para O RX_DATA.
-
-            if (CS.isAfter_login()) {
-                Calendar cal = Calendar.getInstance();
-                int seconds = cal.get(Calendar.SECOND);
-
-                if ((seconds % 10) == 0) {
-                    Log.d(TAG, String.format("Received heart rate: %d", Integer.parseInt(RxData)));
-
-                    HeartRateMessage hr_msg = new HeartRateMessage(CS.getFirefighter_ID(), Integer.parseInt(RxData));
-                    try {
-                        hr_msg.build_heartrate_packet();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        CS.send_packet(hr_msg.getHeartrate_packet());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }*/
 
             //----- Fim da parte adicionada pelo francisco
 
@@ -746,8 +772,14 @@ public class SerialPortService extends Service {
             return;
         }else{
             Log.e("DEBUG::","ON__readCharacteristic");
+
         }
-        mBluetoothGatt.readCharacteristic(characteristic);
+
+
+        if (mBluetoothGatt.readCharacteristic(characteristic)==false){
+            Log.e("DEBUG","readCharacteristic is FALSE");
+        }
+
     }
 
     /** Write characteristic*/ // VERIFICAR! Verificar se é necessário adicionar onCharacteriticisWrite e/ou notificações.
@@ -757,10 +789,17 @@ public class SerialPortService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
+
+        Log.e("BUU","BUU");
         int tamanho = dataToWrite.length();
+        Log.e("Tamanho",String.valueOf(tamanho));
         int i =0;
         byte[] mensagem = new byte[20];
-        mensagem = dataToWrite.getBytes();
+
+        for(i=0; i< tamanho; i++) {
+            mensagem[i] = dataToWrite.getBytes()[i];
+        }
+
         mensagem[tamanho] = 0x0A;
 
         if(tamanho < 20)
@@ -771,7 +810,9 @@ public class SerialPortService extends Service {
             }
         }
         characteristic.setValue(mensagem);
+        Log.e("OII","jsakdajs");
         mBluetoothGatt.writeCharacteristic(characteristic);
+        Log.e("OLA", "SERÀ QUE MANDEI ALgUMA ");
 
         /*
         if (Long.valueOf( String.valueOf(dataToWrite.length()))  > DEFAULT_BYTES_IN_CONTINUE_PACKET)
@@ -823,6 +864,9 @@ public class SerialPortService extends Service {
     */
     }
 
+
+    protected static final UUID CHARACTERISTIC_UPDATE_NOTIFICATION_DESCRIPTOR_UUID = UUID.fromString("713D0002-503E-4C75-BA94-3148F18D941E");
+
     /**
      * Enables or disables notification on a give characteristic.
      *
@@ -835,18 +879,11 @@ public class SerialPortService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        // Exemplo notificações Heart Rate - verificar se é necessário ter notificações neste caso.
-        // This is specific to Heart Rate Measurement.
-        /*
-        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                    UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            mBluetoothGatt.writeDescriptor(descriptor);
-        }
-        */
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        mBluetoothGatt.writeDescriptor(descriptor);
     }
 
     /**

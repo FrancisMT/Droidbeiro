@@ -34,7 +34,7 @@ public class BLESimulatorConnection extends Service {
      * HW Simultator Connection data
      */
     private static final int hw_port=5434;
-    private static String hw_addr=null;
+    private static String hw_addr;
     private InetAddress serverAddr;
     private static boolean hw_server_running=false;
 
@@ -78,7 +78,7 @@ public class BLESimulatorConnection extends Service {
          * Start HW communication Thread
          */
         ConnectionData CD = ConnectionData.getInstance();
-        this.hw_addr="172.30.27.136";//CD.getSERVER_IP();
+        this.hw_addr="";//CD.getSERVER_IP();
 
         Runnable hw_comm = new connect_HW_socket();
         new Thread(hw_comm).start();
@@ -99,7 +99,6 @@ public class BLESimulatorConnection extends Service {
                     Log.e("HW Client", "C: Connecting...::" + hw_addr);
 
                     hwSimSocket = new Socket(serverAddr, hw_port);
-                    hwSimSocket.setKeepAlive(true);
 
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
@@ -149,8 +148,9 @@ public class BLESimulatorConnection extends Service {
 
         Log.e(">>DEBUG::","Sending Message to the Hardware Simulator=="+Arrays.toString(msg));
 
-        hwOutput.println(msg);
-        hwOutput.flush();
+        OutputStream os = this.hwSimSocket.getOutputStream();
+        os.write(msg);
+        os.flush();
     }
 
 
