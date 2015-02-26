@@ -595,6 +595,20 @@ public class ChefeLF extends Activity implements SensorEventListener {
                 connection_Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(connection_Intent);
                 return true;
+
+
+            case R.id.gsm:
+
+                if (CS.getGSM_Status()){
+                    CS.setGSM(false);
+                    Toast.makeText(getApplicationContext(), "GSM desactivado", Toast.LENGTH_LONG).show();
+                }else{
+                    CS.setGSM(true);
+                    Toast.makeText(getApplicationContext(), "GSM activado", Toast.LENGTH_LONG).show();
+                }
+
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

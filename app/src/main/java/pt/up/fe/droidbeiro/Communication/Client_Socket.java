@@ -58,6 +58,7 @@ import G5.Routing.*;
 import G5.Sender.*;
 import G5.SharedSingletons.*;
 import G5.Util.*;
+import pt.up.fe.droidbeiro.Service.BLE.BLESimulatorConnection;
 
 public class Client_Socket extends Service{
 
@@ -221,6 +222,13 @@ public class Client_Socket extends Service{
         StrictMode.setThreadPolicy(policy);
 
         ConnectionData currentCD = ConnectionData.getInstance();
+
+        /**
+         * BLE Simulator Service
+         */
+        Intent HW_Connection = new Intent(Client_Socket.this, BLESimulatorConnection.class);
+        startService(HW_Connection);
+
 
         /**
          * Backend Thread
@@ -399,6 +407,11 @@ public class Client_Socket extends Service{
     public static void cancel_CountDownTimer_pred_msg() {
         countDownTimer_pred_msg.cancel();
     }
+
+    public static boolean getGSM_Status(){
+        return GSM_Status;
+    }
+
     /***********************************************************/
 
     /**
@@ -426,7 +439,7 @@ public class Client_Socket extends Service{
                     }
 
                     if (cSocket.isConnected()) {
-                        Log.e("TCP Client", "C: Connected!");
+                            Log.e("TCP Client", "C: Connected!");
 
                         out = new ObjectOutputStream(cSocket.getOutputStream());
                         in = new ObjectInputStream(cSocket.getInputStream());
@@ -959,7 +972,7 @@ public class Client_Socket extends Service{
                 Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message");
 
                 //Send to Backend through GSM
-              // if (response.spec == ProtCommConst.RQST_SPEC_ANDR_GSM){
+              if (response.spec == ProtCommConst.RQST_SPEC_ANDR_GSM){
 
                     Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through GSM");
 
@@ -978,23 +991,29 @@ public class Client_Socket extends Service{
                         e.printStackTrace();
                     }
 
-//               }
+               }
 
                 //Send to Backend through RADIO
-               /* else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
+               else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
                    //Creat request to Foward to BLUETOOTH
 
-                   Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through the RADIO");
+                  Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through the RADIO");
+                  BLESimulatorConnection BLESC = BLESimulatorConnection.getInstance();
 
-                   String data_to_bt = new String(response.packet);
 
-                   broadcastUpdate(BROADCAST_ACTION_WRITE, data_to_bt);
+                  //Write to HW Socket
+                  try {
+                      BLESC.sendDatagramThroughNetwork(response.packet);
+                  } catch (IOException e) {
+                      e.printStackTrace();
+                  }
 
-               }
+
+              }
 
                 else{
                     Log.e("Error:","request.spec is invalid");
-                }*/
+                }
             }
 
             //The protocol unpacks a message and gives it to the application

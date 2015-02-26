@@ -11,4 +11,7 @@
     <item android:id="@+id/connection"
         android:title="Mudar Centro Controlo"
         android:showAsAction="never" />
+    <item android:id="@+id/gsm"
+        android:title="Mudar Estado GSM"
+        android:showAsAction="never" />
 </menu>
