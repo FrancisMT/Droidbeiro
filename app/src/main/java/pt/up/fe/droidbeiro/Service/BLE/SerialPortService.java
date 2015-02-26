@@ -420,9 +420,8 @@ public class SerialPortService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
-
                 Log.e(":::::DEBUG::","ON__onCharacteristicRead");
+                broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
             }
         }
 
