@@ -278,7 +278,7 @@ public class ProtocolRequestProcessing extends Service {
                 Packet pck_received = new Packet();
                 pck_received.packetContent=response.packet;
 
-                CS.process_local_info(pck_received);
+                //CS.process_local_info(pck_received);
 
 
             }

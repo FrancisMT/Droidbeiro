@@ -85,7 +85,7 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 21 Platform (1)" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="Protocol_G5_v9" level="project" />
+    <orderEntry type="library" exported="" name="Protocol_G5_Final_v1" level="project" />
   </component>
 </module>
 

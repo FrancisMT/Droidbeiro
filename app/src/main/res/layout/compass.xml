@@ -10,15 +10,6 @@
     android:background="#A5C0CC"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Bússola"
-        android:textColor="@color/white"
-        android:textSize="30sp"
-        android:layout_gravity="center_horizontal"
-        android:layout_centerHorizontal="true"/>
-
 
     <ImageView
         android:id="@+id/compass"

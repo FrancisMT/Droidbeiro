@@ -510,6 +510,7 @@ public class SerialPortService extends Service {
                 BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID_TX_DATA);
 
                 writeCharacteristic(characteristic);
+                Log.e("DEBUG::","RECEIVED DATA TO SEND TO RADIO");
 
             }
         }

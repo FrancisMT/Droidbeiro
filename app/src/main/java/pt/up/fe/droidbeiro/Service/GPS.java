@@ -142,7 +142,24 @@ public class GPS extends Service {
         sendBroadcast(intent);
 
         /****************************************************************/
-        if (CS.isAfter_login()) {
+        if (CS.isAfter_login() && CS.isSocket_accepted()) {
+
+            if (getMyBatteryLevel() < 15){
+                Log.e("Low Battery Level: ", String.valueOf(getMyBatteryLevel()));
+
+                LowBatteryWarningMessage lbw_msg = new LowBatteryWarningMessage(CS.getFirefighter_ID());
+                try {
+                    lbw_msg.build_LowBatteryWarning_packet();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    CS.send_packet(lbw_msg.getLowbatterywarning_packet());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
 
             Calendar cal = Calendar.getInstance();
             int seconds = cal.get(Calendar.SECOND);
@@ -171,26 +188,10 @@ public class GPS extends Service {
                     }
                     data_sent = true;
                 }
-            } else if (seconds == 49) {
-                if (!battery_level_sent) {
-                    Log.e("Low Battery Level: ", String.valueOf(getMyBatteryLevel()));
-
-                    LowBatteryWarningMessage lbw_msg = new LowBatteryWarningMessage(CS.getFirefighter_ID());
-                    try {
-                        lbw_msg.build_LowBatteryWarning_packet();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        CS.send_packet(lbw_msg.getLowbatterywarning_packet());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    battery_level_sent = true;
-                }
             }
+
+
         }
-        /****************************************************************/
     }
 
 
