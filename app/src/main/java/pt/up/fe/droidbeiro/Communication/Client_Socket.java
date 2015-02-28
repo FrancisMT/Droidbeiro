@@ -990,7 +990,7 @@ public class Client_Socket extends Service{
                 Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message");
 
                 //Send to Backend through GSM
-              if (response.spec == ProtCommConst.RQST_SPEC_ANDR_GSM){
+                if (response.spec == ProtCommConst.RQST_SPEC_ANDR_GSM){
 
                     Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through GSM");
 
@@ -1009,11 +1009,11 @@ public class Client_Socket extends Service{
                         e.printStackTrace();
                     }
 
-               }
+                }
 
                 //Send to Backend through RADIO
-               else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
-                   //Creat request to Foward to BLUETOOTH
+                else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
+                    //Creat request to Foward to BLUETOOTH
 
 
                   /*
@@ -1028,10 +1028,10 @@ public class Client_Socket extends Service{
                   }
                   */
 
-                  broadcastUpdate(SerialPortService.BROADCAST_ACTION_WRITE, new String(response.packet));
+                    broadcastUpdate(SerialPortService.BROADCAST_ACTION_WRITE, new String(response.packet));
 
 
-              }
+                }
 
                 else{
                     Log.e("Error:","request.spec is invalid");
@@ -1047,219 +1047,219 @@ public class Client_Socket extends Service{
                 pck_received.packetContent=response.packet;
 
 
-                        ready_to_read = false;
-                        if (pck_received!=null) {
-                            ready_to_read = true;
-                        }
+                ready_to_read = false;
+                if (pck_received!=null) {
+                    ready_to_read = true;
+                }
 
-                        Pred_Msg_Received=false;
-                        fireline_update_request=false;
-                        compass_request=false;
+                Pred_Msg_Received=false;
+                fireline_update_request=false;
+                compass_request=false;
+                MY_NOTIFICATION_ID=1;
+
+                msg_type=(int)(pck_received.packetContent[0])&(0xFF);
+
+                switch(msg_type){
+
+                    case cc_sends_ff_id_msg_type:
+                        Firefighter_ID=pck_received.packetContent[1];
+
+                        new_response="Ligado ao Centro de Controlo";
+                        Log.e("DEBUG","Response=" + new_response);
                         MY_NOTIFICATION_ID=1;
 
-                        msg_type=(int)(pck_received.packetContent[0])&(0xFF);
+                        break;
 
-                        switch(msg_type){
+                    case cc_denies_login_msg_type:
+                        incorrect_login=true;
+                        correct_login=false;
+                        Log.e("Incorrect Login", "received");
+                        break;
 
-                            case cc_sends_ff_id_msg_type:
-                                Firefighter_ID=pck_received.packetContent[1];
+                    case cc_accepts_login_msg_type:
 
-                                new_response="Ligado ao Centro de Controlo";
-                                Log.e("DEBUG","Response=" + new_response);
-                                MY_NOTIFICATION_ID=1;
+                        incorrect_login=false;
+                        correct_login=true;
 
+                        Log.e("Correct Login", "received: " + Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]);
+
+                        if (Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]==(byte)0xFF){
+                            Log.e("Team Leader Login", "received");
+                            teamleader_login=true;
+                        }else
+                        if (Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]==(byte)0x00){
+                            Log.e("Firefighter Login", "received");
+                            firefighter_login=true;
+                        }
+
+                        break;
+
+                    case cc_personalised_msg_type:
+                        try {
+                            new_response = new String(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), "ISO-8859-1");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        Log.e("DEBUG","Response=" + new_response);
+                        MY_NOTIFICATION_ID=2;
+                        break;
+
+                    case cc_predefined_msg_type:
+
+                        MY_NOTIFICATION_ID=3;
+                        Pred_Msg_Type=Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0];
+                        switch (Pred_Msg_Type){
+
+                            case (byte)0x00:
+                                new_response="Afirmativo";
                                 break;
-
-                            case cc_denies_login_msg_type:
-                                incorrect_login=true;
-                                correct_login=false;
-                                Log.e("Incorrect Login", "received");
+                            case (byte)0x01:
+                                new_response="Aguarde";
                                 break;
-
-                            case cc_accepts_login_msg_type:
-
-                                incorrect_login=false;
-                                correct_login=true;
-
-                                Log.e("Correct Login", "received: " + Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]);
-
-                                if (Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]==(byte)0xFF){
-                                    Log.e("Team Leader Login", "received");
-                                    teamleader_login=true;
-                                }else
-                                if (Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]==(byte)0x00){
-                                    Log.e("Firefighter Login", "received");
-                                    firefighter_login=true;
-                                }
-
+                            case (byte)0x02:
+                                new_response="Assim Farei";
                                 break;
-
-                            case cc_personalised_msg_type:
-                                try {
-                                    new_response = new String(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), "ISO-8859-1");
-                                } catch (UnsupportedEncodingException e) {
-                                    e.printStackTrace();
-                                }
-                                Log.e("DEBUG","Response=" + new_response);
-                                MY_NOTIFICATION_ID=2;
+                            case (byte)0x03:
+                                new_response="Correcto";
                                 break;
-
-                            case cc_predefined_msg_type:
-
-                                MY_NOTIFICATION_ID=3;
-                                Pred_Msg_Type=Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0];
-                                switch (Pred_Msg_Type){
-
-                                    case (byte)0x00:
-                                        new_response="Afirmativo";
-                                        break;
-                                    case (byte)0x01:
-                                        new_response="Aguarde";
-                                        break;
-                                    case (byte)0x02:
-                                        new_response="Assim Farei";
-                                        break;
-                                    case (byte)0x03:
-                                        new_response="Correcto";
-                                        break;
-                                    case (byte)0x04:
-                                        new_response="Errado";
-                                        break;
-                                    case (byte)0x05:
-                                        new_response="Informe";
-                                        break;
-                                    case (byte)0x06:
-                                        new_response="Negativo";
-                                        break;
-                                    case (byte)0x07:
-                                        new_response="A Caminho";
-                                        break;
-                                    case (byte)0x08:
-                                        new_response="No Local";
-                                        break;
-                                    case (byte)0x09:
-                                        new_response="No Hospital";
-                                        break;
-                                    case (byte)0x10:
-                                        new_response="Disponível";
-                                        break;
-                                    case (byte)0x11:
-                                        new_response="De Regresso";
-                                        break;
-                                    case (byte)0x12:
-                                        new_response="INOP";
-                                        break;
-                                    case (byte)0x13:
-                                        new_response="No Quartel";
-                                        break;
-                                    case (byte)0x14:
-                                        new_response="Necessita de Reforços";
-                                        break;
-                                    case (byte)0x15:
-                                        new_response="Casa em Perigo";
-                                        break;
-                                    case (byte)0x16:
-                                        new_response="Preciso de Descansar";
-                                        break;
-                                    case (byte)0x17:
-                                        new_response="Carro em Perigo";
-                                        break;
-                                    case (byte)0x18:
-                                        new_response="Descanse";
-                                        break;
-                                    case (byte)0x19:
-                                        new_response="Fogo a Alastrar";
-                                        break;
-                                    default:
-                                        new_response="Erro";
-                                        break;
-                                }
-
-                                if (In_Combate_Mode){
-                                    playAudioMessages(Pred_Msg_Type);
-                                }
-                                Log.e("DEBUG","Response=" + new_response);
-
-                                Pred_Msg_Received=true;
+                            case (byte)0x04:
+                                new_response="Errado";
                                 break;
-
-                            case cc_requests_fl_update_msg_type:
-                                MY_NOTIFICATION_ID=4;
-                                new_response="Actualizar Linha de Fogo";
-                                fireline_update_request=true;
-                                In_Fire_Line_Update=false;
-                                Log.e("DEBUG","Response=" + new_response);
-
+                            case (byte)0x05:
+                                new_response="Informe";
                                 break;
-
-                            case cc_automatic_ack_msg_type:
-                                MY_NOTIFICATION_ID=5;
-                                new_response="Alerta Recebido pelo CC";
-                                Log.e("DEBUG","Response=" + new_response);
+                            case (byte)0x06:
+                                new_response="Negativo";
                                 break;
-
-                            case cc_requests_movetogps_msg_type:
-                                compass_request=true;
-                                In_Compass=false;
-                                MY_NOTIFICATION_ID=6;
-                                new_response="Move to GPS";
-
-                                byte[] latitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 0, 4);
-                                byte[] longitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 4, 9);
-
-                                ByteBuffer lat_bb = ByteBuffer.wrap(latitude);
-                                lat_bb.order(ByteOrder.LITTLE_ENDIAN);
-                                lat = lat_bb.getFloat();
-
-                                ByteBuffer lon_bb = ByteBuffer.wrap(longitude);
-                                lon_bb.order(ByteOrder.LITTLE_ENDIAN);
-                                lon = lon_bb.getFloat();
-
-                                Log.e("DEBUG","Response="+new_response+":::"+"latitude="+lat +":::"+"longitude="+lon);
+                            case (byte)0x07:
+                                new_response="A Caminho";
                                 break;
-
+                            case (byte)0x08:
+                                new_response="No Local";
+                                break;
+                            case (byte)0x09:
+                                new_response="No Hospital";
+                                break;
+                            case (byte)0x10:
+                                new_response="Disponível";
+                                break;
+                            case (byte)0x11:
+                                new_response="De Regresso";
+                                break;
+                            case (byte)0x12:
+                                new_response="INOP";
+                                break;
+                            case (byte)0x13:
+                                new_response="No Quartel";
+                                break;
+                            case (byte)0x14:
+                                new_response="Necessita de Reforços";
+                                break;
+                            case (byte)0x15:
+                                new_response="Casa em Perigo";
+                                break;
+                            case (byte)0x16:
+                                new_response="Preciso de Descansar";
+                                break;
+                            case (byte)0x17:
+                                new_response="Carro em Perigo";
+                                break;
+                            case (byte)0x18:
+                                new_response="Descanse";
+                                break;
+                            case (byte)0x19:
+                                new_response="Fogo a Alastrar";
+                                break;
                             default:
-                                Log.e("DEBUG::","INVALID MSG TYPE");
-
+                                new_response="Erro";
                                 break;
                         }
 
-                        if(new_response!=null) {
-                            Log.d("response", new_response);
-                            if (!In_Combate_Mode) {
-                                // Send Notification
-                                if (MY_NOTIFICATION_ID==4){
-                                    countDownTimer_LF.start();
-                                    notification_buttons();
-                                }else
-                                if (MY_NOTIFICATION_ID==6){
-                                    countDownTimer_Compass.start();
-                                    Log.e("Move_to:", "GPS");
-                                    notification_buttons_gps();
-                                }else
-                                if (MY_NOTIFICATION_ID==2){
-                                    notification_pers();
-                                    countDownTimer_pred_msg.start();
-                                }else
-                                if (MY_NOTIFICATION_ID==3){
-                                    notification_pred();
-                                    countDownTimer_pred_msg.start();
-                                }
-                                else{
-                                    notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                                    myNotification = new Notification(R.drawable.droidbeiro_app_icon, "Nova Mensagem", System.currentTimeMillis());
-                                    String notificationTitle = "Nova mensagem";
-                                    String notificationText = new_response;
-                                    Intent myIntent = new Intent(Intent.ACTION_VIEW);
-
-                                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
-                                    myNotification.defaults |= Notification.DEFAULT_SOUND;
-                                    myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
-                                    myNotification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, pendingIntent);
-                                    notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
-                                }
-                            }
+                        if (In_Combate_Mode){
+                            playAudioMessages(Pred_Msg_Type);
                         }
+                        Log.e("DEBUG","Response=" + new_response);
+
+                        Pred_Msg_Received=true;
+                        break;
+
+                    case cc_requests_fl_update_msg_type:
+                        MY_NOTIFICATION_ID=4;
+                        new_response="Actualizar Linha de Fogo";
+                        fireline_update_request=true;
+                        In_Fire_Line_Update=false;
+                        Log.e("DEBUG","Response=" + new_response);
+
+                        break;
+
+                    case cc_automatic_ack_msg_type:
+                        MY_NOTIFICATION_ID=5;
+                        new_response="Alerta Recebido pelo CC";
+                        Log.e("DEBUG","Response=" + new_response);
+                        break;
+
+                    case cc_requests_movetogps_msg_type:
+                        compass_request=true;
+                        In_Compass=false;
+                        MY_NOTIFICATION_ID=6;
+                        new_response="Move to GPS";
+
+                        byte[] latitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 0, 4);
+                        byte[] longitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 4, 9);
+
+                        ByteBuffer lat_bb = ByteBuffer.wrap(latitude);
+                        lat_bb.order(ByteOrder.LITTLE_ENDIAN);
+                        lat = lat_bb.getFloat();
+
+                        ByteBuffer lon_bb = ByteBuffer.wrap(longitude);
+                        lon_bb.order(ByteOrder.LITTLE_ENDIAN);
+                        lon = lon_bb.getFloat();
+
+                        Log.e("DEBUG","Response="+new_response+":::"+"latitude="+lat +":::"+"longitude="+lon);
+                        break;
+
+                    default:
+                        Log.e("DEBUG::","INVALID MSG TYPE");
+
+                        break;
+                }
+
+                if(new_response!=null) {
+                    Log.d("response", new_response);
+                    if (!In_Combate_Mode) {
+                        // Send Notification
+                        if (MY_NOTIFICATION_ID==4){
+                            countDownTimer_LF.start();
+                            notification_buttons();
+                        }else
+                        if (MY_NOTIFICATION_ID==6){
+                            countDownTimer_Compass.start();
+                            Log.e("Move_to:", "GPS");
+                            notification_buttons_gps();
+                        }else
+                        if (MY_NOTIFICATION_ID==2){
+                            notification_pers();
+                            countDownTimer_pred_msg.start();
+                        }else
+                        if (MY_NOTIFICATION_ID==3){
+                            notification_pred();
+                            countDownTimer_pred_msg.start();
+                        }
+                        else{
+                            notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            myNotification = new Notification(R.drawable.droidbeiro_app_icon, "Nova Mensagem", System.currentTimeMillis());
+                            String notificationTitle = "Nova mensagem";
+                            String notificationText = new_response;
+                            Intent myIntent = new Intent(Intent.ACTION_VIEW);
+
+                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+                            myNotification.defaults |= Notification.DEFAULT_SOUND;
+                            myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+                            myNotification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, pendingIntent);
+                            notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
+                        }
+                    }
+                }
             }
 
             //Unknown Request
@@ -1366,10 +1366,10 @@ public class Client_Socket extends Service{
                 .setSmallIcon(R.drawable.droidbeiro_app_icon)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setContentIntent(pIntent)
-               // .setContentIntent(pendingIntent_ack)
+                        // .setContentIntent(pendingIntent_ack)
                 .setContentIntent(pIntent)
                 .setAutoCancel(true)
-               // .setDeleteIntent(pendingIntent)
+                        // .setDeleteIntent(pendingIntent)
                 .build();
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

@@ -345,7 +345,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
                     distlon= dist*Math.sin((-currentDegree*Math.PI)/180);
 
                     finalLat = latitude + 180/Math.PI*(distlat/6378137);
-                    finalLon = longitude + 180/Math.PI*(distlon/(638137*Math.cos(Math.PI/180*latitude)));
+                    finalLon = longitude + 180/Math.PI*(distlon/(6378137*Math.cos(Math.PI/180*latitude)));
 
                     // String Longitude = gps. getLongitude();
                     //=Toast.makeText(getApplicationContext(), Double.toString(finalLat), Toast.LENGTH_LONG).show();
@@ -417,7 +417,7 @@ public class ChefeLF extends Activity implements SensorEventListener {
                     Log.e("Debug:", "Current degree" + currentDegree);
 
                     finalLat = latitude + 180 / Math.PI * (distlat / 6378137);
-                    finalLon = longitude + 180 / Math.PI * (distlon / (638137 * Math.cos(Math.PI / 180 * latitude)));
+                    finalLon = longitude + 180 / Math.PI * (distlon / (6378137 * Math.cos(Math.PI / 180 * latitude)));
 
                     // String Longitude = gps. getLongitude();
                     //=Toast.makeText(getApplicationContext(), Double.toString(finalLat), Toast.LENGTH_LONG).show();
