@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -61,6 +62,7 @@ import G5.SharedSingletons.*;
 import G5.Util.*;
 import pt.up.fe.droidbeiro.Service.BLE.BLESimulatorConnection;
 import pt.up.fe.droidbeiro.Service.BLE.SerialPortService;
+import pt.up.fe.droidbeiro.Service.GPS;
 
 public class Client_Socket extends Service{
 
@@ -191,7 +193,6 @@ public class Client_Socket extends Service{
      */
     public String response = "";
     public String new_response="";
-
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -325,7 +326,6 @@ public class Client_Socket extends Service{
 
         Log.e("Sent", "ACK");
     }
-
 
     public String getMessage(){
         return this.response;
@@ -969,7 +969,9 @@ public class Client_Socket extends Service{
 
     public void broadcastUpdate(final String action, final String data) {
         final Intent intent = new Intent(action);
+
         intent.putExtra("DATA_TO_BT", data);
+
         sendBroadcast(intent);
     }
 
@@ -1207,13 +1209,20 @@ public class Client_Socket extends Service{
                         byte[] latitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 0, 4);
                         byte[] longitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 4, 9);
 
-                        ByteBuffer lat_bb = ByteBuffer.wrap(latitude);
+                       /* ByteBuffer lat_bb = ByteBuffer.wrap(latitude);
                         lat_bb.order(ByteOrder.LITTLE_ENDIAN);
                         lat = lat_bb.getFloat();
 
                         ByteBuffer lon_bb = ByteBuffer.wrap(longitude);
                         lon_bb.order(ByteOrder.LITTLE_ENDIAN);
-                        lon = lon_bb.getFloat();
+                        lon = lon_bb.getFloat();*/
+
+                        lat = ByteBuffer.wrap(latitude).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                        lon = ByteBuffer.wrap(longitude).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+
+                        newCD.setNew_LAT(lat);
+                        newCD.setNew_LON(lon);
+
 
                         Log.e("DEBUG","Response="+new_response+":::"+"latitude="+lat +":::"+"longitude="+lon);
                         break;

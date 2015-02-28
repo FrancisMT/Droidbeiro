@@ -38,7 +38,7 @@ public class NetworkUtil {
         int conn = NetworkUtil.getConnectivityStatus(context);
         String status = null;
         if (conn == NetworkUtil.TYPE_WIFI) {
-            Log.e("Connection Status:", "Ligação Wifi estabelecida");
+            //Log.e("Connection Status:", "Ligação Wifi estabelecida");
             CS.GSM_Status=true;
             CS.running=true;
             CS.GSM_Status_Changed=true;
@@ -48,13 +48,13 @@ public class NetworkUtil {
             CS.GSM_Status=true;
             CS.running=true;
             CS.GSM_Status_Changed=true;
-            Log.e("Connection Status:","Ligação de dados estabelecida");
+            //Log.e("Connection Status:","Ligação de dados estabelecida");
         } else if (conn == NetworkUtil.TYPE_NOT_CONNECTED) {
             status = "Ligação perdida";
             CS.GSM_Status=false;
             CS.running=false;
             CS.GSM_Status_Changed=true;
-            Log.e("Connection Status:","Ligação perdida");
+            //Log.e("Connection Status:","Ligação perdida");
         }
         return status;
     }

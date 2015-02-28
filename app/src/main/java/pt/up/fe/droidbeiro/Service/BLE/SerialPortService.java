@@ -503,7 +503,9 @@ public class SerialPortService extends Service {
     private final BroadcastReceiver UpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             final String action = intent.getAction();
+
             if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
                 dataToWrite = intent.getStringExtra("DATA_TO_BT");
                 BluetoothGattService service = mBluetoothGatt.getService(UUID_SERVICE);
@@ -511,7 +513,6 @@ public class SerialPortService extends Service {
 
                 writeCharacteristic(characteristic);
                 Log.e("DEBUG::","RECEIVED DATA TO SEND TO RADIO");
-
             }
         }
     };
@@ -568,7 +569,10 @@ public class SerialPortService extends Service {
 
         //registerReceiver(UpdateReceiver, null);
 
-        registerReceiver(UpdateReceiver, makeGattUpdateIntentFilter());
+        //registerReceiver(UpdateReceiver, makeGattUpdateIntentFilter());
+
+        registerReceiver(UpdateReceiver, new IntentFilter("DATA_TO_BT"));
+
         /*if (mBluetoothLeService != null) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
