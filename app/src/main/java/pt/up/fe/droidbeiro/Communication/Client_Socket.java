@@ -44,6 +44,7 @@ import pt.up.fe.droidbeiro.Messages.DenyRequestMessage;
 import pt.up.fe.droidbeiro.Presentation.BombeiroMain;
 import pt.up.fe.droidbeiro.Presentation.ChefeLF;
 import pt.up.fe.droidbeiro.Presentation.Compass;
+import pt.up.fe.droidbeiro.Presentation.Login;
 import pt.up.fe.droidbeiro.R;
 
 
@@ -80,10 +81,10 @@ public class Client_Socket extends Service{
     private ObjectInputStream socketProReq;
 
     //Socket information
-    protected ServerSocket serverSocket;
-    private Socket socketApp;
-    private Socket socketPro;
-    public int portaSocket;
+    //protected ServerSocket serverSocket;
+    //private Socket socketApp;
+    //private Socket socketPro;
+    //public int portaSocket;
 
     //Protocol Requests Buffer
     public ConcurrentLinkedQueue<rqst> request_buffer = new ConcurrentLinkedQueue<>();
@@ -203,10 +204,59 @@ public class Client_Socket extends Service{
         }
     }
 
+
+
+    /****************************************************************/
+
+    ProtocolRequestProcessing PRC = null;
+    boolean PRCisBound;
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            ProtocolRequestProcessing.LocalBinder_PRC binder = (ProtocolRequestProcessing.LocalBinder_PRC) service;
+            PRC = binder.getService();
+            PRCisBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            PRC = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(Client_Socket.this, ProtocoloCommunication.class), mConnection, Context.BIND_AUTO_CREATE);
+        PRCisBound = true;
+        if(PRC!=null){
+            PRC.IsBoundable();
+        }
+    }
+
+    private void doUnbindService() {
+        if (PRCisBound) {
+            // Detach our existing connection.
+            unbindService(mConnection);
+            PRCisBound = false;
+        }
+    }
+
+
+
+    /****************************************************************/
+
+
     @Override
     public void onCreate() {
         super.onCreate();
         System.out.println("I am in on create");
+
+        doBindService();
+
         countDownTimer_LF = new MyCountDownTimer(startTime, interval);
         countDownTimer_Compass = new MyCountDownTimer(startTime, interval);
         countDownTimer_pred_msg = new MyCountDownTimer(startTime, interval);
@@ -238,39 +288,45 @@ public class Client_Socket extends Service{
         super.onStartCommand(intent, flags, startId);
         System.out.println("I am in on start");
 
+
+        /**
+         * Protocol Request Processing Thread
+         */
+        Intent PRProcessing = new Intent(Client_Socket.this, ProtocolRequestProcessing.class);
+        startService(PRProcessing);
+        PRC = ProtocolRequestProcessing.getInstance();
+        //Runnable prot_req_procss = new processProtocol();
+        //new Thread(prot_req_procss).start();
+
+
         Runnable connect = new connectSocket();
         new Thread(connect).start();
+
         if (PG5 || PG6) {
 
             /**
              * Protocol Communication Thread
              */
-            try {
+            /*9try {
                 serverSocket = new ServerSocket(0);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             portaSocket = serverSocket.getLocalPort();
-            currentCD.setPortaSocket(portaSocket);
+            currentCD.setPortaSocket(portaSocket);*/
 
-            Log.e("ProtocoloCommunication", "PortaSocket=" + portaSocket);
+            //Log.e("ProtocoloCommunication", "PortaSocket=" + portaSocket);
 
-            Runnable prot_comm = new ProtocoloCommunication();
+            /*Runnable prot_comm = new ProtocoloCommunication();
             new Thread(prot_comm).start();
-
+            */
 
             /**
              * GSM check thread
              */
-            Runnable gsm_stat = new CheckConnectioStatus();
+            /*Runnable gsm_stat = new CheckConnectioStatus();
             new Thread(gsm_stat).start();
-
-
-            /**
-             * Protocol Request Processing Thread
-             */
-            //Runnable prot_req_procss = new processProtocol();
-            //new Thread(prot_req_procss).start();
+*/
         }
 
         return START_STICKY;
@@ -285,8 +341,9 @@ public class Client_Socket extends Service{
             /**
              * The application asks the protocol to pack a message it wants to send
              */
+
             rqst new_request = new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, no_spec, pck_to_send.packetContent);
-            send_To_Protocol(new_request);
+            PRC.send_To_Protocol(new_request);
         }
         else{
             out.writeObject(pck_to_send);
@@ -294,6 +351,19 @@ public class Client_Socket extends Service{
         }
         Log.e("Sent", "ACK");
     }
+
+
+    public void send_packet_GSM(Packet pck_to_send) throws IOException {
+
+
+        System.out.println("Packet Content:" + String.valueOf(pck_to_send.packetContent));
+
+        out.writeObject(pck_to_send);
+        out.flush();
+
+        Log.e("Sent", "ACK");
+    }
+
 
     public String getMessage(){
         return this.response;
@@ -435,11 +505,10 @@ public class Client_Socket extends Service{
                     }
 
                     if (cSocket.isConnected()) {
-                            Log.e("TCP Client", "C: Connected!");
+                        Log.e("TCP Client", "C: Connected!");
 
                         out = new ObjectOutputStream(cSocket.getOutputStream());
                         in = new ObjectInputStream(cSocket.getInputStream());
-
 
 
                         /*************************/
@@ -507,7 +576,7 @@ public class Client_Socket extends Service{
                                      * The application receives a message and delivers it to the protocol.
                                      */
                                     rqst new_request = new rqst(ProtCommConst.RQST_ACTION_APP_PACKET_RECEIVED, no_spec, pck_received.packetContent);
-                                    send_To_Protocol(new_request);
+                                    PRC.send_To_Protocol(new_request);
                                 }else{
 
                                     ready_to_read = false;
@@ -759,7 +828,7 @@ public class Client_Socket extends Service{
     /**
      * Runnable for Communicating with the Protocol
      */
-    public class ProtocoloCommunication implements Runnable{
+    /*public class ProtocoloCommunication implements Runnable{
 
         @Override
         public void run() {
@@ -803,7 +872,7 @@ public class Client_Socket extends Service{
                 get_From_Protocol();
             }
         }
-    }
+    }*/
 
     /**
      * Send request to the protocol
@@ -1239,12 +1308,230 @@ public class Client_Socket extends Service{
         }
     }
 
-    private void broadcastUpdate(final String action, final String data) {
+    public void broadcastUpdate(final String action, final String data) {
         final Intent intent = new Intent(action);
         intent.putExtra("DATA_TO_BT", data);
         sendBroadcast(intent);
     }
 
+
+    public void process_local_info(Packet pck_received){
+
+        ready_to_read = false;
+        if (pck_received!=null) {
+            ready_to_read = true;
+        }
+
+        Pred_Msg_Received=false;
+        fireline_update_request=false;
+        compass_request=false;
+        MY_NOTIFICATION_ID=1;
+
+        msg_type=(int)(pck_received.packetContent[0])&(0xFF);
+
+        switch(msg_type){
+
+            case cc_sends_ff_id_msg_type:
+                Firefighter_ID=pck_received.packetContent[1];
+
+                new_response="Ligado ao Centro de Controlo";
+                Log.e("DEBUG","Response=" + new_response);
+                MY_NOTIFICATION_ID=1;
+
+                break;
+
+            case cc_denies_login_msg_type:
+                incorrect_login=true;
+                correct_login=false;
+                Log.e("Incorrect Login", "received");
+                break;
+
+            case cc_accepts_login_msg_type:
+
+                incorrect_login=false;
+                correct_login=true;
+
+                Log.e("Correct Login", "received: " + Arrays.copyOfRange(pck_received.packetContent, 2, pck_received.packetContent.length)[0]);
+
+                if (Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]==(byte)0xFF){
+                    Log.e("Team Leader Login", "received");
+                    teamleader_login=true;
+                }else
+                if (Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0]==(byte)0x00){
+                    Log.e("Firefighter Login", "received");
+                    firefighter_login=true;
+                }
+
+                break;
+
+            case cc_personalised_msg_type:
+                try {
+                    new_response = new String(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), "ISO-8859-1");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                Log.e("DEBUG","Response=" + new_response);
+                MY_NOTIFICATION_ID=2;
+                break;
+
+            case cc_predefined_msg_type:
+
+                MY_NOTIFICATION_ID=3;
+                Pred_Msg_Type=Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0];
+                switch (Pred_Msg_Type){
+
+                    case (byte)0x00:
+                        new_response="Afirmativo";
+                        break;
+                    case (byte)0x01:
+                        new_response="Aguarde";
+                        break;
+                    case (byte)0x02:
+                        new_response="Assim Farei";
+                        break;
+                    case (byte)0x03:
+                        new_response="Correcto";
+                        break;
+                    case (byte)0x04:
+                        new_response="Errado";
+                        break;
+                    case (byte)0x05:
+                        new_response="Informe";
+                        break;
+                    case (byte)0x06:
+                        new_response="Negativo";
+                        break;
+                    case (byte)0x07:
+                        new_response="A Caminho";
+                        break;
+                    case (byte)0x08:
+                        new_response="No Local";
+                        break;
+                    case (byte)0x09:
+                        new_response="No Hospital";
+                        break;
+                    case (byte)0x10:
+                        new_response="Disponível";
+                        break;
+                    case (byte)0x11:
+                        new_response="De Regresso";
+                        break;
+                    case (byte)0x12:
+                        new_response="INOP";
+                        break;
+                    case (byte)0x13:
+                        new_response="No Quartel";
+                        break;
+                    case (byte)0x14:
+                        new_response="Necessita de Reforços";
+                        break;
+                    case (byte)0x15:
+                        new_response="Casa em Perigo";
+                        break;
+                    case (byte)0x16:
+                        new_response="Preciso de Descansar";
+                        break;
+                    case (byte)0x17:
+                        new_response="Carro em Perigo";
+                        break;
+                    case (byte)0x18:
+                        new_response="Descanse";
+                        break;
+                    case (byte)0x19:
+                        new_response="Fogo a Alastrar";
+                        break;
+                    default:
+                        new_response="Erro";
+                        break;
+                }
+
+                if (In_Combate_Mode){
+                    playAudioMessages(Pred_Msg_Type);
+                }
+                Log.e("DEBUG","Response=" + new_response);
+
+                Pred_Msg_Received=true;
+                break;
+
+            case cc_requests_fl_update_msg_type:
+                MY_NOTIFICATION_ID=4;
+                new_response="Actualizar Linha de Fogo";
+                fireline_update_request=true;
+                In_Fire_Line_Update=false;
+                Log.e("DEBUG","Response=" + new_response);
+
+                break;
+
+            case cc_automatic_ack_msg_type:
+                MY_NOTIFICATION_ID=5;
+                new_response="Alerta Recebido pelo CC";
+                Log.e("DEBUG","Response=" + new_response);
+                break;
+
+            case cc_requests_movetogps_msg_type:
+                compass_request=true;
+                In_Compass=false;
+                MY_NOTIFICATION_ID=6;
+                new_response="Move to GPS";
+
+                byte[] latitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 0, 4);
+                byte[] longitude =  Arrays.copyOfRange(Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length), 4, 9);
+
+                ByteBuffer lat_bb = ByteBuffer.wrap(latitude);
+                lat_bb.order(ByteOrder.LITTLE_ENDIAN);
+                lat = lat_bb.getFloat();
+
+                ByteBuffer lon_bb = ByteBuffer.wrap(longitude);
+                lon_bb.order(ByteOrder.LITTLE_ENDIAN);
+                lon = lon_bb.getFloat();
+
+                Log.e("DEBUG","Response="+new_response+":::"+"latitude="+lat +":::"+"longitude="+lon);
+                break;
+
+            default:
+                Log.e("DEBUG::","INVALID MSG TYPE");
+
+                break;
+        }
+
+        if(new_response!=null) {
+            Log.d("response", new_response);
+            if (!In_Combate_Mode) {
+                // Send Notification
+                if (MY_NOTIFICATION_ID==4){
+                    countDownTimer_LF.start();
+                    notification_buttons();
+                }else
+                if (MY_NOTIFICATION_ID==6){
+                    countDownTimer_Compass.start();
+                    Log.e("Move_to:", "GPS");
+                    notification_buttons_gps();
+                }else
+                if (MY_NOTIFICATION_ID==2){
+                    notification_pers();
+                    countDownTimer_pred_msg.start();
+                }else
+                if (MY_NOTIFICATION_ID==3){
+                    notification_pred();
+                    countDownTimer_pred_msg.start();
+                }
+                else{
+                    notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    myNotification = new Notification(R.drawable.droidbeiro_app_icon, "Nova Mensagem", System.currentTimeMillis());
+                    String notificationTitle = "Nova mensagem";
+                    String notificationText = new_response;
+                    Intent myIntent = new Intent(Intent.ACTION_VIEW);
+
+                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+                    myNotification.defaults |= Notification.DEFAULT_SOUND;
+                    myNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+                    myNotification.setLatestEventInfo(getApplicationContext(), notificationTitle, notificationText, pendingIntent);
+                    notificationManager.notify(MY_NOTIFICATION_ID, myNotification);
+                }
+            }
+        }
+
+    }
 
     /**
      * Method to process medium buffer and distribute requests.
