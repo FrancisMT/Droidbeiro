@@ -109,7 +109,7 @@ public class RadioControlService extends Service {
         //final int charaPropBat = RadioBatData.getProperties();
 
         Log.e("DEBUG", "on getFeatures");
-        writeGATTCharacteristic(charaPropTX, TxData);
+        //writeGATTCharacteristic(charaPropTX, TxData);
 
         readGATTCharacteristic(charaPropRx, RxData);
 

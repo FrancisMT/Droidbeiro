@@ -303,6 +303,7 @@ public class Client_Socket extends Service{
 
             broadcastUpdate(SerialPortService.BROADCAST_ACTION_WRITE, new String(pck_to_send.packetContent));
 
+
             rqst new_request = new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, no_spec, pck_to_send.packetContent);
             send_To_Protocol(new_request);
         }
@@ -951,26 +952,6 @@ public class Client_Socket extends Service{
         }
     }
 
-    /**
-     * Runnable for Communicating with the Protocol
-     */
-   /* public class CheckConnectioStatus implements Runnable{
-
-        @Override
-        public void run() {
-            Log.e("I'm in:", "CheckConnectioStatus run");
-
-            //Handler
-            while (true)
-            {
-                if (GSM_Status_Changed){
-                    GSM_Status_Changed=false;
-                    setGSM(GSM_Status);
-                }
-
-            }
-        }
-    }*/
 
     public class processProtocol implements Runnable{
 
