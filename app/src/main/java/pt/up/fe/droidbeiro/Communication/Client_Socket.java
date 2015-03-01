@@ -297,14 +297,6 @@ public class Client_Socket extends Service{
 
     public void send_packet(Packet pck_to_send) throws IOException {
 
-        /**
-         * BT debug
-         */
-        message_to_BT=true;
-        data_to_BT=new String(pck_to_send.packetContent);
-
-
-
         System.out.println("Packet Content:" + String.valueOf(pck_to_send.packetContent));
 
         if (PG5 || PG6) {
@@ -1045,22 +1037,8 @@ public class Client_Socket extends Service{
                 else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
                     //Creat request to Foward to BLUETOOTH
 
-
-                  /*
-                  Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through the RADIO");
-                  BLESimulatorConnection BLESC = BLESimulatorConnection.getInstance();
-
-                  //Write to HW Socket
-                  try {
-                      BLESC.sendDatagramThroughNetwork(response.packet);
-                  } catch (IOException e) {
-                      e.printStackTrace();
-                  }
-                  */
-
-                    broadcastUpdate(SerialPortService.BROADCAST_ACTION_WRITE, new String(response.packet));
-
-
+                    message_to_BT=true;
+                    data_to_BT=new String(response.packet);
                 }
 
                 else{

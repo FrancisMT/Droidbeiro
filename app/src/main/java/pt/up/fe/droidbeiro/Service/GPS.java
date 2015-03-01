@@ -144,7 +144,7 @@ public class GPS extends Service{
         }
         String lat = Double.toString(latitude);
         String lon = Double.toString(longitude);
-        //Log.e("GPS", " A enviar");
+        Log.e("GPS", " A enviar");
         intent.putExtra("LAT", lat);
         intent.putExtra("LONG",lon);
         sendBroadcast(intent);

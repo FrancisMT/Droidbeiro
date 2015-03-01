@@ -645,6 +645,7 @@ public class SerialPortService extends Service {
 
             if (CS.running) {
                 CS.send_To_Protocol(new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, (byte) 0, dados_finais));
+                Log.e("DEBUG::", "Received data from RADIO ==> Sent to Protocol");
             }
 
 //            intent.putExtra(RX_DATA, String.valueOf(dados_finais));
@@ -797,7 +798,6 @@ public class SerialPortService extends Service {
 
         }
 
-
         if (mBluetoothGatt.readCharacteristic(characteristic)==false){
             Log.e("DEBUG","readCharacteristic is FALSE");
         }
@@ -839,6 +839,7 @@ public class SerialPortService extends Service {
         Log.e("OII","jsakdajs");
         mBluetoothGatt.writeCharacteristic(characteristic);
         Log.e("OLA", "SERÀ QUE MANDEI ALgUMA ");
+
 
         /*
         if (Long.valueOf( String.valueOf(dataToWrite.length()))  > DEFAULT_BYTES_IN_CONTINUE_PACKET)

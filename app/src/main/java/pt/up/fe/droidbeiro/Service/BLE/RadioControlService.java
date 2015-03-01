@@ -210,7 +210,6 @@ public class RadioControlService extends Service {
     public void onCreate() {
         super.onCreate();
 
-
         Log.e("DEBUG::","In RadioControlService onCreate");
 
         doBindService();
