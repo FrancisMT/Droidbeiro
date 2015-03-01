@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -108,10 +109,20 @@ public class Client_Socket extends Service{
 
     final ConnectionData newCD = new ConnectionData();
 
+
     /**
      * Bluetooth Communication
      */
-    public static final String message_to_send=null;
+    public static boolean message_to_BT=false;
+    public static String data_to_BT=null;
+
+    public static void setMessage_to_BT(boolean message_to_BT) {
+        Client_Socket.message_to_BT = message_to_BT;
+    }
+
+    public static String getData_to_BT() {
+        return data_to_BT;
+    }
 
     /**
      * Backend Message Types
@@ -219,7 +230,7 @@ public class Client_Socket extends Service{
     }
 
     public void IsBoundable() {
-        Toast.makeText(this, "I bind like butter", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "I bind like butter", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -286,8 +297,13 @@ public class Client_Socket extends Service{
 
     public void send_packet(Packet pck_to_send) throws IOException {
 
+        /**
+         * BT debug
+         */
+        message_to_BT=true;
+        data_to_BT=new String(pck_to_send.packetContent);
 
-        broadcastUpdate(SerialPortService.BROADCAST_ACTION_WRITE, new String(pck_to_send.packetContent));
+
 
         System.out.println("Packet Content:" + String.valueOf(pck_to_send.packetContent));
 
@@ -335,9 +351,16 @@ public class Client_Socket extends Service{
 
 
     /***********************************************************/
+    public static boolean isMessage_to_BT() {
+        return message_to_BT;
+    }
+
     /**
      * Auxiliary Functions
      */
+
+
+
     public static void setAfter_login(boolean after_login) {
         Client_Socket.after_login = after_login;
     }

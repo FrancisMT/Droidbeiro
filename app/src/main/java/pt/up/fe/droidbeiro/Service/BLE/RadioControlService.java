@@ -15,6 +15,8 @@ import android.util.Log;
 
 import java.util.UUID;
 
+import pt.up.fe.droidbeiro.Communication.Client_Socket;
+import pt.up.fe.droidbeiro.Logic.User;
 
 
 public class RadioControlService extends Service {
@@ -28,6 +30,43 @@ public class RadioControlService extends Service {
     private SerialPortService mBluetoothLeService;
     public int charaPropRX;
     public BluetoothGattCharacteristic RxData;
+    public BluetoothGattCharacteristic TxData;
+    public int charaPropTX_aux;
+
+    Client_Socket CS = null;
+    boolean CSisBound;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        //EDITED PART
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // TODO Auto-generated method stub
+            CS = ((Client_Socket.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // TODO Auto-generated method stub
+            CS = null;
+        }
+    };
+
+    private void doBindService() {
+        bindService(new Intent(RadioControlService.this, Client_Socket.class), mConnection, Context.BIND_AUTO_CREATE);
+        CSisBound = true;
+        if(CS!=null){
+            CS.IsBoundable();
+        }
+    }
+
+    private void doUnbindService() {
+        if (CSisBound) {
+            // Detach our existing connection.
+            unbindService(mConnection);
+            CSisBound = false;
+        }
+    }
+
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -97,8 +136,12 @@ public class RadioControlService extends Service {
         RxData = RadioService.
                 getCharacteristic(UUID.fromString(SampleGattAttributes.RX_DATA_CHAR_UUID));
 
-        final BluetoothGattCharacteristic TxData = RadioService.
+        /*final BluetoothGattCharacteristic TxData = RadioService.
+                getCharacteristic(UUID.fromString(SampleGattAttributes.TX_DATA_CHAR_UUID));*/
+
+        TxData = RadioService.
                 getCharacteristic(UUID.fromString(SampleGattAttributes.TX_DATA_CHAR_UUID));
+
 
         final BluetoothGattCharacteristic RadioBatData = RadioService.
                 getCharacteristic(UUID.fromString(SampleGattAttributes.BATT_LEVEL_CHAR_UUID));
@@ -106,12 +149,15 @@ public class RadioControlService extends Service {
         charaPropRX = RxData.getProperties();
         final int charaPropTX = TxData.getProperties();
         final int charaPropRx = RxData.getProperties();
+
+        charaPropTX_aux=charaPropTX;
+
         //final int charaPropBat = RadioBatData.getProperties();
 
         Log.e("DEBUG", "on getFeatures");
-        //writeGATTCharacteristic(charaPropTX, TxData);
-
         readGATTCharacteristic(charaPropRx, RxData);
+
+        //writeGATTCharacteristic(charaPropTX, TxData);
 
         // readGATTCharacteristic(charaPropBat, RadioBatData);
 
@@ -149,19 +195,25 @@ public class RadioControlService extends Service {
                 mNotifyCharacteristic = null;
             }
             Log.e("2","2");
+            Log.e("DEBUG::", "ON writeGATTCharacteristic");
             mBluetoothLeService.writeCharacteristic(characteristic);
         }
 
-        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+        /*if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
             mNotifyCharacteristic = characteristic;
             mBluetoothLeService.setCharacteristicNotification(
                     characteristic, true);
-        }
+        }*/
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+
+        Log.e("DEBUG::","In RadioControlService onCreate");
+
+        doBindService();
 
         Intent gattServiceIntent = new Intent(this, SerialPortService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
@@ -172,8 +224,17 @@ public class RadioControlService extends Service {
             Log.d(TAG, "Connect request result=" + result);
         }
 
+        /**
+         * Thread to handle messages to send
+         */
+        Runnable DS = new data_to_send();
+        new Thread(DS).start();
+
         //Intent broadCastIntent = new Intent(BROADCAST_ACTION);
     }
+
+
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -219,6 +280,29 @@ public class RadioControlService extends Service {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
+
+    /**************************************************************************/
+    public class data_to_send implements Runnable {
+        @Override
+        public void run() {
+
+            Log.e("DEBUG::", "In data_to_send");
+
+
+            while(true){
+
+                if(CS.isMessage_to_BT()){
+
+                    writeGATTCharacteristic(charaPropTX_aux, TxData);
+
+                    CS.setMessage_to_BT(false);
+                }
+
+            }
+        }
+    }
+    /**************************************************************************/
 
 
 }

@@ -32,7 +32,7 @@ import pt.up.fe.droidbeiro.Messages.LowBatteryWarningMessage;
 /**
  * Created by Edgar on 18/11/2014.
  */
-public class GPS extends Service {
+public class GPS extends Service{
     public static final String BROADCAST_ACTION = "com.example.GPS.CONTROL_SERVICE_CONNECTED";
 
     private Runnable sendUpdatesToUI = new Runnable() {
@@ -46,8 +46,8 @@ public class GPS extends Service {
     public static final String LONG = "com.example.GPS.LONG";
     public static LocationManager lManager;
     private final Handler handler = new Handler();
-    public double longitude;
-    public double latitude;
+    public double longitude =0;
+    public double latitude =0;
     private boolean data_sent = false;
     private boolean battery_level_sent = false;
 
@@ -96,12 +96,15 @@ public class GPS extends Service {
 
         intent = new Intent(BROADCAST_ACTION);
         lManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        LocationListener lListener = new LocationListener() {
+
+        lManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,  new LocationListener() {
 
             public void onLocationChanged(Location locat) {
                 longitude = (double) (locat.getLongitude());
                 latitude = (double) (locat.getLatitude());
-                broadcastUpdate(BROADCAST_ACTION);
+                Log.e("GPS", "Latitude:"+ latitude);
+                Log.e("GPS", "Longitude;" + longitude);
+                //broadcastUpdate(BROADCAST_ACTION);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -113,8 +116,9 @@ public class GPS extends Service {
             public void onProviderDisabled(String provider) {
             }
 
-        };
+        });
         broadcastUpdate(BROADCAST_ACTION);
+
     }
 
     public float getMyBatteryLevel() {
@@ -125,19 +129,22 @@ public class GPS extends Service {
 
     private void broadcastUpdate(final String action){
         final Intent intent = new Intent(action);
-        Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        //
 
         /**
          * For Debuging
          */
-        //Location location = lManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-        if(location != null) {
-            longitude = location.getLongitude();
-            latitude=location.getLatitude();
+        // Location location = lManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if(latitude == 0 && longitude == 0) {
+            Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(location != null) {
+                longitude = location.getLongitude();
+                latitude = location.getLatitude();
+            }
         }
         String lat = Double.toString(latitude);
         String lon = Double.toString(longitude);
+        //Log.e("GPS", " A enviar");
         intent.putExtra("LAT", lat);
         intent.putExtra("LONG",lon);
         sendBroadcast(intent);

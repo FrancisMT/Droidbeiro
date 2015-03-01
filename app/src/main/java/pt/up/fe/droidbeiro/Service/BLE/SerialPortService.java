@@ -453,6 +453,16 @@ public class SerialPortService extends Service {
                             gatt.writeDescriptor(descriptor);
                         }
                     }
+
+
+                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                        Log.w(TAG, "nooooo if: " + status);
+                        broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED_RADIO);
+                    } else {
+                        Log.w(TAG, "onServicesDiscovered received: " + status);
+
+                    }
+
                 }
             }
         }
@@ -469,7 +479,7 @@ public class SerialPortService extends Service {
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
-                int mensagem;
+                //int mensagem;
                 //mensagem = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
                 Log.e(":::::DEBUG::","ON__onCharacteristicRead" );
                 broadcastUpdate(ACTION_DATA_AVAILABLE_RADIO, characteristic);
@@ -540,7 +550,6 @@ public class SerialPortService extends Service {
     boolean CSisBound;
 
 
-
     //-----------------VERIFICAR COM O FRANCISCO COMO SÂO RECEBIDOS OS DADOS DA APP
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -573,7 +582,7 @@ public class SerialPortService extends Service {
 
         //registerReceiver(UpdateReceiver, makeGattUpdateIntentFilter());
 
-        registerReceiver(UpdateReceiver, new IntentFilter("DATA_TO_BT"));
+        //registerReceiver(UpdateReceiver, new IntentFilter("DATA_TO_BT"));
         Log.e("DEBUG::","In BT SerialPortService");
 
 
@@ -581,6 +590,7 @@ public class SerialPortService extends Service {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
         }*/
+
 
     }
 
@@ -802,7 +812,11 @@ public class SerialPortService extends Service {
             return;
         }
 
-        Log.e("BUU","BUU");
+
+        dataToWrite=CS.getData_to_BT();
+
+        Log.e("DEBUG::","dataToWrite==" + dataToWrite);
+
         int tamanho = dataToWrite.length();
         Log.e("Tamanho",String.valueOf(tamanho));
         int i =0;
@@ -916,5 +930,6 @@ public class SerialPortService extends Service {
             return SerialPortService.this;
         }
     }
+
 
 }
