@@ -152,7 +152,7 @@ public class GPS extends Service{
         /****************************************************************/
         if (CS.isAfter_login() && CS.isSocket_accepted()) {
 
-           /* if (getMyBatteryLevel() < 1){
+           if (getMyBatteryLevel() < 1){
                 Log.e("Low Battery Level: ", String.valueOf(getMyBatteryLevel()));
 
                 LowBatteryWarningMessage lbw_msg = new LowBatteryWarningMessage(CS.getFirefighter_ID());
@@ -166,7 +166,7 @@ public class GPS extends Service{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }*/
+            }
 
 
             Calendar cal = Calendar.getInstance();
