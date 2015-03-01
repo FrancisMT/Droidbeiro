@@ -653,7 +653,7 @@ public class SerialPortService extends Service {
             Log.wtf("broadcastUpdate", "||||||Enviei para o protocolo|||||||| "  + Arrays.toString(dados_finais));
 
 
-            CS.send_To_Protocol(new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, (byte) 0, dados_finais));
+            CS.send_To_Protocol(new rqst(ProtCommConst.RQST_ACTION_APP_PACKET_RECEIVED, (byte) 0, dados_finais));
             Log.e("DEBUG::", "Received data from RADIO ==> Sent to Protocol");
 
 
