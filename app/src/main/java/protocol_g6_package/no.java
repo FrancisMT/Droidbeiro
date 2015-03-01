@@ -8,17 +8,16 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
 import static protocol_g6_package.Protocol_G6.VERSAO_PROTOCOLO;
 import static protocol_g6_package.rotas.ENDEREÇO_NULO;
 import static protocol_g6_package.rotas.CENTRAL;
 import static protocol_g6_package.rotas.BROADCAST;
 import static protocol_g6_package.rotas.MAXNODES;
-//import static protocol_g6_package.simuladorv2.DEBUG;
-//import static protocol_g6_package.simuladorv2.DEBUG_DETAILED;
-//import static protocol_g6_package.simuladorv2.DEBUG_FINAL;
-import static protocol_g6_package.Protocol_G6.DEBUG;
-import static protocol_g6_package.Protocol_G6.DEBUG_DETAILED;
-import static protocol_g6_package.Protocol_G6.DEBUG_FINAL;
+//import static protocol_g6_package.simuladorv2.false;
+//import static protocol_g6_package.simuladorv2.false;
+//import static protocol_g6_package.simuladorv2.false;
+
 import protocolapi.rqst;
 import protocolapi.rspns;
 
@@ -92,13 +91,10 @@ public class no {
         int versao, id, source;
 
         if (filaEspera.verElementoCabeçaFila(this.filain) != null) { //verifica se tem elementos na fila
-
-            /*
-             if (nodeIdentification==3){
-             System.out.println("\nXXXXXX");
-             pacote.imprimePacote(filaEspera.verElementoCabeçaFila(this.filain).dados);
-             }*/
-            /*if(this.nodeIdentification==1){  
+        	
+             
+             
+             /*if(this.nodeIdentification==1){  
              System.out.println("PACOTE RECEBIDO PELA CENTRAL");
         
              pacote.imprimePacote(filaEspera.getDados(this.filain));
@@ -107,7 +103,7 @@ public class no {
             versao = pacote.getVersionPacote(packet);
 
             if (versao != VERSAO_PROTOCOLO) { //se n for o nosso protocolo descarta
-                if (DEBUG_FINAL) {
+                if (false) {
                     if (this.nodeIdentification != 1) {
                         System.out.println("Pacote recebido pelo nó " + this.nodeIdentification + " não corresponde à nossa versão");
                     } else {
@@ -118,7 +114,7 @@ public class no {
                 return -1;
             }
             if (pacote.verificaErros(packet) == -1) { //se tiver erros descarta
-                if (DEBUG_FINAL) {
+                if (false) {
                     if (this.nodeIdentification != 1) {
                         System.out.println("Pacote recebido pelo nó " + this.nodeIdentification + " contém erros");
                     } else {
@@ -169,7 +165,7 @@ public class no {
                 filaEspera.removerElementoFila(this.filain);
                 return -4;
             }
-
+            
             ///
             /*
              System.out.println("Dono tabela -> "+this.nodeIdentification);
@@ -184,7 +180,7 @@ public class no {
              tabelaValidade.imprimeTabelaValidade(this.tabValidade);
              ///*/
             int dest = pacote.getDestinoPacote(packet);
-
+            pacote.imprimePacote(packet);
             //int num=0;
             //if(num==0){
             //rotas.adicionaEntradaTabela(this.tabRota, dest, 1,0);
@@ -199,7 +195,7 @@ public class no {
                 if (type == 0 || type == 3) { //se for info ou ack reencaminha
                     if (nHop != -1) {
                         reencaminhaPacote(packet, dest, nHop);
-                        if (DEBUG) {
+                        if (false) {
                             System.out.println("Pacote recebido pelo nó " + this.nodeIdentification + " é reencaminhado (O nó é apenas o next hop do pacote)");
                         }
                     } else {
@@ -228,7 +224,7 @@ public class no {
                             if (this.rreq == false) {
 
                                 String RReq = pacote.criaRReq(dest, this.nodeIdentification);
-                                waitingPackets RReq2 = waitingPackets.criarElemento(packet);
+                                waitingPackets RReq2 = waitingPackets.criarElemento(RReq);
 
                                 Set<Integer> keySet2 = Hashmap.keySet();
                                 Iterator<Integer> keySetIterator2 = keySet2.iterator();
@@ -256,7 +252,7 @@ public class no {
                         System.out.println("Pacote de RReply recebido pelo nó " + this.nodeIdentification + ", no entanto n existe rota para retransmitir!!");
                     } else {
                         reencaminhaPacote(packet, dest, nHop);
-                        if (DEBUG_DETAILED) {
+                        if (false) {
                             System.out.println("Pacote de RReply recebido pelo nó " + this.nodeIdentification + " é reencaminhado (nó não é o destino do pacote)");
                         }
                     }
@@ -264,14 +260,14 @@ public class no {
             } else if ((pacote.getNextHopPacote(packet) == BROADCAST) && dest != this.nodeIdentification) {
                 if (type == 0) { //se for BROADCAST reencaminha
                     reencaminhaPacote(packet, dest, BROADCAST);
-                    if (DEBUG) {
+                    if (false) {
                         System.out.println("Pacote de info (broadcast) recebido pelo nó " + this.nodeIdentification + " é retransmitido em broadcast");
                     }
                 } else if (type == 1) { //se for rreq reencaminha e actualiza tabela -> actualizar
 
                     reencaminhaPacote(packet, dest, BROADCAST);
                     //rotas.imprimeTabela(this.tabRota,this.nodeIdentification);
-                    if (DEBUG_DETAILED) {
+                    if (false) {
                         System.out.println("Pacote de RRequest recebido pelo nó " + this.nodeIdentification + " é enviado em broadcast (nó não é o destino do pacote)");
                     }
                 }
@@ -309,7 +305,7 @@ public class no {
                             fragmentacao[source][j] = null;
                         }
                         //System.out.println("Je " + this.nodeIdentification +" Recebi pacote de info do no "+source);
-                        if (DEBUG_FINAL) {
+                        if (false) {
                             if (this.nodeIdentification != 1) {
                                 System.out.println("Nó " + this.nodeIdentification + " recebe Info (com fragmentação)");
                             } else {
@@ -329,7 +325,7 @@ public class no {
                         String Ack = pacote.criaAck(packet, this);
                         filaEspera.adicionarElementoFila(this.filaout, Ack, source);
                         //pacote.imprimePacote(Ack);
-                        if (DEBUG_FINAL) {
+                        if (false) {
                             if (this.nodeIdentification != 1) {
                                 System.out.println("Nó " + this.nodeIdentification + " recebe Info (sem fragmentação)");
                             } else {
@@ -343,7 +339,7 @@ public class no {
                     String RRep = pacote.criaRReply(packet, this);
                     filaEspera.adicionarElementoFila(filaout, RRep, source);
                     //rotas.imprimeTabela(this.tabRota,this.nodeIdentification);
-                    if (DEBUG_FINAL) {
+                    if (false) {
                         if (this.nodeIdentification != 1) {
                             System.out.println("Nó " + this.nodeIdentification + " recebe RRequest");
                         } else {
@@ -353,7 +349,7 @@ public class no {
                     }
                 } else if (type == 2) {
                     //System.out.println("**************Size"+this.fila_dados_in.size());
-                    if (DEBUG_FINAL) {
+                    if (false) {
                         if (this.nodeIdentification != 1) {
                             System.out.println("Nó " + this.nodeIdentification + " recebe RReply");
                         } else {
@@ -410,7 +406,7 @@ public class no {
                                                 }
                                             }
                                         }
-                                        if (DEBUG) {
+                                        if (false) {
                                             System.out.println("Pacote RReply recebido pelo nó " + this.nodeIdentification + ". Actualiza tabelas");
                                         }
 
@@ -423,7 +419,7 @@ public class no {
                     //System.out.println("Pacote Ack recebido pelo nó "+this.nodeIdentification);
                     //pacote.imprimePacote(packet);
                     //System.out.println("Eu "+this.nodeIdentification+ " Recebeu ack do no "+ source);
-                    if (DEBUG_FINAL) {
+                    if (false) {
                         if (this.nodeIdentification != 1) {
                             System.out.println("Nó " + this.nodeIdentification + " recebe Ack");
                         } else {
@@ -527,7 +523,7 @@ public class no {
                         //rotas.adicionaEntradaTabela(this.tabRota, CENTRAL, 2, 0);
                         if (rotas.getEntradaTabela(this.tabRota, dest) != -1) {
 
-                            if (DEBUG_DETAILED) {
+                            if (false) {
                                 System.out.println("Nó " + this.nodeIdentification + " quer enviar informação e tem rota.");
                             }
                             int nHop = rotas.getEntradaTabela(this.tabRota, dest);
@@ -550,7 +546,7 @@ public class no {
 
                         } else if (espera_rrply == 0) {
 
-                            if (DEBUG_DETAILED) {
+                            if (false) {
                                 System.out.println("Nó " + this.nodeIdentification + " quer enviar informação mas não tem rota. Envia RRequest e espera RReply ");
                             }
                             int nHop = 0;
@@ -685,7 +681,7 @@ public class no {
                         /*
                          //rotas.adicionaEntradaTabela(this.tabRota, CENTRAL, 2, 0);
                          if (rotas.getEntradaTabela(this.tabRota, dest) != -1) {
-                         if (DEBUG) {
+                         if (false) {
                          System.out.println("Nó " + this.nodeIdentification + " quer enviar informação e tem rota.");
                          }
                          int nHop = rotas.getEntradaTabela(this.tabRota, dest);
@@ -706,7 +702,7 @@ public class no {
                          espera_rrply = 0;
 
                          } else if (espera_rrply == 0) {
-                         if (DEBUG_DETAILED) {
+                         if (false) {
                          System.out.println("Nó " + this.nodeIdentification + " quer enviar informação mas não tem rota. Envia RRequest e espera RReply ");
                          }
 
@@ -740,7 +736,7 @@ public class no {
     public int calculaNumFragmentos(String dados) {
 
         int numFragmentos;
-        double tamanhoTotalDadosPacote = 10;
+        double tamanhoTotalDadosPacote = 9;
         String dados2 = pacote.binaryStringToText(dados);
 
         if (dados2.length() <= tamanhoTotalDadosPacote) {

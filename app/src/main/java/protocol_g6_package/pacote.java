@@ -3,6 +3,8 @@
 package protocol_g6_package;
 
 
+import java.util.Arrays;
+
 import static protocol_g6_package.rotas.MAXNODES;
 import static protocol_g6_package.rotas.BROADCAST;
 import static protocol_g6_package.rotas.CENTRAL;
@@ -297,16 +299,16 @@ public static byte[] binaryString2byteArray(String pacote){
             pFragmentID = addNBits(Integer.toBinaryString(FragmentID),nBitsFragmentID);
             pTotalFragments = addNBits(Integer.toBinaryString(TotalFragments),nBitsTotalFragments);
             
-            // 10 bytes(dados) * 8 = 80 bits
+            // 9 bytes(dados) * 8 = 72 bits
             if(TotalFragments==FragmentID)
             {
-                 for(int i=(FragmentID*80); i < dadosBin.length(); i++)
+                 for(int i=(FragmentID*72); i < dadosBin.length(); i++)
                 {        
                          pDados = pDados + dadosBin.charAt(i) + ""; 
                 }
             }    
             else{
-                for(int i=(FragmentID*80); i < ((FragmentID*80)+80); i++)
+                for(int i=(FragmentID*72); i < ((FragmentID*72)+72); i++)
                 {        
                          pDados = pDados + dadosBin.charAt(i) + ""; 
                 }
@@ -339,19 +341,19 @@ public static byte[] binaryString2byteArray(String pacote){
         crcData = calcularCRCData(pDados);
         
         /* // Teste encapsula
-        System.out.println("Source(encapsulado): " + pSource);
-        System.out.println("crcHeader(encapsulado): " + crcHeader);
-        System.out.println("CRC Data(encapsulado): " + crcData);
-        System.out.println("Msg (encapsulada):     " + pDados); */
+        System.out.println("protocolog6","Source(encapsulado): " + pSource);
+        System.out.println("protocolog6","crcHeader(encapsulado): " + crcHeader);
+        System.out.println("protocolog6","CRC Data(encapsulado): " + crcData);
+        System.out.println("protocolog6","Msg (encapsulada):     " + pDados); */
         
         packet=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader+pDados+crcData;
 
         id++;
         if (id==32) id=0;
         
-        //System.out.println(packetVersion);
-        //System.out.println(packetType);
-        //System.out.println(packetDestino);
+        //System.out.println("protocolog6",packetVersion);
+        //System.out.println("protocolog6",packetType);
+        //System.out.println("protocolog6",packetDestino);
         return packet;
     }
     
@@ -403,6 +405,7 @@ public static byte[] binaryString2byteArray(String pacote){
         crcHeader = addNBits(xor(aux,complement), nBitsCRCHeader);
         
         rReqPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader;
+        System.out.println("Route Request: " + Arrays.toString(binaryString2byteArray(rReqPacket)));
         id++;
         if (id==32) id=0;
         return rReqPacket;
