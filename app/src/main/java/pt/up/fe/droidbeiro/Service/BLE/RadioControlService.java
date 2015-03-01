@@ -242,7 +242,6 @@ public class RadioControlService extends Service {
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_RADIO);
 
         // Sets up Log messages.
-
         Log.v(TAG, "Device Name: "+mDeviceName);
         Log.v(TAG, "Device Address: "+mDeviceAddress);
 
