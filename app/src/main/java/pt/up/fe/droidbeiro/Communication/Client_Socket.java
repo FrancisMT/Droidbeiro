@@ -312,7 +312,7 @@ public class Client_Socket extends Service{
                 setGSM(false);
             }
 
-            broadcastUpdate(SerialPortService.BROADCAST_ACTION_WRITE, new String(pck_to_send.packetContent));
+            //broadcastUpdate(SerialPortService.BROADCAST_ACTION_WRITE, new String(pck_to_send.packetContent));
 
 
             rqst new_request = new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, no_spec, pck_to_send.packetContent);
