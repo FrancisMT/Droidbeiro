@@ -34,8 +34,8 @@ import pt.up.fe.droidbeiro.Messages.LowBatteryWarningMessage;
  */
 public class GPS extends Service {
     public static final String BROADCAST_ACTION = "com.example.GPS.CONTROL_SERVICE_CONNECTED";
-    private Runnable sendUpdatesToUI = new Runnable() {
 
+    private Runnable sendUpdatesToUI = new Runnable() {
         public void run() {
             broadcastUpdate(BROADCAST_ACTION);
             handler.postDelayed(this, 500);
@@ -126,6 +126,7 @@ public class GPS extends Service {
     private void broadcastUpdate(final String action){
         final Intent intent = new Intent(action);
         Location location = lManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
         /**
          * For Debuging
          */

@@ -504,6 +504,8 @@ public class SerialPortService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
 
+            Log.e("DEBUG::","I'm Serial Port BroadcastReceiver");
+
             final String action = intent.getAction();
 
             if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
@@ -572,6 +574,8 @@ public class SerialPortService extends Service {
         //registerReceiver(UpdateReceiver, makeGattUpdateIntentFilter());
 
         registerReceiver(UpdateReceiver, new IntentFilter("DATA_TO_BT"));
+        Log.e("DEBUG::","In BT SerialPortService");
+
 
         /*if (mBluetoothLeService != null) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);

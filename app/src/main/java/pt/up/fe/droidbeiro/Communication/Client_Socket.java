@@ -970,6 +970,9 @@ public class Client_Socket extends Service{
     }
 
     public void broadcastUpdate(final String action, final String data) {
+
+        Log.e("DEBUG::","Client_Socket BT_broadcastUpdate");
+
         final Intent intent = new Intent(action);
 
         intent.putExtra("DATA_TO_BT", data);

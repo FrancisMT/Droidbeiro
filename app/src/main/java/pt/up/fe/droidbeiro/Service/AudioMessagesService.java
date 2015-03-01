@@ -110,8 +110,6 @@ public class AudioMessagesService extends Service {
     }
 
 
-
-
     private void playAudioMessages() {
 
         String path = "android.resource://"+getPackageName()+"/raw/"+audioMessagesList.get(messageID);
@@ -127,8 +125,6 @@ public class AudioMessagesService extends Service {
                     mp.start();
                 }
             });
-
-
 
         } catch (IOException e) {
             e.printStackTrace();
