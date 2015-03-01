@@ -247,7 +247,15 @@ public class Compass extends Activity implements SensorEventListener {
         a = Math.pow(Math.sin(dlat/2),2) + Math.cos(latitude) * Math.cos(lat1) * Math.pow(Math.sin(dlon/2),2);
         distancia = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double distance= 6378140 * distancia; //6378140 is the radius of the Earth in meters
-        text.setText("Distância:\n" + Double.toString((double)Math.round(distance * 100) / 100) + " metros");
+
+        if(((double)Math.round(distance * 100) / 100) <= 2 )
+        {
+            text.setText("Chegou a distância");
+        }
+        else
+        {
+            text.setText("Distância:\n" + Double.toString((double)Math.round(distance * 100) / 100) + " metros");
+        }
     }
 
     @Override

@@ -433,6 +433,7 @@ public class SerialPortService extends Service {
                 BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID_RX_DATA);
                 if (characteristic != null) {
                     if (gatt.setCharacteristicNotification(characteristic, true) == true) {
+
                         Log.d("gatt", "SUCCESS!");
                     } else {
                         Log.d("gatt", "FAILURE!");
@@ -628,9 +629,11 @@ public class SerialPortService extends Service {
             int tamanho;
             int i;
 
-            for(tamanho=0; tamanho<20 && mensagem[tamanho]!= 0x0A; tamanho++)
+            for(tamanho=19; tamanho>=0; tamanho--)
             {
                 Log.e("DEBUG::","Tamnho=" + tamanho);
+                if(mensagem[tamanho]==0x0A)
+                    break;
             }
 
 
