@@ -1,5 +1,7 @@
 package protocol_g6_package;
 
+import android.util.Log;
+
 import java.util.List;
 import java.util.Queue;
 import java.util.AbstractMap;
@@ -89,6 +91,8 @@ public class no {
 
         //synchronized(this.fila_espera_ACK_RRply){ 
         int versao, id, source;
+
+        Log.d("RecebePacote","ENTREI!!!!!!!!!!!!!!!!!!!!!");
 
         if (filaEspera.verElementoCabeçaFila(this.filain) != null) { //verifica se tem elementos na fila
         	

@@ -1,5 +1,7 @@
 package protocol_g6_package;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -233,7 +235,7 @@ public class Protocol_G6 {
                                 //System.out.println("Entrei 1");
                                 threadProtocol.AppOut.writeObject(response);
                                 //this.threadProtocol.espera();
-                                threadProtocol.node.recebePacote();
+                                Log.d("PROTOCOL_G6", "!!!!!!Retorna " + threadProtocol.node.recebePacote());
                                 //this.threadProtocol.notifica();
 
                                 break;
@@ -343,7 +345,7 @@ public class Protocol_G6 {
                                 //System.out.println("Entrei 4");
                                 threadProtocol.AppOut.writeObject(response);
                                 //this.threadProtocol.espera();
-                                threadProtocol.node.recebePacote();
+                                Log.d("PROTOCOL_G6", "!!!!!!Retorna " + threadProtocol.node.recebePacote());
                                 //this.threadProtocol.notifica();
 
                                 break;
