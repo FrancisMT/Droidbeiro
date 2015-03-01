@@ -627,6 +627,7 @@ public class SerialPortService extends Service {
 
             //String RxData = characteristic.getStringValue(offset); // 20 bytes. Fazer parse e conversão necessários
             Log.d(TAG, String.format("Received data: "+RxData));
+            Log.wtf("broadcastUpdate", "|||||||||Recebi Hardware||||||||||" + Arrays.toString(RxData));
 
             byte[] mensagem = RxData;
             int tamanho;
@@ -648,6 +649,8 @@ public class SerialPortService extends Service {
             }
 
             //----- Fim da parte adicionada pelo francisco
+
+            Log.wtf("broadcastUpdate", "||||||Enviei para o protocolo|||||||| "  + Arrays.toString(dados_finais));
 
             if (CS.running) {
                 CS.send_To_Protocol(new rqst(ProtCommConst.RQST_ACTION_APP_PACK_MSG, (byte) 0, dados_finais));
@@ -823,7 +826,7 @@ public class SerialPortService extends Service {
 
         Log.e("DEBUG::","dataToWrite==" + dataToWrite);
 
-        Log.d("Write Char!!!", Arrays.toString(dataToWrite));
+        Log.wtf("writeCharacteristic", "||||||||||||||Write to radio|||||||||||||||" + Arrays.toString(dataToWrite));
 
         int tamanho = dataToWrite.length;
         Log.e("Tamanho",String.valueOf(tamanho));
@@ -844,7 +847,7 @@ public class SerialPortService extends Service {
             }
         }
 
-        Log.d("Write vou enviar", Arrays.toString(mensagem));
+        Log.wtf("writeCharacteristic", "||||||||||||||||||||Apos stuffing|||||||||||||||" + Arrays.toString(mensagem));
         characteristic.setValue(mensagem);
         Log.e("OII","jsakdajs");
         mBluetoothGatt.writeCharacteristic(characteristic);
