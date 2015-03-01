@@ -796,6 +796,7 @@ public class Client_Socket extends Service{
                 }
             } catch (StreamCorruptedException e1) {
                 e1.printStackTrace();
+                GSM_Status=false;
             } catch (UnknownHostException e1) {
                 e1.printStackTrace();
             } catch (IOException e1) {
@@ -1026,10 +1027,12 @@ public class Client_Socket extends Service{
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
                     try {
                         out.flush();
                     } catch (IOException e) {
                         e.printStackTrace();
+                        GSM_Status=false;
                     }
 
                 }
@@ -1042,7 +1045,7 @@ public class Client_Socket extends Service{
 
                     pacote.imprimePacote(pacote.byteArray2binaryString(response.packet));
 
-                    Log.d("Client Socket", Arrays.toString(response.packet));
+                    System.out.println("Client Socket"+ Arrays.toString(response.packet));
 
                     message_to_BT=true;
                     data_to_BT=response.packet;

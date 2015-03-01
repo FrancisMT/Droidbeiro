@@ -102,8 +102,8 @@ public class GPS extends Service{
             public void onLocationChanged(Location locat) {
                 longitude = (double) (locat.getLongitude());
                 latitude = (double) (locat.getLatitude());
-                Log.e("GPS", "Latitude:"+ latitude);
-                Log.e("GPS", "Longitude;" + longitude);
+                //Log.e("GPS", "Latitude:"+ latitude);
+                //Log.e("GPS", "Longitude;" + longitude);
                 //broadcastUpdate(BROADCAST_ACTION);
             }
 
@@ -152,7 +152,7 @@ public class GPS extends Service{
         /****************************************************************/
         if (CS.isAfter_login() && CS.isSocket_accepted()) {
 
-            if (getMyBatteryLevel() < 1){
+           /* if (getMyBatteryLevel() < 1){
                 Log.e("Low Battery Level: ", String.valueOf(getMyBatteryLevel()));
 
                 LowBatteryWarningMessage lbw_msg = new LowBatteryWarningMessage(CS.getFirefighter_ID());
@@ -166,7 +166,7 @@ public class GPS extends Service{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
+            }*/
 
 
             Calendar cal = Calendar.getInstance();
