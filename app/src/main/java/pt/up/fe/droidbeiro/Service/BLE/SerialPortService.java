@@ -20,6 +20,7 @@ import android.os.IBinder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -433,6 +434,7 @@ public class SerialPortService extends Service {
                 BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID_RX_DATA);
                 if (characteristic != null) {
                     if (gatt.setCharacteristicNotification(characteristic, true) == true) {
+
                         Log.d("gatt", "SUCCESS!");
                     } else {
                         Log.d("gatt", "FAILURE!");
@@ -508,7 +510,7 @@ public class SerialPortService extends Service {
         }
     };
 
-    public static String dataToWrite = "empty data";
+    public static byte [] dataToWrite = null;
 
     private final BroadcastReceiver UpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -519,7 +521,7 @@ public class SerialPortService extends Service {
             final String action = intent.getAction();
 
             if (SerialPortService.BROADCAST_ACTION_WRITE.equals(action)) {
-                dataToWrite = intent.getStringExtra("DATA_TO_BT");
+                //dataToWrite = intent.getStringExtra("DATA_TO_BT");
                 BluetoothGattService service = mBluetoothGatt.getService(UUID_SERVICE);
                 BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID_TX_DATA);
 
@@ -621,16 +623,20 @@ public class SerialPortService extends Service {
 
             int offset=0;
 
-            String RxData = characteristic.getStringValue(offset); // 20 bytes. Fazer parse e conversão necessários
+            byte [] RxData = characteristic.getValue();
+
+            //String RxData = characteristic.getStringValue(offset); // 20 bytes. Fazer parse e conversão necessários
             Log.d(TAG, String.format("Received data: "+RxData));
 
-            byte[] mensagem = RxData.getBytes();
+            byte[] mensagem = RxData;
             int tamanho;
             int i;
 
-            for(tamanho=0; tamanho<20 && mensagem[tamanho]!= 0x0A; tamanho++)
+            for(tamanho=19; tamanho>=0; tamanho--)
             {
                 Log.e("DEBUG::","Tamnho=" + tamanho);
+                if(mensagem[tamanho]==0x0A)
+                    break;
             }
 
 
@@ -817,13 +823,15 @@ public class SerialPortService extends Service {
 
         Log.e("DEBUG::","dataToWrite==" + dataToWrite);
 
-        int tamanho = dataToWrite.length();
+        Log.d("Write Char!!!", Arrays.toString(dataToWrite));
+
+        int tamanho = dataToWrite.length;
         Log.e("Tamanho",String.valueOf(tamanho));
         int i =0;
         byte[] mensagem = new byte[20];
 
         for(i=0; i< tamanho; i++) {
-            mensagem[i] = dataToWrite.getBytes()[i];
+            mensagem[i] = dataToWrite[i];
         }
 
         mensagem[tamanho] = 0x0A;
@@ -835,6 +843,8 @@ public class SerialPortService extends Service {
                 mensagem[i] =0x00;
             }
         }
+
+        Log.d("Write vou enviar", Arrays.toString(mensagem));
         characteristic.setValue(mensagem);
         Log.e("OII","jsakdajs");
         mBluetoothGatt.writeCharacteristic(characteristic);

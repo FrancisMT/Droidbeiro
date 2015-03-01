@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import androidBackendAPI.Packet;
+import protocol_g6_package.pacote;
 import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
 import pt.up.fe.droidbeiro.Messages.DenyIDMessage;
 import pt.up.fe.droidbeiro.Messages.DenyRequestMessage;
@@ -114,13 +115,13 @@ public class Client_Socket extends Service{
      * Bluetooth Communication
      */
     public static boolean message_to_BT=false;
-    public static String data_to_BT=null;
+    public static byte[] data_to_BT=null;
 
     public static void setMessage_to_BT(boolean message_to_BT) {
         Client_Socket.message_to_BT = message_to_BT;
     }
 
-    public static String getData_to_BT() {
+    public static byte [] getData_to_BT() {
         return data_to_BT;
     }
 
@@ -1037,8 +1038,14 @@ public class Client_Socket extends Service{
                 else if (response.spec == ProtCommConst.RQST_SPEC_ANDR_RADIO){
                     //Creat request to Foward to BLUETOOTH
 
+                    Log.e("PROTOCOL_DEBUG::","The protocol asks the application to send a message through RADIO");
+
+                    pacote.imprimePacote(pacote.byteArray2binaryString(response.packet));
+
+                    Log.d("Client Socket", Arrays.toString(response.packet));
+
                     message_to_BT=true;
-                    data_to_BT=new String(response.packet);
+                    data_to_BT=response.packet;
                 }
 
                 else{
