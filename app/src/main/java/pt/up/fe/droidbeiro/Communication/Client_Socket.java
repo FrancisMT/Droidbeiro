@@ -287,6 +287,8 @@ public class Client_Socket extends Service{
     public void send_packet(Packet pck_to_send) throws IOException {
 
 
+        broadcastUpdate(SerialPortService.BROADCAST_ACTION_WRITE, new String(pck_to_send.packetContent));
+
         System.out.println("Packet Content:" + String.valueOf(pck_to_send.packetContent));
 
         if (PG5 || PG6) {
