@@ -1,7 +1,5 @@
 package protocol_g6_package;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -13,6 +11,8 @@ import java.util.logging.Logger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import android.util.Log;
 
 import static protocol_g6_package.rotas.ENDEREÇO_NULO;
 import static protocol_g6_package.rotas.CENTRAL;
@@ -235,7 +235,7 @@ public class Protocol_G6 {
                                 //System.out.println("Entrei 1");
                                 threadProtocol.AppOut.writeObject(response);
                                 //this.threadProtocol.espera();
-                                Log.d("PROTOCOL_G6", "!!!!!!Retorna " + threadProtocol.node.recebePacote());
+                                threadProtocol.node.recebePacote();
                                 //this.threadProtocol.notifica();
 
                                 break;
@@ -251,6 +251,7 @@ public class Protocol_G6 {
                                 } else if (request.spec == 0x11) {
                                     threadProtocol.node.GSM = false;
                                     rotas.removeEntradaTabela(threadProtocol.node.tabRota, CENTRAL);
+                                    Log.d("Protocol_G6", "!!!!!!!!!!PERDI GSM!!!!!!!!!!!!");
                                     if (DEBUG) {
                                         System.out.println("Nó " + this.threadProtocol.deviceID + " perdeu GSM");
                                     }
@@ -345,7 +346,7 @@ public class Protocol_G6 {
                                 //System.out.println("Entrei 4");
                                 threadProtocol.AppOut.writeObject(response);
                                 //this.threadProtocol.espera();
-                                Log.d("PROTOCOL_G6", "!!!!!!Retorna " + threadProtocol.node.recebePacote());
+                                threadProtocol.node.recebePacote();
                                 //this.threadProtocol.notifica();
 
                                 break;
@@ -712,12 +713,12 @@ public class Protocol_G6 {
                             /*for (int i = 0; i < 256; i++) {
                              System.out.println("valor da tabela pos "+ i + " valor: " + tabelaSocketID[i]);
                              }*/
-                            if (threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][0] != NO_SOCKET) {
+                            /*if (threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][0] != NO_SOCKET) {
                                 spec = (byte) threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][0];
                                 nexthop = threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][1];
                                 //System.out.println("entrei 1");
-                            }// Segundo tenta enviar pelo next hop do pacote 
-                            else if (threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][0] != NO_SOCKET) {
+                            } */// Segundo tenta enviar pelo next hop do pacote 
+                            if (threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][0] != NO_SOCKET) {
                                 spec = (byte) threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][0];
                                 nexthop = threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][1];
                                 //System.out.println("entrei 2");
@@ -861,13 +862,14 @@ public class Protocol_G6 {
                             rqst req = new rqst(id, spec, packet);
                             //System.out.println("Entrei 13");
                             threadProtocol.ProOut.writeObject(req);
-                            response = (rspns) threadProtocol.ProIn.readObject();
+							response = (rspns) threadProtocol.ProIn.readObject();
                             filaEspera.removerElementoFila(threadProtocol.node.fila_dados_out);
                         } catch (IOException ex) {
                             Logger.getLogger(Protocol_G6.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (ClassNotFoundException ex) {
-                            Logger.getLogger(Protocol_G6.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                        } catch (ClassNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
                     }
 
                     if (!threadProtocol.node.Hashmap.isEmpty()) {

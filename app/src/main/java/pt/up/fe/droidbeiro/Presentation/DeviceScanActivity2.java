@@ -327,7 +327,7 @@ public class DeviceScanActivity2 extends ListActivity {
 
         }*/
 
-       /* final Intent intentServiceSPP = new Intent(this, RadioControlService.class);
+       final Intent intentServiceSPP = new Intent(this, RadioControlService.class);
         //intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_NAME_RADIO, device.getName());
         intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_ADDRESS_RADIO, device.getAddress());
 
@@ -335,9 +335,9 @@ public class DeviceScanActivity2 extends ListActivity {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
         }
-        startService(intentServiceSPP);*/
+        startService(intentServiceSPP);
 
-        if (device.getName().equals("Polar H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
+       /* if (device.getName().equals("Polar H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
 
             final Intent intentService = new Intent(this, DeviceControlService.class);
 
@@ -352,7 +352,7 @@ public class DeviceScanActivity2 extends ListActivity {
             startService(intentService);
 
 
-        }
+        }*/
 
 
 

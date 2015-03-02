@@ -160,13 +160,13 @@ public class BluetoothLeService extends Service {
             int format = -1;
             if ((flag & 0x01) != 0) {
                 format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                Log.d(TAG, "Heart rate format UINT16.");
+                //Log.d(TAG, "Heart rate format UINT16.");
             } else {
                 format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                Log.d(TAG, "Heart rate format UINT8.");
+                //Log.d(TAG, "Heart rate format UINT8.");
             }
             final int heartRate = characteristic.getIntValue(format, 1);
-            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
+            //Log.d(TAG, String.format("Received heart rate: %d", heartRate));
 
             if (CS.isAfter_login()) {
                 Calendar cal = Calendar.getInstance();
@@ -230,7 +230,7 @@ public class BluetoothLeService extends Service {
             intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
         }
         else if(UUID_BATTERY_LEVEL.equals(characteristic.getUuid())){ //battery
-            Log.v(TAG, "characteristic.getStingValue(0) = "+ characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
+            //Log.v(TAG, "characteristic.getStingValue(0) = "+ characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0));
             final int battery = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
             intent.putExtra(EXTRA_DATABAT, String.valueOf(battery));
 

@@ -1,7 +1,6 @@
 package protocol_g6_package;
 
-import android.util.Log;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.AbstractMap;
@@ -11,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import android.util.Log;
 import static protocol_g6_package.Protocol_G6.VERSAO_PROTOCOLO;
 import static protocol_g6_package.rotas.ENDEREÇO_NULO;
 import static protocol_g6_package.rotas.CENTRAL;
@@ -76,8 +76,8 @@ public class no {
         //System.out.println("Pacote para reencaminhar:::::");
         //pacote.imprimePacote(packet);
         String Npcket = pacote.setNewHeadersPacote(packet, ttl, this.nodeIdentification, nHop);
-        //System.out.println("Pacote reencaminha:::::");
-        //pacote.imprimePacote(Npcket);
+        Log.d("reencaminha","Pacote reencaminha:::::"+this.nodeIdentification);
+        pacote.imprimePacote(Npcket);
         filaEspera.adicionarElementoFila(this.filaout, Npcket, dest);
         /*System.out.println("\n\nFILA OUT");
          System.out.println("tamanho filaout: "+filaout.size());
@@ -92,8 +92,6 @@ public class no {
         //synchronized(this.fila_espera_ACK_RRply){ 
         int versao, id, source;
 
-        Log.d("RecebePacote","ENTREI!!!!!!!!!!!!!!!!!!!!!");
-
         if (filaEspera.verElementoCabeçaFila(this.filain) != null) { //verifica se tem elementos na fila
         	
              
@@ -106,6 +104,11 @@ public class no {
             String packet = filaEspera.getDados(this.filain);
             versao = pacote.getVersionPacote(packet);
 
+            Log.d("RECEBE PACOTE", "!!!!!!!!");
+            pacote.imprimePacote(filaEspera.getDados(this.filain));
+            
+            Log.d("RECEBE PACOTE", Integer.toString(packet.length()));
+            
             if (versao != VERSAO_PROTOCOLO) { //se n for o nosso protocolo descarta
                 if (false) {
                     if (this.nodeIdentification != 1) {

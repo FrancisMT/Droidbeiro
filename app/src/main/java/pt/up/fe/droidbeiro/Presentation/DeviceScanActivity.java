@@ -202,7 +202,7 @@ public class DeviceScanActivity extends ListActivity {
                 scanLeDevice(false);
                 break;
             case R.id.menu_skip:
-                Intent intent = new Intent(this, Connection.class);
+                Intent intent = new Intent(this, DeviceScanActivity2.class);
                 startActivity(intent);
                 break;
         }
@@ -327,7 +327,7 @@ public class DeviceScanActivity extends ListActivity {
 
         }*/
 
-        final Intent intentServiceSPP = new Intent(this, RadioControlService.class);
+       /* final Intent intentServiceSPP = new Intent(this, RadioControlService.class);
         //intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_NAME_RADIO, device.getName());
         intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_ADDRESS_RADIO, device.getAddress());
 
@@ -336,8 +336,8 @@ public class DeviceScanActivity extends ListActivity {
             mScanning = false;
         }
         startService(intentServiceSPP);
-
-        /*if (device.getName().equals("Polar H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
+*/
+        if (device.getName().equals("Polar H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
 
             final Intent intentService = new Intent(this, DeviceControlService.class);
 
@@ -352,7 +352,7 @@ public class DeviceScanActivity extends ListActivity {
             startService(intentService);
 
 
-        }*/
+        }
 
 
 
