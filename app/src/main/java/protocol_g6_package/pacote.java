@@ -418,7 +418,7 @@ public static byte[] binaryString2byteArray(String pacote){
         int dest;
         dest = getSourcePacote(pacote);
         
-        int nHop=rotas.getEntradaTabela(node.tabRota, dest);
+        int nHop = rotas.getEntradaTabela(node.tabRota, dest);
         
         if (nHop==-1)
             return null;

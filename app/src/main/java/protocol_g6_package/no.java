@@ -557,7 +557,7 @@ public class no {
                             if (false) {
                                 System.out.println("Nó " + this.nodeIdentification + " quer enviar informação mas não tem rota. Envia RRequest e espera RReply ");
                             }
-                            int nHop = 0;
+                            int nHop = rotas.getEntradaTabela(this.tabRota, dest);
                             int TotalFragments = this.calculaNumFragmentos(dados);
                             int FragmentFlag;
                             String RReq = pacote.criaRReq(dest, this.nodeIdentification);
@@ -610,7 +610,7 @@ public class no {
                             espera_rrply = 1;
                         } else {
 
-                            int nHop = 0;
+                            int nHop = rotas.getEntradaTabela(this.tabRota, dest);
                             int TotalFragments = this.calculaNumFragmentos(dados);
                             int FragmentFlag;
                             if (TotalFragments == 0) {
