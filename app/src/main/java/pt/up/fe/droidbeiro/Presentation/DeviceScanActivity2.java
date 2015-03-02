@@ -75,7 +75,7 @@ import pt.up.fe.droidbeiro.Service.BLE.SerialPortService;
  *                     String hearRate stores the data received by the broadcaster.
  *
  *      private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
- @Override
+@Override
 public void onReceive(Context context, Intent intent) {
 final String action = intent.getAction();
 
@@ -107,7 +107,7 @@ heartRate = intent.getStringExtra(DeviceControlService.HR_DATA));}
  *
  */
 
-public class DeviceScanActivity extends ListActivity {
+public class DeviceScanActivity2 extends ListActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 60 seconds. Can take up to 45 seconds to find device.
     private static final long SCAN_PERIOD = 10000; //10 sec for testing purposes
@@ -262,7 +262,7 @@ public class DeviceScanActivity extends ListActivity {
          *------------------------------------------//---------------------------------
          *
          * You can also add the intent to other activities here.
-        */
+         */
 
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
 
@@ -327,7 +327,7 @@ public class DeviceScanActivity extends ListActivity {
 
         }*/
 
-        final Intent intentServiceSPP = new Intent(this, RadioControlService.class);
+       /* final Intent intentServiceSPP = new Intent(this, RadioControlService.class);
         //intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_NAME_RADIO, device.getName());
         intentServiceSPP.putExtra(RadioControlService.EXTRAS_DEVICE_ADDRESS_RADIO, device.getAddress());
 
@@ -335,9 +335,9 @@ public class DeviceScanActivity extends ListActivity {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
         }
-        startService(intentServiceSPP);
+        startService(intentServiceSPP);*/
 
-        /*if (device.getName().equals("Polar H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
+        if (device.getName().equals("Polar H7 42E60A1B")) { // name of device == name of HR sensor -> start DeviceControlService
 
             final Intent intentService = new Intent(this, DeviceControlService.class);
 
@@ -352,11 +352,11 @@ public class DeviceScanActivity extends ListActivity {
             startService(intentService);
 
 
-        }*/
+        }
 
 
 
-        Intent intent = new Intent(DeviceScanActivity.this, DeviceScanActivity2.class);
+        Intent intent = new Intent(DeviceScanActivity2.this, Connection.class);
         startActivity(intent);
 
     }
@@ -395,7 +395,7 @@ public class DeviceScanActivity extends ListActivity {
         public LeDeviceListAdapter() {
             super();
             mLeDevices = new ArrayList<BluetoothDevice>();
-            mInflator = DeviceScanActivity.this.getLayoutInflater();
+            mInflator = DeviceScanActivity2.this.getLayoutInflater();
         }
 
         public void addDevice(BluetoothDevice device) {
