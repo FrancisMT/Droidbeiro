@@ -966,26 +966,26 @@ public static byte[] binaryString2byteArray(String pacote){
     
     public static void imprimePacote(String newPacket){
     
-        Log.d("protocolog6","Versao do pacote: " + getVersionPacote(newPacket));
-        Log.d("protocolog6","Tipo do pacote: " + getTypePacote(newPacket));
-        Log.d("protocolog6","ID do pacote: " + getIDPacote(newPacket));
-        Log.d("protocolog6","TTL do pacote: " + getTTLPacote(newPacket));
-        Log.d("protocolog6","OrigSource do pacote: " + getOrigSourcePacote(newPacket));
-        Log.d("protocolog6","Destino do pacote: " + getDestinoPacote(newPacket));
-        Log.d("protocolog6","NextHop do pacote: " + getNextHopPacote(newPacket));
-        Log.d("protocolog6","Source do pacote: " + getSourcePacote(newPacket));
-        Log.d("protocolog6","CRC Header(binario): " + getCRCHeaderPacote(newPacket));
-        Log.d("protocolog6","FragmentFlag: " + getFragmentFlagPacote(newPacket));
-        Log.d("protocolog6","Fragment ID: " + getFragmentIDPacote(newPacket)); 
-        Log.d("protocolog6","Total Fragments: " + getTotalFragmentsPacote(newPacket));
+        Log.wtf("protocolog6","Versao do pacote: " + getVersionPacote(newPacket));
+        Log.wtf("protocolog6","Tipo do pacote: " + getTypePacote(newPacket));
+        Log.wtf("protocolog6","ID do pacote: " + getIDPacote(newPacket));
+        Log.wtf("protocolog6","TTL do pacote: " + getTTLPacote(newPacket));
+        Log.wtf("protocolog6","OrigSource do pacote: " + getOrigSourcePacote(newPacket));
+        Log.wtf("protocolog6","Destino do pacote: " + getDestinoPacote(newPacket));
+        Log.wtf("protocolog6","NextHop do pacote: " + getNextHopPacote(newPacket));
+        Log.wtf("protocolog6","Source do pacote: " + getSourcePacote(newPacket));
+        Log.wtf("protocolog6","CRC Header(binario): " + getCRCHeaderPacote(newPacket));
+        Log.wtf("protocolog6","FragmentFlag: " + getFragmentFlagPacote(newPacket));
+        Log.wtf("protocolog6","Fragment ID: " + getFragmentIDPacote(newPacket));
+        Log.wtf("protocolog6","Total Fragments: " + getTotalFragmentsPacote(newPacket));
         
         if(getTypePacote(newPacket)==0)
         {
-        Log.d("protocolog6","CRC Data(binario): " + pacote.getCRCDataPacote(newPacket));
-        Log.d("protocolog6","Msg:" + desencapsula(newPacket));
+        Log.wtf("protocolog6","CRC Data(binario): " + pacote.getCRCDataPacote(newPacket));
+        Log.wtf("protocolog6","Msg:" + desencapsula(newPacket));
         }
         else
-           Log.d("protocolog6","O pacote é do tipo " + getTypePacote(newPacket) + " logo não transporta dados. "); 
+           Log.wtf("protocolog6","O pacote é do tipo " + getTypePacote(newPacket) + " logo não transporta dados. ");
     }  
 
     

@@ -233,6 +233,10 @@ public class Protocol_G6 {
                                         pacote.byteArray2binaryString(request.packet), 0);
                                 response = new rspns((byte) 0x00);
                                 //System.out.println("Entrei 1");
+
+                                Log.wtf("Protocol_G6" , "Application asked to unpack " + Arrays.toString(request.packet));
+                                pacote.imprimePacote(pacote.byteArray2binaryString(request.packet));
+
                                 threadProtocol.AppOut.writeObject(response);
                                 //this.threadProtocol.espera();
                                 threadProtocol.node.recebePacote();
@@ -245,13 +249,14 @@ public class Protocol_G6 {
                                 if (request.spec == 0x00) {
                                     threadProtocol.node.GSM = true;
                                     rotas.adicionaEntradaTabela(threadProtocol.node.tabRota, CENTRAL, CENTRAL, 1);
+                                    Log.wtf("Protocol_G6", "!!!!!!!!!!GANHEI GSM!!!!!!!!!!!!");
                                     if (false) {
                                         System.out.println("Nó " + this.threadProtocol.deviceID + " ganhou GSM");
                                     }
                                 } else if (request.spec == 0x11) {
                                     threadProtocol.node.GSM = false;
                                     rotas.removeEntradaTabela(threadProtocol.node.tabRota, CENTRAL);
-                                    Log.d("Protocol_G6", "!!!!!!!!!!PERDI GSM!!!!!!!!!!!!");
+                                    Log.wtf("Protocol_G6", "!!!!!!!!!!PERDI GSM!!!!!!!!!!!!");
                                     if (DEBUG) {
                                         System.out.println("Nó " + this.threadProtocol.deviceID + " perdeu GSM");
                                     }
@@ -278,6 +283,8 @@ public class Protocol_G6 {
                                  threadProtocol.AppOut.writeObject(response);
                                  threadProtocol.node.preparaPacote();*/
 
+                                Log.wtf("Protocol_G6", "Aplicação pede para empacotar " + Arrays.toString(request.packet));
+
                                 if (numFrag == 1 || ((threadProtocol.node.flag_frag == 1) && numFrag > 1)) {
                                     filaEspera.adicionarElementoFila(threadProtocol.node.fila_dados_in,pacote.byteArray2binaryString(request.packet), 0);
                                     response = new rspns((byte) 0x00);
@@ -289,11 +296,19 @@ public class Protocol_G6 {
 
                                     //this.threadProtocol.notifica();
 
+
+
                                 } else {//if ((threadProtocol.node.flag_frag == 0) && numFrag > 1) { 
                                     //System.out.println("Entrei com frag tenho de esperar");
+
+                                    Log.wtf("Protocol_G6", "Vou ter de fragmentar!");
+
                                     threadProtocol.node.filaFragmentacao.add(request);
                                     response = new rspns((byte) 0x00);
                                     threadProtocol.AppOut.writeObject(response);
+
+
+
                                 }
 
                                 break;

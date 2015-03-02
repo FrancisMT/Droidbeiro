@@ -238,11 +238,11 @@ public class RadioControlService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME_RADIO);
+        //mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME_RADIO);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS_RADIO);
 
         // Sets up Log messages.
-        Log.v(TAG, "Device Name: "+mDeviceName);
+        //Log.v(TAG, "Device Name: "+mDeviceName);
         Log.v(TAG, "Device Address: "+mDeviceAddress);
 
         return 1;

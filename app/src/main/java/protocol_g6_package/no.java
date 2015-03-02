@@ -105,7 +105,7 @@ public class no {
             versao = pacote.getVersionPacote(packet);
 
             Log.d("RECEBE PACOTE", "!!!!!!!!");
-            pacote.imprimePacote(filaEspera.getDados(this.filain));
+            //pacote.imprimePacote(filaEspera.getDados(this.filain));
             
             Log.d("RECEBE PACOTE", Integer.toString(packet.length()));
             
@@ -187,7 +187,7 @@ public class no {
              tabelaValidade.imprimeTabelaValidade(this.tabValidade);
              ///*/
             int dest = pacote.getDestinoPacote(packet);
-            pacote.imprimePacote(packet);
+            //pacote.imprimePacote(packet);
             //int num=0;
             //if(num==0){
             //rotas.adicionaEntradaTabela(this.tabRota, dest, 1,0);
@@ -231,8 +231,9 @@ public class no {
                             if (this.rreq == false) {
 
                                 String RReq = pacote.criaRReq(dest, this.nodeIdentification);
-                                waitingPackets RReq2 = waitingPackets.criarElemento(RReq);
+                                //waitingPackets RReq2 = waitingPackets.criarElemento(RReq);
 
+                                filaEspera.adicionarElementoFila(filaout, RReq, dest);
                                 Set<Integer> keySet2 = Hashmap.keySet();
                                 Iterator<Integer> keySetIterator2 = keySet2.iterator();
                                 int key2 = 0;
@@ -241,7 +242,7 @@ public class no {
 
                                     key2 = keySetIterator2.next();
                                 }
-                                this.Hashmap.put(key2 + 1, RReq2);
+                                //this.Hashmap.put(key2 + 1, RReq2);
 
                                 espera_rrply = 1;
                             }
