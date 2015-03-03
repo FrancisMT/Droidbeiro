@@ -48,8 +48,7 @@ public class AudioMessagesService extends Service {
     public static int messageID;
 
     //Paths
-
-    public static String m_0 = "m0_help";
+    /*public static String m_0 = "m0_help";
     public static String m_1 = "m1_back_down";
     public static String m_2 = "m2_firetruck";
     public static String m_3 = "m3_aerial";
@@ -58,9 +57,30 @@ public class AudioMessagesService extends Service {
     public static String m_6 = "m6_fire_spreading";
     public static String m_7 = "m7_leaving";
     public static String m_8 = "m8_close_to_house";
-    public static String m_9 = "m9_house_burned";
+    public static String m_9 = "m9_house_burned";*/
 
-    ArrayList<String> audioMessagesList = new ArrayList<String>(10);
+    public static String m_0 = "m0_afirmativo";
+    public static String m_1 = "m1_aguarde";
+    public static String m_2 = "m2_assim_farei";
+    public static String m_3 = "m3_correto";
+    public static String m_4 = "m4_errado";
+    public static String m_5 = "m5_informe";
+    public static String m_6 = "m6_negativo";
+    public static String m_7 = "m7_a_caminho";
+    public static String m_8 = "m8_no_local";
+    public static String m_9 = "m9_no_hospital";
+    public static String m_10 = "m10_disponivel";
+    public static String m_11 = "m11_de_regresso";
+    public static String m_12 = "m12_inop";
+    public static String m_13 = "m13_no_quartel";
+    public static String m_14 = "m14_necessito_de_reforcos";
+    public static String m_15 = "m15_casa_em_perigo";
+    public static String m_16 = "m1_back_down";
+    public static String m_17 = "m2_firetruck";
+    public static String m_18 = "m18_descanse";
+    public static String m_19 = "m19_fogo_a_alastrar";
+
+    ArrayList<String> audioMessagesList = new ArrayList<String>(20);
 
     CountDownTimer timer;
 
@@ -85,6 +105,16 @@ public class AudioMessagesService extends Service {
         audioMessagesList.add(7,m_7);
         audioMessagesList.add(8,m_8);
         audioMessagesList.add(9,m_9);
+        audioMessagesList.add(10,m_10);
+        audioMessagesList.add(11,m_11);
+        audioMessagesList.add(12,m_12);
+        audioMessagesList.add(13,m_13);
+        audioMessagesList.add(14,m_14);
+        audioMessagesList.add(15,m_15);
+        audioMessagesList.add(16,m_16);
+        audioMessagesList.add(17,m_17);
+        audioMessagesList.add(18,m_18);
+        audioMessagesList.add(19,m_19);
         //timer para verificar se ja passaram 30seg
         /*timer = new CountDownTimer(30000,50000) {
             @Override
