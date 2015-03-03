@@ -3,24 +3,18 @@ package protocol_g6_package;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import static java.lang.Thread.sleep;
 import java.net.Socket;
-import java.util.Queue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import android.util.Log;
-
-import static protocol_g6_package.rotas.ENDEREÇO_NULO;
-import static protocol_g6_package.rotas.CENTRAL;
-import static protocol_g6_package.rotas.BROADCAST;
-import static protocol_g6_package.rotas.MAXNODES;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import protocolapi.rqst;
 import protocolapi.rspns;
+
+import static protocol_g6_package.rotas.CENTRAL;
 
 //import static protocol_g6_package.simuladorv2.DEBUG;
 //import static protocol_g6_package.simuladorv2.DEBUG_DETAILED;
@@ -233,10 +227,6 @@ public class Protocol_G6 {
                                         pacote.byteArray2binaryString(request.packet), 0);
                                 response = new rspns((byte) 0x00);
                                 //System.out.println("Entrei 1");
-
-                                Log.wtf("Protocol_G6" , "Application asked to unpack " + Arrays.toString(request.packet));
-                                pacote.imprimePacote(pacote.byteArray2binaryString(request.packet));
-
                                 threadProtocol.AppOut.writeObject(response);
                                 //this.threadProtocol.espera();
                                 threadProtocol.node.recebePacote();
@@ -249,14 +239,12 @@ public class Protocol_G6 {
                                 if (request.spec == 0x00) {
                                     threadProtocol.node.GSM = true;
                                     rotas.adicionaEntradaTabela(threadProtocol.node.tabRota, CENTRAL, CENTRAL, 1);
-                                    Log.wtf("Protocol_G6", "!!!!!!!!!!GANHEI GSM!!!!!!!!!!!!");
                                     if (false) {
                                         System.out.println("Nó " + this.threadProtocol.deviceID + " ganhou GSM");
                                     }
                                 } else if (request.spec == 0x11) {
                                     threadProtocol.node.GSM = false;
                                     rotas.removeEntradaTabela(threadProtocol.node.tabRota, CENTRAL);
-                                    Log.wtf("Protocol_G6", "!!!!!!!!!!PERDI GSM!!!!!!!!!!!!");
                                     if (DEBUG) {
                                         System.out.println("Nó " + this.threadProtocol.deviceID + " perdeu GSM");
                                     }
@@ -283,8 +271,6 @@ public class Protocol_G6 {
                                  threadProtocol.AppOut.writeObject(response);
                                  threadProtocol.node.preparaPacote();*/
 
-                                Log.wtf("Protocol_G6", "Aplicação pede para empacotar " + Arrays.toString(request.packet));
-
                                 if (numFrag == 1 || ((threadProtocol.node.flag_frag == 1) && numFrag > 1)) {
                                     filaEspera.adicionarElementoFila(threadProtocol.node.fila_dados_in,pacote.byteArray2binaryString(request.packet), 0);
                                     response = new rspns((byte) 0x00);
@@ -296,19 +282,11 @@ public class Protocol_G6 {
 
                                     //this.threadProtocol.notifica();
 
-
-
                                 } else {//if ((threadProtocol.node.flag_frag == 0) && numFrag > 1) { 
                                     //System.out.println("Entrei com frag tenho de esperar");
-
-                                    Log.wtf("Protocol_G6", "Vou ter de fragmentar!");
-
                                     threadProtocol.node.filaFragmentacao.add(request);
                                     response = new rspns((byte) 0x00);
                                     threadProtocol.AppOut.writeObject(response);
-
-
-
                                 }
 
                                 break;
@@ -538,7 +516,7 @@ public class Protocol_G6 {
                             }
 
                             //Destino é central e nó não tem GSM ou dest!=central
-                            if ((filaEspera.getDest(threadProtocol.node.filaout) == CENTRAL && threadProtocol.node.GSM == false) || (filaEspera.getDest(threadProtocol.node.filaout) != CENTRAL && filaEspera.getDest(threadProtocol.node.filaout) > 1)) {
+                            if ((filaEspera.getDest(threadProtocol.node.filaout) == CENTRAL && threadProtocol.node.GSM == false) || (filaEspera.getDest(threadProtocol.node.filaout) != CENTRAL && filaEspera.getDest(threadProtocol.node.filaout) >= 0)) {
 
                                     //System.out.println("filaEspera.getDest(threadProtocol.node.filaout:"+ filaEspera.getDest(threadProtocol.node.filaout));
                                 //System.out.println("filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados:"+ filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados);
@@ -635,7 +613,7 @@ public class Protocol_G6 {
                                                     }
 
                                                 } //Destino é central e nó não tem GSM ou dest!=central
-                                                else if (((pacote.getDestinoPacote(threadProtocol.node.Hashmap.get(key2).waitPacket) == CENTRAL) && (threadProtocol.node.GSM == false)) || ((pacote.getDestinoPacote(threadProtocol.node.Hashmap.get(key2).waitPacket) != CENTRAL) && (pacote.getDestinoPacote(threadProtocol.node.Hashmap.get(key2).waitPacket) > 1))) {
+                                                else if (((pacote.getDestinoPacote(threadProtocol.node.Hashmap.get(key2).waitPacket) == CENTRAL) && (threadProtocol.node.GSM == false)) || ((pacote.getDestinoPacote(threadProtocol.node.Hashmap.get(key2).waitPacket) != CENTRAL) && (pacote.getDestinoPacote(threadProtocol.node.Hashmap.get(key2).waitPacket) >= 0))) {
                                                     //if (waitingPackets.hasIndex(threadProtocol.node.fila_espera_ACK_RRply, i)) {
                                                     if (pacote.getNextHopPacote(threadProtocol.node.Hashmap.get(key2).waitPacket) != 0) {
                                                         byte id = 0x11;
@@ -728,12 +706,12 @@ public class Protocol_G6 {
                             /*for (int i = 0; i < 256; i++) {
                              System.out.println("valor da tabela pos "+ i + " valor: " + tabelaSocketID[i]);
                              }*/
-                            /*if (threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][0] != NO_SOCKET) {
+                            if (threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][0] != NO_SOCKET) {
                                 spec = (byte) threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][0];
                                 nexthop = threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][1];
                                 //System.out.println("entrei 1");
-                            } */// Segundo tenta enviar pelo next hop do pacote 
-                            if (threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][0] != NO_SOCKET) {
+                            } // Segundo tenta enviar pelo next hop do pacote 
+                            else if (threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][0] != NO_SOCKET) {
                                 spec = (byte) threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][0];
                                 nexthop = threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][1];
                                 //System.out.println("entrei 2");
@@ -804,16 +782,7 @@ public class Protocol_G6 {
 
                                     response = (rspns) threadProtocol.ProIn.readObject();
                                     //System.out.println("response: "+response.id);
-                                    if (response.id == (byte)0xEE) {
-                                        
-                                        String pac = pacote.getDadosPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados);
-                                        filaEspera.adicionarElementoFila(threadProtocol.node.fila_dados_in, pac, pacote.getDestinoPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados));
-                                        filaEspera.removerElementoFila(threadProtocol.node.filaout);
-                                        threadProtocol.node.preparaPacote();
-                                        
-                                        
-                                        System.out.println("Detetei que perdi ligacao com 0xEE");
-                                        
+                                    if (response.id == 0xEE) {
                                         for (int i = 0; i < 256; i++) {
                                             if (threadProtocol.tabelaSocketID[i][0] == ((int) spec)) {
                                                 threadProtocol.tabelaSocketID[i][0] = NO_SOCKET;
@@ -877,14 +846,13 @@ public class Protocol_G6 {
                             rqst req = new rqst(id, spec, packet);
                             //System.out.println("Entrei 13");
                             threadProtocol.ProOut.writeObject(req);
-							response = (rspns) threadProtocol.ProIn.readObject();
+		            response = (rspns) threadProtocol.ProIn.readObject();
                             filaEspera.removerElementoFila(threadProtocol.node.fila_dados_out);
                         } catch (IOException ex) {
                             Logger.getLogger(Protocol_G6.class.getName()).log(Level.SEVERE, null, ex);
                         } catch (ClassNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+                            e.printStackTrace();
+                        }
                     }
 
                     if (!threadProtocol.node.Hashmap.isEmpty()) {

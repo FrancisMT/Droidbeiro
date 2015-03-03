@@ -4,8 +4,6 @@ package protocol_g6_package;
 
 
 import java.util.Arrays;
-
-import android.util.Log;
 import static protocol_g6_package.rotas.MAXNODES;
 import static protocol_g6_package.rotas.BROADCAST;
 import static protocol_g6_package.rotas.CENTRAL;
@@ -146,7 +144,7 @@ public static byte[] binaryString2byteArray(String pacote){
         
         int value,k,startFrom;
         if (pacote.length()%8!=0){
-            Log.d("protocolog6","String binária tem que ter um tamanho múltiplo de 8");
+            System.out.println("String binária tem que ter um tamanho múltiplo de 8");
             return null;
         }
         
@@ -342,19 +340,19 @@ public static byte[] binaryString2byteArray(String pacote){
         crcData = calcularCRCData(pDados);
         
         /* // Teste encapsula
-        Log.d("protocolog6","Source(encapsulado): " + pSource);
-        Log.d("protocolog6","crcHeader(encapsulado): " + crcHeader);
-        Log.d("protocolog6","CRC Data(encapsulado): " + crcData);
-        Log.d("protocolog6","Msg (encapsulada):     " + pDados); */
+        System.out.println("Source(encapsulado): " + pSource);
+        System.out.println("crcHeader(encapsulado): " + crcHeader);
+        System.out.println("CRC Data(encapsulado): " + crcData);
+        System.out.println("Msg (encapsulada):     " + pDados); */
         
         packet=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader+pDados+crcData;
 
         id++;
         if (id==32) id=0;
         
-        //Log.d("protocolog6",packetVersion);
-        //Log.d("protocolog6",packetType);
-        //Log.d("protocolog6",packetDestino);
+        //System.out.println(packetVersion);
+        //System.out.println(packetType);
+        //System.out.println(packetDestino);
         return packet;
     }
     
@@ -406,7 +404,7 @@ public static byte[] binaryString2byteArray(String pacote){
         crcHeader = addNBits(xor(aux,complement), nBitsCRCHeader);
         
         rReqPacket=pVersion+pType+pID+pTTL+pOrigSource+pDest+pNextHop+pSource+pFragmentFlag+pFragmentID+pTotalFragments+crcHeader;
-        Log.d("protocolog6","Route Request: " + Arrays.toString(binaryString2byteArray(rReqPacket)));
+        System.out.println("Route Request: " + Arrays.toString(binaryString2byteArray(rReqPacket)));
         id++;
         if (id==32) id=0;
         return rReqPacket;
@@ -418,7 +416,7 @@ public static byte[] binaryString2byteArray(String pacote){
         int dest;
         dest = getSourcePacote(pacote);
         
-        int nHop = rotas.getEntradaTabela(node.tabRota, dest);
+        int nHop=rotas.getEntradaTabela(node.tabRota, dest);
         
         if (nHop==-1)
             return null;
@@ -966,26 +964,26 @@ public static byte[] binaryString2byteArray(String pacote){
     
     public static void imprimePacote(String newPacket){
     
-        Log.wtf("protocolog6","Versao do pacote: " + getVersionPacote(newPacket));
-        Log.wtf("protocolog6","Tipo do pacote: " + getTypePacote(newPacket));
-        Log.wtf("protocolog6","ID do pacote: " + getIDPacote(newPacket));
-        Log.wtf("protocolog6","TTL do pacote: " + getTTLPacote(newPacket));
-        Log.wtf("protocolog6","OrigSource do pacote: " + getOrigSourcePacote(newPacket));
-        Log.wtf("protocolog6","Destino do pacote: " + getDestinoPacote(newPacket));
-        Log.wtf("protocolog6","NextHop do pacote: " + getNextHopPacote(newPacket));
-        Log.wtf("protocolog6","Source do pacote: " + getSourcePacote(newPacket));
-        Log.wtf("protocolog6","CRC Header(binario): " + getCRCHeaderPacote(newPacket));
-        Log.wtf("protocolog6","FragmentFlag: " + getFragmentFlagPacote(newPacket));
-        Log.wtf("protocolog6","Fragment ID: " + getFragmentIDPacote(newPacket));
-        Log.wtf("protocolog6","Total Fragments: " + getTotalFragmentsPacote(newPacket));
+        System.out.println("Versao do pacote: " + getVersionPacote(newPacket));
+        System.out.println("Tipo do pacote: " + getTypePacote(newPacket));
+        System.out.println("ID do pacote: " + getIDPacote(newPacket));
+        System.out.println("TTL do pacote: " + getTTLPacote(newPacket));
+        System.out.println("OrigSource do pacote: " + getOrigSourcePacote(newPacket));
+        System.out.println("Destino do pacote: " + getDestinoPacote(newPacket));
+        System.out.println("NextHop do pacote: " + getNextHopPacote(newPacket));
+        System.out.println("Source do pacote: " + getSourcePacote(newPacket));
+        System.out.println("CRC Header(binario): " + getCRCHeaderPacote(newPacket));
+        System.out.println("FragmentFlag: " + getFragmentFlagPacote(newPacket));
+        System.out.println("Fragment ID: " + getFragmentIDPacote(newPacket)); 
+        System.out.println("Total Fragments: " + getTotalFragmentsPacote(newPacket));
         
         if(getTypePacote(newPacket)==0)
         {
-        Log.wtf("protocolog6","CRC Data(binario): " + pacote.getCRCDataPacote(newPacket));
-        Log.wtf("protocolog6","Msg:" + desencapsula(newPacket));
+        System.out.println("CRC Data(binario): " + pacote.getCRCDataPacote(newPacket));
+        System.out.println("Msg:" + desencapsula(newPacket));
         }
         else
-           Log.wtf("protocolog6","O pacote é do tipo " + getTypePacote(newPacket) + " logo não transporta dados. ");
+           System.out.println("O pacote é do tipo " + getTypePacote(newPacket) + " logo não transporta dados. "); 
     }  
 
     

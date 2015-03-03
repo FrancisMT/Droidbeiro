@@ -118,7 +118,7 @@ public class waitingPackets {
         //synchronized (lista){
             for(int i=0; i<lista.size();i++){
                 System.out.println("Pacote n " + i);
-                //pacote.imprimePacote(waitingPackets.verElementoLista(lista, i).waitPacket);
+                pacote.imprimePacote(waitingPackets.verElementoLista(lista, i).waitPacket);
             }
         //}
         

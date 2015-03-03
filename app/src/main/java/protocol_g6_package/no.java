@@ -1,6 +1,5 @@
 package protocol_g6_package;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.AbstractMap;
@@ -9,8 +8,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import android.util.Log;
 import static protocol_g6_package.Protocol_G6.VERSAO_PROTOCOLO;
 import static protocol_g6_package.rotas.ENDEREÇO_NULO;
 import static protocol_g6_package.rotas.CENTRAL;
@@ -76,8 +73,8 @@ public class no {
         //System.out.println("Pacote para reencaminhar:::::");
         //pacote.imprimePacote(packet);
         String Npcket = pacote.setNewHeadersPacote(packet, ttl, this.nodeIdentification, nHop);
-        Log.d("reencaminha","Pacote reencaminha:::::"+this.nodeIdentification);
-        pacote.imprimePacote(Npcket);
+        //System.out.println("Pacote reencaminha:::::");
+        //pacote.imprimePacote(Npcket);
         filaEspera.adicionarElementoFila(this.filaout, Npcket, dest);
         /*System.out.println("\n\nFILA OUT");
          System.out.println("tamanho filaout: "+filaout.size());
@@ -93,10 +90,13 @@ public class no {
         int versao, id, source;
 
         if (filaEspera.verElementoCabeçaFila(this.filain) != null) { //verifica se tem elementos na fila
-        	
-             
-             
-             /*if(this.nodeIdentification==1){  
+
+            /*
+             if (nodeIdentification==3){
+             System.out.println("\nXXXXXX");
+             pacote.imprimePacote(filaEspera.verElementoCabeçaFila(this.filain).dados);
+             }*/
+            /*if(this.nodeIdentification==1){  
              System.out.println("PACOTE RECEBIDO PELA CENTRAL");
         
              pacote.imprimePacote(filaEspera.getDados(this.filain));
@@ -104,11 +104,6 @@ public class no {
             String packet = filaEspera.getDados(this.filain);
             versao = pacote.getVersionPacote(packet);
 
-            Log.d("RECEBE PACOTE", "!!!!!!!!");
-            //pacote.imprimePacote(filaEspera.getDados(this.filain));
-            
-            Log.d("RECEBE PACOTE", Integer.toString(packet.length()));
-            
             if (versao != VERSAO_PROTOCOLO) { //se n for o nosso protocolo descarta
                 if (false) {
                     if (this.nodeIdentification != 1) {
@@ -172,7 +167,7 @@ public class no {
                 filaEspera.removerElementoFila(this.filain);
                 return -4;
             }
-            
+
             ///
             /*
              System.out.println("Dono tabela -> "+this.nodeIdentification);
@@ -187,7 +182,7 @@ public class no {
              tabelaValidade.imprimeTabelaValidade(this.tabValidade);
              ///*/
             int dest = pacote.getDestinoPacote(packet);
-            //pacote.imprimePacote(packet);
+
             //int num=0;
             //if(num==0){
             //rotas.adicionaEntradaTabela(this.tabRota, dest, 1,0);
@@ -231,9 +226,8 @@ public class no {
                             if (this.rreq == false) {
 
                                 String RReq = pacote.criaRReq(dest, this.nodeIdentification);
-                                //waitingPackets RReq2 = waitingPackets.criarElemento(RReq);
+                                waitingPackets RReq2 = waitingPackets.criarElemento(packet);
 
-                                filaEspera.adicionarElementoFila(filaout, RReq, dest);
                                 Set<Integer> keySet2 = Hashmap.keySet();
                                 Iterator<Integer> keySetIterator2 = keySet2.iterator();
                                 int key2 = 0;
@@ -242,7 +236,7 @@ public class no {
 
                                     key2 = keySetIterator2.next();
                                 }
-                                //this.Hashmap.put(key2 + 1, RReq2);
+                                this.Hashmap.put(key2 + 1, RReq2);
 
                                 espera_rrply = 1;
                             }
@@ -557,7 +551,7 @@ public class no {
                             if (false) {
                                 System.out.println("Nó " + this.nodeIdentification + " quer enviar informação mas não tem rota. Envia RRequest e espera RReply ");
                             }
-                            int nHop = rotas.getEntradaTabela(this.tabRota, dest);
+                            int nHop = 0;
                             int TotalFragments = this.calculaNumFragmentos(dados);
                             int FragmentFlag;
                             String RReq = pacote.criaRReq(dest, this.nodeIdentification);
@@ -610,7 +604,7 @@ public class no {
                             espera_rrply = 1;
                         } else {
 
-                            int nHop = rotas.getEntradaTabela(this.tabRota, dest);
+                            int nHop = 0;
                             int TotalFragments = this.calculaNumFragmentos(dados);
                             int FragmentFlag;
                             if (TotalFragments == 0) {

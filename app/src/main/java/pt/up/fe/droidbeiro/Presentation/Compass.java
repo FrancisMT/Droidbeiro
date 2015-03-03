@@ -11,9 +11,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -22,11 +19,8 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
-
 import pt.up.fe.droidbeiro.Communication.Client_Socket;
 import pt.up.fe.droidbeiro.Communication.ConnectionData;
-import pt.up.fe.droidbeiro.Messages.AcceptRequestMessage;
 import pt.up.fe.droidbeiro.R;
 import pt.up.fe.droidbeiro.Service.GPS;
 
@@ -138,6 +132,11 @@ public class Compass extends Activity implements SensorEventListener {
 
         lat1=newCD.getNew_LAT();
         long1=newCD.getNew_LON();
+
+        Log.e("lat1", ""+lat1);
+        Log.e("long1", ""+long1);
+
+
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) this.getSystemService(this.SENSOR_SERVICE);
