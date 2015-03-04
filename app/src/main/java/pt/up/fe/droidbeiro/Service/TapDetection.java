@@ -102,7 +102,7 @@ public class TapDetection extends Service implements SensorEventListener {
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
-        ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         r = RingtoneManager.getRingtone(getApplicationContext(), ring);
     }
 
@@ -153,26 +153,28 @@ public class TapDetection extends Service implements SensorEventListener {
                 //signal.setText("");
             } else if ((state1 == 3) && (seconds < 0.60) && (seconds > 0.30)) {
                 //signal.setText("Message sent: OK");
-                //r.play();
                 state1 = 0;
                 ///////////////////////////////////////////////////////////////
                 // MSG OK DETETADA COM SUCESSO ESCREVER AQUI FRANCISCO!!!!!! //
                 //////////////////////////////////////////////////////////////
-                Log.e("TAP Detected:", "OK");
-                ExitAlertMessage ea_msg = new ExitAlertMessage(CS.getFirefighter_ID());
-                try {
-                    ea_msg.build_exitalert_packet();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    CS.send_packet(ea_msg.getExitalert_packet());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                CS.cancel_CountDownTimer_pred_msg();
+                if(CS.isIn_Combate_Mode()) {
+                    Log.e("TAP Detected:", "OK");
+                    r.play();
+                    ExitAlertMessage ea_msg = new ExitAlertMessage(CS.getFirefighter_ID());
+                    try {
+                        ea_msg.build_exitalert_packet();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        CS.send_packet(ea_msg.getExitalert_packet());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    CS.cancel_CountDownTimer_pred_msg();
 
-                return;
+                    return;
+                }
             }
 
             else {
@@ -197,20 +199,23 @@ public class TapDetection extends Service implements SensorEventListener {
                 //r.play();
                 state2 = 0;
 
-                //Envio da mensagem de Surrounded by flames
-                SurroundedByFlamesMessage surrounded_msg = new SurroundedByFlamesMessage(CS.getFirefighter_ID());
-                try {
-                    surrounded_msg.build_sos_packet();
-                } catch (IOException e){
-                    e.printStackTrace();
+                if(CS.isIn_Combate_Mode()) {
+                    //Envio da mensagem de Surrounded by flames
+                    SurroundedByFlamesMessage surrounded_msg = new SurroundedByFlamesMessage(CS.getFirefighter_ID());
+                    try {
+                        surrounded_msg.build_sos_packet();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        CS.send_packet(surrounded_msg.getSurroundedbyflames_packet());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("TAP Detected:", "Surrounded by flames");
+                    r.play();
+                    return;
                 }
-                try {
-                    CS.send_packet(surrounded_msg.getSurroundedbyflames_packet());
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-                Log.e("TAP Detected:", "Surrounded by flames");
-                return;
             }
             else {
                 state2 = 1;
@@ -232,21 +237,23 @@ public class TapDetection extends Service implements SensorEventListener {
                 //r.play();
                 state3 = 0;
 
-                //Envio da mensagem de SOS
-                SOSMessage sos_msg = new SOSMessage(CS.getFirefighter_ID());
-                try {
-                    sos_msg.build_sos_packet();
-                } catch (IOException e){
-                    e.printStackTrace();
+                if(CS.isIn_Combate_Mode()) {
+                    //Envio da mensagem de SOS
+                    SOSMessage sos_msg = new SOSMessage(CS.getFirefighter_ID());
+                    try {
+                        sos_msg.build_sos_packet();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        CS.send_packet(sos_msg.getSos_packet());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    r.play();
+                    Log.e("TAP Detected:", "SOS");
+                    return;
                 }
-                try {
-                    CS.send_packet(sos_msg.getSos_packet());
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-
-                Log.e("TAP Detected:", "SOS");
-                return;
             }
             else {
                 state3 = 1;

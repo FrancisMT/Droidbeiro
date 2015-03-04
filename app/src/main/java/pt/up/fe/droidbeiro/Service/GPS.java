@@ -95,9 +95,9 @@ public class GPS extends Service{
             public void onLocationChanged(Location locat) {
                 longitude = (double) (locat.getLongitude());
                 latitude = (double) (locat.getLatitude());
-                //Log.e("GPS", "Latitude:"+ latitude);
-                //Log.e("GPS", "Longitude;" + longitude);
-                //broadcastUpdate(BROADCAST_ACTION);
+                Log.e("GPS", "Latitude:"+ latitude);
+                Log.e("GPS", "Longitude;" + longitude);
+                broadcastUpdate(BROADCAST_ACTION);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -146,7 +146,7 @@ public class GPS extends Service{
         /****************************************************************/
         if (CS.isAfter_login() && CS.isSocket_accepted()) {
 
-           if (getMyBatteryLevel() < 1){
+           /*if (getMyBatteryLevel() < 1){
                 Log.e("Low Battery Level: ", String.valueOf(getMyBatteryLevel()));
 
                 LowBatteryWarningMessage lbw_msg = new LowBatteryWarningMessage(CS.getFirefighter_ID());
@@ -160,7 +160,7 @@ public class GPS extends Service{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
+            }*/
 
 
             Calendar cal = Calendar.getInstance();
@@ -173,22 +173,25 @@ public class GPS extends Service{
             } else if (seconds == 29 || seconds == 59) {
 
                 if (!data_sent) {
-                    //Log.e("Latitude sent", lat);
-                    //Log.e("Longitude sent", lon);
+                    Log.e("Latitude sent", lat);
+                    Log.e("Longitude sent", lon);
 
-                    GPSMessage gps_msg = new GPSMessage(CS.getFirefighter_ID(), lat, lon);
+                    if(CS.isSocket_accepted()) {
 
-                    try {
-                        gps_msg.build_gps_packet();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        GPSMessage gps_msg = new GPSMessage(CS.getFirefighter_ID(), lat, lon);
+
+                        try {
+                            gps_msg.build_gps_packet();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            CS.send_packet(gps_msg.getGps_packet());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        data_sent = true;
                     }
-                    try {
-                        CS.send_packet(gps_msg.getGps_packet());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    data_sent = true;
                 }
             }
 

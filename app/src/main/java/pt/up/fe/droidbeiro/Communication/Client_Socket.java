@@ -468,10 +468,8 @@ public class Client_Socket extends Service{
         public void run() {
             try {
 
-                while(true) {
 
-                    while(!running) {
-                        if (cSocket == null || !cSocket.isConnected()) {
+                    while(!running || cSocket == null) {
                             try {
 
                                 serverAddr = InetAddress.getByName(SERVER_IP);
@@ -483,7 +481,6 @@ public class Client_Socket extends Service{
                                 running = true;
                             } catch (Throwable t) {
                             }
-                        }
                     }
 
                     if (cSocket.isConnected()) {
@@ -496,8 +493,11 @@ public class Client_Socket extends Service{
                         /*************************/
                         while (running) {
 
-                            if (!GSM_Status)
-                                running=false;
+                            if (!GSM_Status) {
+                                running = false;
+                                cSocket=null;
+                                break;
+                            }
 
                             Packet pck_received = (Packet) in.readObject();
 
@@ -621,66 +621,69 @@ public class Client_Socket extends Service{
 
                                             MY_NOTIFICATION_ID=3;
                                             Pred_Msg_Type=Arrays.copyOfRange(pck_received.packetContent,2,pck_received.packetContent.length)[0];
-                                            switch (Pred_Msg_Type){
 
-                                                case (byte)0x00:
+                                            int type=(int)(Pred_Msg_Type&(0xFF));
+
+                                            switch (type){
+
+                                                case 0:
                                                     new_response="Afirmativo";
                                                     break;
-                                                case (byte)0x01:
+                                                case 1:
                                                     new_response="Aguarde";
                                                     break;
-                                                case (byte)0x02:
+                                                case 2:
                                                     new_response="Assim Farei";
                                                     break;
-                                                case (byte)0x03:
+                                                case 3:
                                                     new_response="Correcto";
                                                     break;
-                                                case (byte)0x04:
+                                                case 4:
                                                     new_response="Errado";
                                                     break;
-                                                case (byte)0x05:
+                                                case 5:
                                                     new_response="Informe";
                                                     break;
-                                                case (byte)0x06:
+                                                case 6:
                                                     new_response="Negativo";
                                                     break;
-                                                case (byte)0x07:
+                                                case 7:
                                                     new_response="A Caminho";
                                                     break;
-                                                case (byte)0x08:
+                                                case 8:
                                                     new_response="No Local";
                                                     break;
-                                                case (byte)0x09:
+                                                case 9:
                                                     new_response="No Hospital";
                                                     break;
-                                                case (byte)0x10:
+                                                case 10:
                                                     new_response="Disponível";
                                                     break;
-                                                case (byte)0x11:
+                                                case 11:
                                                     new_response="De Regresso";
                                                     break;
-                                                case (byte)0x12:
+                                                case 12:
                                                     new_response="INOP";
                                                     break;
-                                                case (byte)0x13:
+                                                case 13:
                                                     new_response="No Quartel";
                                                     break;
-                                                case (byte)0x14:
+                                                case 14:
                                                     new_response="Necessita de Reforços";
                                                     break;
-                                                case (byte)0x15:
+                                                case 15:
                                                     new_response="Casa em Perigo";
                                                     break;
-                                                case (byte)0x16:
+                                                case 16:
                                                     new_response="Preciso de Descansar";
                                                     break;
-                                                case (byte)0x17:
+                                                case 17:
                                                     new_response="Carro em Perigo";
                                                     break;
-                                                case (byte)0x18:
+                                                case 18:
                                                     new_response="Descanse";
                                                     break;
-                                                case (byte)0x19:
+                                                case 19:
                                                     new_response="Fogo a Alastrar";
                                                     break;
                                                 default:
@@ -785,15 +788,16 @@ public class Client_Socket extends Service{
 
                             if (!cSocket.isConnected()){
                                 running = false;
+                                cSocket=null;
                                 Log.w("DEBUG", "SOCKET IS NOT CONNECTED::::" + isSocketAlive);
                             }
                         }
                     } else {
                         Log.e("CLientSocket", "SOCKET IS NOT CONNECTED::::" + isSocketAlive);
                         running = false;
+                        cSocket=null;
                         throw new UnknownHostException();
                     }
-                }
             } catch (StreamCorruptedException e1) {
                 e1.printStackTrace();
                 GSM_Status=false;
@@ -1136,70 +1140,73 @@ public class Client_Socket extends Service{
 
                             MY_NOTIFICATION_ID = 3;
                             Pred_Msg_Type = Arrays.copyOfRange(pck_received.packetContent, 2, pck_received.packetContent.length)[0];
-                            switch (Pred_Msg_Type) {
 
-                                case (byte) 0x00:
-                                    new_response = "Afirmativo";
+                            int type=(int)(Pred_Msg_Type&(0xFF));
+
+                            switch (type){
+
+                                case 0:
+                                    new_response="Afirmativo";
                                     break;
-                                case (byte) 0x01:
-                                    new_response = "Aguarde";
+                                case 1:
+                                    new_response="Aguarde";
                                     break;
-                                case (byte) 0x02:
-                                    new_response = "Assim Farei";
+                                case 2:
+                                    new_response="Assim Farei";
                                     break;
-                                case (byte) 0x03:
-                                    new_response = "Correcto";
+                                case 3:
+                                    new_response="Correcto";
                                     break;
-                                case (byte) 0x04:
-                                    new_response = "Errado";
+                                case 4:
+                                    new_response="Errado";
                                     break;
-                                case (byte) 0x05:
-                                    new_response = "Informe";
+                                case 5:
+                                    new_response="Informe";
                                     break;
-                                case (byte) 0x06:
-                                    new_response = "Negativo";
+                                case 6:
+                                    new_response="Negativo";
                                     break;
-                                case (byte) 0x07:
-                                    new_response = "A Caminho";
+                                case 7:
+                                    new_response="A Caminho";
                                     break;
-                                case (byte) 0x08:
-                                    new_response = "No Local";
+                                case 8:
+                                    new_response="No Local";
                                     break;
-                                case (byte) 0x09:
-                                    new_response = "No Hospital";
+                                case 9:
+                                    new_response="No Hospital";
                                     break;
-                                case (byte) 0x10:
-                                    new_response = "Disponível";
+                                case 10:
+                                    new_response="Disponível";
                                     break;
-                                case (byte) 0x11:
-                                    new_response = "De Regresso";
+                                case 11:
+                                    new_response="De Regresso";
                                     break;
-                                case (byte) 0x12:
-                                    new_response = "INOP";
+                                case 12:
+                                    new_response="INOP";
                                     break;
-                                case (byte) 0x13:
-                                    new_response = "No Quartel";
+                                case 13:
+                                    new_response="No Quartel";
                                     break;
-                                case (byte) 0x14:
-                                    new_response = "Necessita de Reforços";
+                                case 14:
+                                    new_response="Necessita de Reforços";
                                     break;
-                                case (byte) 0x15:
-                                    new_response = "Casa em Perigo";
+                                case 15:
+                                    new_response="Casa em Perigo";
                                     break;
-                                case (byte) 0x16:
-                                    new_response = "Preciso de Descansar";
+                                case 16:
+                                    new_response="Preciso de Descansar";
                                     break;
-                                case (byte) 0x17:
-                                    new_response = "Carro em Perigo";
+                                case 17:
+                                    new_response="Carro em Perigo";
                                     break;
-                                case (byte) 0x18:
-                                    new_response = "Descanse";
+                                case 18:
+                                    new_response="Descanse";
                                     break;
-                                case (byte) 0x19:
-                                    new_response = "Fogo a Alastrar";
+                                case 19:
+                                    new_response="Fogo a Alastrar";
                                     break;
                                 default:
-                                    new_response = "Erro";
+                                    new_response="Erro";
                                     break;
                             }
 
@@ -1650,20 +1657,30 @@ public class Client_Socket extends Service{
         10-255 Allocated for Additional Pre-Dened
         Messages */
 
-        //Paths
-        String m_0 = "m0_help";
-        String m_1 = "m1_back_down";
-        String m_2 = "m2_firetruck";
-        String m_3 = "m3_aerial";
-        String m_4 = "m4_rest";
-        String m_5 = "m5_aerial_coming";
-        String m_6 = "m6_fire_spreading";
-        String m_7 = "m7_leaving";
-        String m_8 = "m8_close_to_house";
-        String m_9 = "m9_house_burned";
+         String m_0 = "m0_afirmativo";
+         String m_1 = "m1_aguarde";
+         String m_2 = "m2_assim_farei";
+         String m_3 = "m3_correto";
+         String m_4 = "m4_errado";
+         String m_5 = "m5_informe";
+         String m_6 = "m6_negativo";
+         String m_7 = "m7_a_caminho";
+         String m_8 = "m8_no_local";
+         String m_9 = "m9_no_hospital";
+         String m_10 = "m10_disponivel";
+         String m_11 = "m11_de_regresso";
+         String m_12 = "m12_inop";
+         String m_13 = "m13_no_quartel";
+         String m_14 = "m14_necessito_de_reforcos";
+         String m_15 = "m15_casa_em_perigo";
+         String m_16 = "m1_back_down";
+         String m_17 = "m2_firetruck";
+         String m_18 = "m18_descanse";
+         String m_19 = "m19_fogo_a_alastrar";
 
-        ArrayList<String> audioMessagesList = new ArrayList<String>(10);
+        ArrayList<String> audioMessagesList = new ArrayList<String>(20);
 
+        //Add messages to list
         audioMessagesList.add(0,m_0);
         audioMessagesList.add(1,m_1);
         audioMessagesList.add(2,m_2);
@@ -1674,7 +1691,16 @@ public class Client_Socket extends Service{
         audioMessagesList.add(7,m_7);
         audioMessagesList.add(8,m_8);
         audioMessagesList.add(9,m_9);
-
+        audioMessagesList.add(10,m_10);
+        audioMessagesList.add(11,m_11);
+        audioMessagesList.add(12,m_12);
+        audioMessagesList.add(13,m_13);
+        audioMessagesList.add(14,m_14);
+        audioMessagesList.add(15,m_15);
+        audioMessagesList.add(16,m_16);
+        audioMessagesList.add(17,m_17);
+        audioMessagesList.add(18,m_18);
+        audioMessagesList.add(19,m_19);
         String path = "android.resource://"+getPackageName()+"/raw/"+audioMessagesList.get(messageID);
 
         try {

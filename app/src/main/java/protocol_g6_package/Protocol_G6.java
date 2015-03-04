@@ -3,18 +3,22 @@ package protocol_g6_package;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import static java.lang.Thread.sleep;
 import java.net.Socket;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static protocol_g6_package.rotas.ENDEREÇO_NULO;
+import static protocol_g6_package.rotas.CENTRAL;
+import static protocol_g6_package.rotas.BROADCAST;
+import static protocol_g6_package.rotas.MAXNODES;
 
 import protocolapi.rqst;
 import protocolapi.rspns;
-
-import static protocol_g6_package.rotas.CENTRAL;
 
 //import static protocol_g6_package.simuladorv2.DEBUG;
 //import static protocol_g6_package.simuladorv2.DEBUG_DETAILED;
@@ -695,7 +699,7 @@ public class Protocol_G6 {
                             byte spec = (byte) NO_SOCKET;
                             byte[] packet;
                             int nexthop = 0;
-
+							boolean THERE_IS_SOCKET=false;
                             //System.out.println("size: " + threadProtocol.node.filaout.size());
                             /*System.out.println("O meu destino é "+filaEspera.verElementoCabeçaFila(
                              threadProtocol.node.filaout).destino+" e o conteúdo da tabela GSM é "+threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(
@@ -709,11 +713,13 @@ public class Protocol_G6 {
                             if (threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][0] != NO_SOCKET) {
                                 spec = (byte) threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][0];
                                 nexthop = threadProtocol.tabelaSocketID[filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).destino][1];
+								THERE_IS_SOCKET=true;
                                 //System.out.println("entrei 1");
                             } // Segundo tenta enviar pelo next hop do pacote 
                             else if (threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][0] != NO_SOCKET) {
                                 spec = (byte) threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][0];
                                 nexthop = threadProtocol.tabelaSocketID[pacote.getNextHopPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados)][1];
+								THERE_IS_SOCKET=true;
                                 //System.out.println("entrei 2");
                             } // Se nenhum dos casos anteriores funcionar tenta enviar por um socket qualquer que esteja activo
                             else {
@@ -721,6 +727,7 @@ public class Protocol_G6 {
                                     if (threadProtocol.tabelaSocketID[i][0] != NO_SOCKET) {
                                         spec = (byte) threadProtocol.tabelaSocketID[i][0];
                                         nexthop = threadProtocol.tabelaSocketID[i][1];
+										THERE_IS_SOCKET=true;
                                         //System.out.println("entrei 3");
                                         break;
                                     }
@@ -775,7 +782,7 @@ public class Protocol_G6 {
                                     //pacote.imprimePacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados);
                                     //System.out.println("\n SPEC: "+spec+"   id: "+id);
                                     //System.out.println("");
-
+									if(THERE_IS_SOCKET==true){
                                     rqst req = new rqst(id, spec, packet);
                                     //System.out.println("Entrei 12");
                                     threadProtocol.ProOut.writeObject(req);
@@ -783,6 +790,12 @@ public class Protocol_G6 {
                                     response = (rspns) threadProtocol.ProIn.readObject();
                                     //System.out.println("response: "+response.id);
                                     if (response.id == 0xEE) {
+                                        
+                                        String pac = pacote.getDadosPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados);
+                                        filaEspera.adicionarElementoFila(threadProtocol.node.fila_dados_in, pac, pacote.getDestinoPacote(filaEspera.verElementoCabeçaFila(threadProtocol.node.filaout).dados));
+                                        filaEspera.removerElementoFila(threadProtocol.node.filaout);
+                                        threadProtocol.node.preparaPacote();
+                                        
                                         for (int i = 0; i < 256; i++) {
                                             if (threadProtocol.tabelaSocketID[i][0] == ((int) spec)) {
                                                 threadProtocol.tabelaSocketID[i][0] = NO_SOCKET;
@@ -821,6 +834,7 @@ public class Protocol_G6 {
                                         }
                                         filaEspera.removerElementoFila(threadProtocol.node.filaout);
                                     }
+									}
                                 }
                             } else {
                                 //System.out.println("Não existem sockets disponíveis na central");
@@ -850,8 +864,8 @@ public class Protocol_G6 {
                             filaEspera.removerElementoFila(threadProtocol.node.fila_dados_out);
                         } catch (IOException ex) {
                             Logger.getLogger(Protocol_G6.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
+                        } catch (ClassNotFoundException ex) {
+                            Logger.getLogger(Protocol_G6.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
 
@@ -920,6 +934,8 @@ public class Protocol_G6 {
                                             response = (rspns) threadProtocol.ProIn.readObject();
 
                                             if (response.id != (byte) 0xEE) {
+                                                
+
                                                 //Incrementa numero Transmissoes
                                                 threadProtocol.node.Hashmap.get(key2).nRetransmissoes++;
                                                             //Mete tempo atual do sistema para contabilizar quanto tempo demora Ack ou RRply

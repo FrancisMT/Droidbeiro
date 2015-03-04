@@ -226,8 +226,8 @@ public class no {
                             if (this.rreq == false) {
 
                                 String RReq = pacote.criaRReq(dest, this.nodeIdentification);
-                                waitingPackets RReq2 = waitingPackets.criarElemento(packet);
-
+                                //waitingPackets RReq2 = waitingPackets.criarElemento(packet);
+								filaEspera.adicionarElementoFila(this.filaout, RReq, dest);
                                 Set<Integer> keySet2 = Hashmap.keySet();
                                 Iterator<Integer> keySetIterator2 = keySet2.iterator();
                                 int key2 = 0;
@@ -236,7 +236,7 @@ public class no {
 
                                     key2 = keySetIterator2.next();
                                 }
-                                this.Hashmap.put(key2 + 1, RReq2);
+                                //this.Hashmap.put(key2 + 1, RReq2);
 
                                 espera_rrply = 1;
                             }
