@@ -284,17 +284,50 @@ public class Client_Socket extends Service{
             Runnable prot_comm = new ProtocoloCommunication();
             new Thread(prot_comm).start();
 
-
-            /**
-             * GSM check thread
-             */
-            /*Runnable gsm_stat = new CheckConnectioStatus();
-            new Thread(gsm_stat).start();*/
-
         }
+
+        /**
+         * GSM check thread
+         */
+        Runnable gsm_stat = new CheckConnectioStatus();
+        new Thread(gsm_stat).start();
 
         return START_STICKY;
     }
+
+
+
+   public class CheckConnectioStatus implements Runnable{
+
+       public boolean thread_started=false;
+
+       @Override
+       public void run() {
+
+            while(true){
+                if(running && GSM_Status){
+                    continue;
+                }else
+                if (!running && GSM_Status){
+                    continue;
+                }else
+                if (!running && !GSM_Status){
+
+                    while(!thread_started){
+
+                        if (GSM_Status && !thread_started) {
+                            Log.e("DEBUG::", "Thread Started==" + thread_started);
+                            thread_started = true;
+
+                            Runnable connect = new connectSocket();
+                            new Thread(connect).start();
+                        }
+                    }
+                }
+            }
+       }
+   }
+
 
     public void send_packet(Packet pck_to_send) throws IOException {
 
@@ -467,7 +500,6 @@ public class Client_Socket extends Service{
         @Override
         public void run() {
             try {
-
 
                     while(!running || cSocket == null) {
                             try {
@@ -799,13 +831,17 @@ public class Client_Socket extends Service{
                         throw new UnknownHostException();
                     }
             } catch (StreamCorruptedException e1) {
+                running = false;
                 e1.printStackTrace();
                 GSM_Status=false;
             } catch (UnknownHostException e1) {
+                running = false;
                 e1.printStackTrace();
             } catch (IOException e1) {
+                running = false;
                 e1.printStackTrace();
             } catch (ClassNotFoundException e) {
+                running = false;
                 e.printStackTrace();
             }
         }
